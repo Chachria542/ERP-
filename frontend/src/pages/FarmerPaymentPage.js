@@ -173,11 +173,11 @@ function FarmerPaymentPage({ user, onLogout }) {
 
   return (
     <Layout user={user} onLogout={onLogout}>
-      <div className=\"animate-fade-in\">
-        <div className=\"flex items-center justify-between mb-6\">
+      <div className="animate-fade-in">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className=\"text-3xl font-bold\" style={{color: '#3E2723'}}>Farmer Payment</h1>
-            <p className=\"text-sm\" style={{color: '#6B5846'}}>Record farmer purchases with payment voucher</p>
+            <h1 className="text-3xl font-bold" style={{color: '#3E2723'}}>Farmer Payment</h1>
+            <p className="text-sm" style={{color: '#6B5846'}}>Record farmer purchases with payment voucher</p>
           </div>
           
           <div className=\"flex space-x-2\">
