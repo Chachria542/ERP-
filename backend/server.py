@@ -14,6 +14,9 @@ import io
 import base64
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
+# Import purchase endpoints
+from purchase_endpoints import router as purchase_router
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
