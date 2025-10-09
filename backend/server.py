@@ -829,8 +829,9 @@ async def get_dashboard_stats():
         total_inventory_value=total_value
     )
 
-# Include router in app
+# Include routers in app
 app.include_router(api_router)
+api_router.include_router(purchase_router, tags=["purchases"])
 
 app.add_middleware(
     CORSMiddleware,
