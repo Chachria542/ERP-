@@ -3,21 +3,22 @@ Purchase Module Endpoints
 Handles Farmer Payment and Bill Purchase operations
 """
 from fastapi import APIRouter, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timezone
-import os
 from purchase_models import (
     FarmerPayment, FarmerPaymentCreate,
     BillPurchase, BillPurchaseCreate,
     PaymentVoucher, LedgerEntryAuto
 )
 
-# Database connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
 router = APIRouter()
+
+# Database will be injected from main server
+db = None
+
+def init_db(database):
+    """Initialize database connection"""
+    global db
+    db = database
 
 # ============= HELPER FUNCTIONS =============
 
