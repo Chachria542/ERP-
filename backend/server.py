@@ -830,9 +830,22 @@ async def get_dashboard_stats():
         total_inventory_value=total_value
     )
 
+# ============= FARMER PAYMENT ENDPOINTS (TEMPORARY) =============
+
+@api_router.get("/farmer-payments")
+async def get_farmer_payments_temp():
+    """Get all farmer payments - temporary endpoint"""
+    payments = await db.farmer_payments.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return payments
+
+@api_router.get("/bill-purchases")  
+async def get_bill_purchases_temp():
+    """Get all bill purchases - temporary endpoint"""
+    purchases = await db.bill_purchases.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return purchases
+
 # Include routers in app
 app.include_router(api_router)
-api_router.include_router(purchase_router, tags=["purchases"])
 
 app.add_middleware(
     CORSMiddleware,
