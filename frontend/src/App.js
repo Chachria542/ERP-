@@ -63,6 +63,10 @@ function App() {
             element={user ? <PurchasePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
           <Route 
+            path="/farmer-payment" 
+            element={user ? <FarmerPaymentPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
+          />
+          <Route 
             path="/sales" 
             element={user ? <SalesPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
