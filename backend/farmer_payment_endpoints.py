@@ -22,6 +22,121 @@ def init_db(database):
     global db
     db = database
 
+# ============= FARMER PAYMENT QUEUE =============
+
+@router.get("/farmer-payment/queue")
+async def get_farmer_payment_queue(
+    status: str = "pending_payment",
+    search: Optional[str] = None,
+    date_filter: Optional[str] = None,
+    sort_by: str = "created_at",
+    sort_order: str = "desc"
+):
+    """
+    Get queue of weighbridge entries pending farmer payment.
+    Supports search, filters, and sorting.
+    """
+    try:
+        # Base query: Only farmer_purchase transactions
+        query = {
+            "transaction_type": "farmer_purchase",
+            "payment_status": status
+        }
+        
+        # Apply date filter
+        if date_filter and date_filter != "all":
+            from datetime import timedelta
+            now = datetime.now(timezone.utc)
+            
+            if date_filter == "today":
+                start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                query["created_at"] = {"$gte": start_date.isoformat()}
+            elif date_filter == "yesterday":
+                start_date = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                end_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                query["created_at"] = {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()}
+            elif date_filter == "this_week":
+                start_date = now - timedelta(days=7)
+                query["created_at"] = {"$gte": start_date.isoformat()}
+        
+        # Fetch weighbridge entries
+        wb_entries = await db.weighbridge_entries.find(query, {"_id": 0}).to_list(1000)
+        
+        # Enrich with pre-entry data
+        queue_items = []
+        for wb_entry in wb_entries:
+            pre_entry = await db.pre_entries.find_one(
+                {"slip_id": wb_entry["slip_id"]},
+                {"_id": 0}
+            )
+            
+            if pre_entry:
+                # Calculate estimated amount (rate * qtl - H+T)
+                rate = pre_entry.get("rate_per_qtl", 0) or 0
+                qtl = wb_entry.get("act_qtl", 0)
+                item_amount = rate * qtl
+                
+                # Estimate H+T based on vehicle type
+                vehicle_type = wb_entry.get("vehicle_type", "Truck")
+                h_plus_t_rate = 4.75 if vehicle_type == "Truck" else (5.75 if vehicle_type == "Hammali" else 0)
+                h_plus_t = h_plus_t_rate * qtl
+                
+                estimated_amount = item_amount - h_plus_t
+                
+                queue_item = {
+                    "slip_id": wb_entry["slip_id"],
+                    "farmer_name": pre_entry.get("party_name", "Unknown"),
+                    "farmer_mobile": pre_entry.get("party_mobile"),
+                    "item_name": pre_entry.get("item_name", "Unknown"),
+                    "act_qtl": wb_entry.get("act_qtl", 0),
+                    "vehicle_type": wb_entry.get("vehicle_type", "Unknown"),
+                    "rate_per_qtl": rate,
+                    "estimated_amount": round(estimated_amount),
+                    "payment_status": wb_entry.get("payment_status", "pending_payment"),
+                    "created_at": wb_entry.get("created_at", ""),
+                    "weighed_at": wb_entry.get("weighed_at", "")
+                }
+                
+                # Apply search filter
+                if search:
+                    search_lower = search.lower()
+                    if (search_lower in queue_item["slip_id"].lower() or
+                        search_lower in queue_item["farmer_name"].lower() or
+                        (queue_item["farmer_mobile"] and search_lower in queue_item["farmer_mobile"])):
+                        queue_items.append(queue_item)
+                else:
+                    queue_items.append(queue_item)
+        
+        # Sort
+        reverse = (sort_order == "desc")
+        if sort_by == "amount":
+            queue_items.sort(key=lambda x: x["estimated_amount"], reverse=reverse)
+        else:  # created_at
+            queue_items.sort(key=lambda x: x["created_at"], reverse=reverse)
+        
+        return queue_items
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/weighbridge-entry/{slip_id}/payment-status")
+async def update_payment_status(slip_id: str, payment_status: str):
+    """Update payment status of weighbridge entry"""
+    valid_statuses = ["pending_payment", "payment_completed", "payment_cancelled"]
+    
+    if payment_status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
+    result = await db.weighbridge_entries.update_one(
+        {"slip_id": slip_id},
+        {"$set": {"payment_status": payment_status}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Weighbridge entry not found")
+    
+    return {"message": "Payment status updated", "slip_id": slip_id, "payment_status": payment_status}
+
 # ============= HELPER FUNCTIONS =============
 
 async def generate_book_number(location: str, fy_year: int) -> str:
