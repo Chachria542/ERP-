@@ -91,7 +91,7 @@ async def log_audit(user_id: str, user_name: str, action: str, entity_type: str,
 
 # ============= PRE-ENTRY ENDPOINTS (Office Side) =============
 
-@router.post("/pre-entry", response_model=PreEntry)
+@router.post("/pre-entry")
 async def create_pre_entry(entry_data: PreEntryCreate):
     """
     Create pre-entry (office staff creates this BEFORE truck arrives).
