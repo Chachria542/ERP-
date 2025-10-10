@@ -29,6 +29,8 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [mandiGodown, setMandiGodown] = useState('Mandi');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [gateEntryNo, setGateEntryNo] = useState('');
+  const [tulaiNo, setTulaiNo] = useState('');
+  const [agrNo, setAgrNo] = useState('');
   
   const [farmerName, setFarmerName] = useState('');
   const [mobile, setMobile] = useState('');
