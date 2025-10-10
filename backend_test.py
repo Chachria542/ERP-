@@ -347,61 +347,51 @@ class FarmerPaymentQueueTester:
         except Exception as e:
             self.log_test("Update Payment Status - Non-existent", False, f"Request failed: {str(e)}")
     
-    def test_farmer_payment_creation(self):
-        """Test POST /api/farmer-payment"""
-        print("🔍 Testing Farmer Payment Creation...")
+    def test_farmer_payment_creation_updates_status(self):
+        """Test: Create farmer payment and verify weighbridge entry status changes"""
+        print("🔍 Testing Farmer Payment Creation Updates Status...")
         
-        # Check if we have weighbridge data
-        if not self.weighbridge_data:
-            self.log_test("Farmer Payment Creation", False, "No weighbridge data available for testing")
+        if not self.test_slip_id:
+            self.log_test("Farmer Payment Creation Updates Status", False, "No test slip ID available")
             return
         
-        # Use GT001 data if available
-        gate_entry = "GT001"
-        if gate_entry not in self.weighbridge_data:
-            gate_entry = list(self.weighbridge_data.keys())[0]
+        # First reset the payment status to pending
+        try:
+            reset_payload = {"payment_status": "pending_payment"}
+            requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
+                        json=reset_payload,
+                        headers={'Content-Type': 'application/json'},
+                        timeout=10)
+        except:
+            pass  # Ignore reset errors
         
-        slip_data = self.weighbridge_data[gate_entry]
-        
-        # Find wheat item
-        wheat_item = None
-        for item in self.items.values():
-            if 'Wheat' in item['name']:
-                wheat_item = item
-                break
-        
-        if not wheat_item:
-            self.log_test("Farmer Payment Creation", False, "Wheat item not found for testing")
-            return
-        
-        # Create payment payload
-        payload = {
+        # Create farmer payment
+        payment_payload = {
             "location": "Sanawad",
             "contract_type": "Anubandh",
             "mandi_godown": "Mandi",
             "date": "2025-01-10",
-            "gate_entry_no": gate_entry,
-            "farmer_name": slip_data.get('farmer_name', 'Test Farmer'),
-            "mobile": slip_data.get('mobile', '9876543210'),
-            "city": slip_data.get('city', 'Sanawad'),
-            "token_no": slip_data.get('token_no', 'TK123'),
+            "gate_entry_no": self.test_slip_id,
+            "farmer_name": "Test Farmer E2E",
+            "mobile": "9999111222",
+            "city": "Test City",
+            "token_no": "TK123",
             "lines": [{
-                "item_id": wheat_item['id'],
-                "item_name": wheat_item['name'],
+                "item_name": "Wheat",
                 "pack_kg": 100,
-                "bags": slip_data.get('bags', 52),
-                "rem_kg": slip_data.get('rem_kg', 34),
-                "act_kg": slip_data.get('bags', 52) * 100 + slip_data.get('rem_kg', 34),
-                "act_qtl": slip_data.get('act_qtl', 52.34),
+                "bags": 50,
+                "rem_kg": 0,
+                "act_kg": 5000,
+                "act_qtl": 50.0,
                 "rate_per_qtl": 2500,
-                "item_amount": slip_data.get('act_qtl', 52.34) * 2500,
-                "vehicle_type": slip_data.get('vehicle_type', 'Truck'),
-                "h_plus_t": 248.615,
-                "line_total": (slip_data.get('act_qtl', 52.34) * 2500) - 248.615,
+                "item_amount": 125000,
+                "vehicle_type": "Truck",
+                "h_plus_t": 237.5,
+                "line_total": 124762.5,
                 "sort_order": 0
             }],
             "pay_type": "Cash",
-            "cash_amt": (slip_data.get('act_qtl', 52.34) * 2500) - 248.615,
+            "cash_amt": 124762.5,
             "bank_amt": 0,
             "additional_hamli": 0,
             "bank_charges": 0,
@@ -409,33 +399,36 @@ class FarmerPaymentQueueTester:
         }
         
         try:
-            response = requests.post(f"{self.base_url}/farmer-payment", 
-                                   json=payload, 
+            response = requests.post(f"{self.base_url}/farmer-payment",
+                                   json=payment_payload,
                                    headers={'Content-Type': 'application/json'},
                                    timeout=15)
             
             if response.status_code == 200:
                 payment_data = response.json()
+                self.created_payment_id = payment_data.get('id')
                 
-                # Check required response fields
-                required_fields = ['book_no', 'total_amount', 'purchase_voucher_id', 'payment_voucher_id']
-                missing_fields = [field for field in required_fields if field not in payment_data]
+                # Now check if the slip appears in queue (should be 0 results)
+                queue_response = requests.get(f"{self.base_url}/farmer-payment/queue?search={self.test_slip_id}", timeout=10)
                 
-                if not missing_fields:
-                    self.log_test("Farmer Payment Creation", True, 
-                                f"Payment created successfully. Book No: {payment_data.get('book_no')}, Amount: ₹{payment_data.get('total_amount')}")
+                if queue_response.status_code == 200:
+                    queue_items = queue_response.json()
                     
-                    # Store payment ID for later tests
-                    self.created_payment_id = payment_data.get('id')
+                    if len(queue_items) == 0:
+                        self.log_test("Farmer Payment Creation Updates Status", True, 
+                                    f"Payment created and slip {self.test_slip_id} removed from queue (status updated to payment_completed)")
+                    else:
+                        self.log_test("Farmer Payment Creation Updates Status", False, 
+                                    f"Slip still appears in queue after payment creation: {len(queue_items)} items")
                 else:
-                    self.log_test("Farmer Payment Creation", False, 
-                                f"Missing response fields: {missing_fields}", payment_data)
+                    self.log_test("Farmer Payment Creation Updates Status", False, 
+                                f"Failed to check queue: HTTP {queue_response.status_code}")
             else:
-                self.log_test("Farmer Payment Creation", False, 
-                            f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Farmer Payment Creation Updates Status", False, 
+                            f"Payment creation failed: HTTP {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_test("Farmer Payment Creation", False, f"Request failed: {str(e)}")
+            self.log_test("Farmer Payment Creation Updates Status", False, f"Request failed: {str(e)}")
     
     def test_farmer_payments_list(self):
         """Test GET /api/farmer-payments"""
