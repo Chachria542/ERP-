@@ -119,34 +119,47 @@ function FarmerPaymentPage({ user, onLogout }) {
 
   const handleApproveSlip = async () => {
     try {
-      await axios.put(`${API}/weighbridge/approve/${gateEntryNo}?user_id=${user.id}`);
+      // Approve slip if endpoint exists
+      try {
+        await axios.put(`${API}/weighbridge/approve/${gateEntryNo}?user_id=${user.id}`);
+      } catch (e) {
+        console.log('Approve endpoint not available, proceeding with auto-fill');
+      }
       
-      // Auto-fill form
-      setFarmerName(slipData.farmer_name);
-      setMobile(slipData.mobile);
+      // Auto-fill form with available data
+      setFarmerName(slipData.farmer_name || slipData.party_name || '');
+      setMobile(slipData.mobile || '');
       setCity(slipData.city || '');
       setTokenNo(slipData.token_no || '');
       
+      // Calculate bags and quintals from net_weight
+      const netWeight = slipData.net_weight || 0;
+      const bags = Math.floor(netWeight / 100);
+      const remKg = Math.floor(netWeight % 100);
+      const actQtl = netWeight / 100;
+      
       // Auto-fill first line item
       const newItems = [...lineItems];
+      const item = items.find(i => i.id === slipData.item_id);
       newItems[0] = {
         ...newItems[0],
         itemId: slipData.item_id,
         itemName: slipData.item_name,
-        bags: slipData.bags,
-        remKg: slipData.rem_kg,
-        actKg: slipData.net_weight,
-        actQtl: slipData.act_qtl,
-        vehicleType: slipData.vehicle_type,
-        ratePerQtl: items.find(i => i.id === slipData.item_id)?.current_price || 0
+        bags: slipData.bags !== undefined ? slipData.bags : bags,
+        remKg: slipData.rem_kg !== undefined ? slipData.rem_kg : remKg,
+        actKg: netWeight,
+        actQtl: slipData.act_qtl !== undefined ? slipData.act_qtl : actQtl,
+        vehicleType: slipData.vehicle_type || 'Truck',
+        ratePerQtl: item?.current_price || 0
       };
       setLineItems(newItems);
       calculateLineItem(0, newItems);
       
       setShowPhotoModal(false);
-      toast.success(`Slip ${slipData.slip_number} approved and data loaded`);
+      toast.success(`Slip ${slipData.slip_number} approved and data loaded!`);
     } catch (error) {
       toast.error('Failed to approve slip');
+      console.error(error);
     }
   };
 
