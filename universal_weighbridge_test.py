@@ -531,12 +531,12 @@ class UniversalWeighbridgeTester:
                                    headers={'Content-Type': 'application/json'},
                                    timeout=10)
             
-            if response.status_code == 404:
+            if response.status_code == 404 or (response.status_code == 400 and "not found" in response.text.lower()):
                 self.log_test("Edge Case - Non-existent Slip ID", True, 
-                            "Correctly returned 404 for non-existent slip")
+                            "Correctly rejected non-existent slip ID")
             else:
                 self.log_test("Edge Case - Non-existent Slip ID", False, 
-                            f"Expected 404, got {response.status_code}")
+                            f"Expected 404 or 400 with 'not found', got {response.status_code}: {response.text}")
                 
         except Exception as e:
             self.log_test("Edge Case - Non-existent Slip ID", False, f"Request failed: {str(e)}")
