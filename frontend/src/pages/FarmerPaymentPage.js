@@ -106,7 +106,7 @@ function FarmerPaymentPage({ user, onLogout }) {
     if (!value) return;
 
     try {
-      const response = await axios.get(`${API}/farmer-payment/weighbridge/slip/${value}`);
+      const response = await axios.get(`${API}/weighbridge/slip/${value}`);
       setSlipData(response.data);
       setShowPhotoModal(true);
     } catch (error) {
