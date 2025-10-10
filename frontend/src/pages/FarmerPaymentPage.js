@@ -14,7 +14,7 @@ const API = `${BACKEND_URL}/api`;
 function FarmerPaymentPage({ user, onLogout }) {
   const [payments, setPayments] = useState([]);
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [slipData, setSlipData] = useState(null);
