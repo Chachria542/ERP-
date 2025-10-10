@@ -127,6 +127,11 @@ async def create_payment_voucher(farmer_payment: FarmerPayment) -> PaymentVouche
 
 # ============= WEIGHBRIDGE ENDPOINTS =============
 
+@router.get("/test-farmer-payment")
+async def test_farmer_payment():
+    """Test endpoint to verify router is working"""
+    return {"message": "Farmer payment router is working!", "db_initialized": db is not None}
+
 @router.post("/weighbridge/pre-entry", response_model=WeighbridgePreEntry)
 async def create_weighbridge_pre_entry(entry_data: WeighbridgePreEntryCreate):
     """Create weighbridge pre-entry with mock photos"""
