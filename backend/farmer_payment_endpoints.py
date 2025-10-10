@@ -183,22 +183,13 @@ async def create_weighbridge_pre_entry(entry_data: WeighbridgePreEntryCreate):
 @router.get("/weighbridge/slip/{gate_entry_no}")
 async def get_weighbridge_slip(gate_entry_no: str):
     """Fetch weighbridge slip by gate entry number"""
-    # Debug: List all gate entry numbers
-    all_entries = await db.weighbridge_pre_entries.find({}, {"gate_entry_no": 1, "_id": 0}).to_list(100)
-    gate_entry_nos = [e.get('gate_entry_no') for e in all_entries]
-    
-    count = await db.weighbridge_pre_entries.count_documents({})
-    
     entry = await db.weighbridge_pre_entries.find_one(
         {"gate_entry_no": gate_entry_no},
         {"_id": 0}
     )
     
     if not entry:
-        raise HTTPException(
-            status_code=404, 
-            detail=f"Slip not found. Total slips: {count}. Available gate entries: {gate_entry_nos}. Searched for: {gate_entry_no}"
-        )
+        raise HTTPException(status_code=404, detail="Weighbridge slip not found")
     
     if entry['status'] == 'settled':
         raise HTTPException(status_code=400, detail="Slip already settled")
