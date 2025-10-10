@@ -536,15 +536,142 @@ function FarmerPaymentPage({ user, onLogout }) {
             </div>
           </Card>
 
-          {/* Line Items Summary */}
+          {/* Line Items - Editable Grid */}
           <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Items</h2>
+            <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Item Details</h2>
             {lines.map((line, idx) => (
-              <div key={idx} className="p-4 bg-gray-50 rounded mb-2">
-                <p><strong>Item:</strong> {line.itemName || 'Not selected'}</p>
-                <p><strong>Quantity:</strong> {line.actQtl} qtl ({line.bags} bags + {line.remKg} kg)</p>
-                <p><strong>Rate:</strong> ₹{line.ratePerQtl}/qtl | <strong>Vehicle:</strong> {line.vehicleType}</p>
-                <p><strong>Amount:</strong> {formatCurrency(line.itemAmount)} | <strong>H+T:</strong> {formatCurrency(line.hPlusT)} | <strong>Total:</strong> {formatCurrency(line.lineTotal)}</p>
+              <div key={idx} className="space-y-4">
+                {/* Row 1: Item & Quantity Details */}
+                <div>
+                  <Label className="text-sm font-semibold mb-2 block">Item & Quantity</Label>
+                  <div className="grid grid-cols-5 gap-4">
+                    <div>
+                      <Label className="text-xs">Item *</Label>
+                      <select
+                        value={line.itemId}
+                        onChange={(e) => {
+                          const selectedItem = items.find(i => i.id === e.target.value);
+                          handleLineChange(idx, 'itemId', e.target.value);
+                          handleLineChange(idx, 'itemName', selectedItem?.name || '');
+                        }}
+                        className="erp-select mt-1"
+                        required
+                      >
+                        <option value="">Select Item</option>
+                        {items.map(item => (
+                          <option key={item.id} value={item.id}>{item.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Pack (kg)</Label>
+                      <Input
+                        type="number"
+                        value={line.packKg}
+                        onChange={(e) => handleLineChange(idx, 'packKg', parseFloat(e.target.value) || 100)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Bags</Label>
+                      <Input
+                        type="number"
+                        value={line.bags}
+                        readOnly
+                        className="mt-1 bg-gray-100"
+                        title="From weighbridge (read-only)"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Rem Kg</Label>
+                      <Input
+                        type="number"
+                        value={line.remKg}
+                        readOnly
+                        className="mt-1 bg-gray-100"
+                        title="From weighbridge (read-only)"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Act.Qtl</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={line.actQtl}
+                        onChange={(e) => handleLineChange(idx, 'actQtl', parseFloat(e.target.value) || 0, true)}
+                        className="mt-1 font-bold"
+                        style={{color: '#6B8E23'}}
+                        title="Editable - Manual override possible"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Pricing & Calculations */}
+                <div>
+                  <Label className="text-sm font-semibold mb-2 block">Pricing & Calculations</Label>
+                  <div className="grid grid-cols-5 gap-4">
+                    <div>
+                      <Label className="text-xs">Rate (₹/qtl) *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={line.ratePerQtl}
+                        onChange={(e) => handleLineChange(idx, 'ratePerQtl', parseFloat(e.target.value) || 0)}
+                        className="mt-1"
+                        required
+                        title="Editable rate"
+                      />
+                      {line.originalRate && line.originalRate !== line.ratePerQtl && (
+                        <p className="text-xs text-gray-500 mt-1">Original: ₹{line.originalRate}</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-xs">Item Amount</Label>
+                      <Input
+                        type="number"
+                        value={line.itemAmount}
+                        onChange={(e) => handleLineChange(idx, 'itemAmount', parseFloat(e.target.value) || 0, true)}
+                        className="mt-1 font-bold"
+                        title="Editable - Manual override possible"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Vehicle Type *</Label>
+                      <select
+                        value={line.vehicleType}
+                        onChange={(e) => handleLineChange(idx, 'vehicleType', e.target.value)}
+                        className="erp-select mt-1"
+                        required
+                      >
+                        <option value="Truck">Truck</option>
+                        <option value="Tractor">Tractor</option>
+                        <option value="Hammali">Hammali</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">H+T</Label>
+                      <Input
+                        type="number"
+                        value={line.hPlusT}
+                        onChange={(e) => handleLineChange(idx, 'hPlusT', parseFloat(e.target.value) || 0, true)}
+                        className="mt-1"
+                        title="Editable - Manual override possible"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Line Total</Label>
+                      <Input
+                        type="number"
+                        value={line.lineTotal}
+                        onChange={(e) => handleLineChange(idx, 'lineTotal', parseFloat(e.target.value) || 0, true)}
+                        className="mt-1 font-bold"
+                        style={{color: '#6B8E23'}}
+                        title="Editable - Manual override possible"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </Card>
