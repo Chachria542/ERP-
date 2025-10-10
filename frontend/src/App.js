@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import axios from "axios";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
-import WeighbridgePage from "./pages/WeighbridgePage";
+import WeighbridgeEntryPage from "./pages/WeighbridgeEntryPage";
 import CustodyPage from "./pages/CustodyPage";
 import PurchasePage from "./pages/PurchasePage";
 import FarmerPaymentPage from "./pages/FarmerPaymentPage";
