@@ -481,10 +481,7 @@ class FarmerPaymentQueueTester:
                     slip_id = item.get('slip_id')
                     if slip_id:
                         try:
-                            payload = {"payment_status": "payment_completed"}
-                            requests.put(f"{self.base_url}/weighbridge-entry/{slip_id}/payment-status",
-                                       json=payload,
-                                       headers={'Content-Type': 'application/json'},
+                            requests.put(f"{self.base_url}/weighbridge-entry/{slip_id}/payment-status?payment_status=payment_completed",
                                        timeout=5)
                         except:
                             pass  # Ignore individual failures
