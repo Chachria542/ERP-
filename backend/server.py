@@ -839,6 +839,9 @@ async def get_dashboard_stats():
 # Include farmer payment router in api_router BEFORE adding to app
 api_router.include_router(farmer_payment_router, tags=["farmer-payment"])
 
+# Include universal weighbridge router
+api_router.include_router(universal_wb_router, tags=["universal-weighbridge"])
+
 # Include routers in app
 app.include_router(api_router)
 
