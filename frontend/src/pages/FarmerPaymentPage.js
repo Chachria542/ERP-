@@ -66,8 +66,11 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
-    fetchData();
-    fetchNextBookNo();
+    const loadData = async () => {
+      await fetchData();
+      await fetchNextBookNo();
+    };
+    loadData();
   }, []);
 
   useEffect(() => {
