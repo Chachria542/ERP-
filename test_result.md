@@ -207,6 +207,33 @@ agent_communication:
       - Test auto-fill of farmer details and line items
       - Test H+T calculation for different vehicle types
       - Test saving farmer payment
+  - agent: "main"
+    message: |
+      🔧 **WEIGHBRIDGE PRE-ENTRY PAGE REBUILT**
+      
+      **Issue Identified:**
+      Frontend testing failed because there was no UI to CREATE weighbridge pre-entries. The mock data script created test entries, but operators need a proper form.
+      
+      **Solution Implemented:**
+      Completely rewrote WeighbridgePage.js with new schema:
+      - Form to create weighbridge pre-entries with farmer details (name, mobile, city, token_no)
+      - Vehicle details (number, type: Truck/Tractor/Hammali)
+      - Weight capture (gross, tare) with live net weight calculation
+      - Auto-generates Gate Entry No (or manual entry)
+      - Calls POST /api/weighbridge/pre-entry endpoint
+      - Success message shows Gate Entry No and Slip No
+      
+      **New Flow:**
+      1. Weighbridge operator creates pre-entry → Gets Gate Entry No (e.g., GT123456)
+      2. Farmer goes to Farmer Payment → Enters Gate Entry No
+      3. System fetches slip, shows photos for approval
+      4. Auto-fills farmer details and line items
+      5. Complete payment process
+      
+      **Ready for Frontend Testing:**
+      - Test weighbridge pre-entry creation
+      - Test end-to-end flow: Create pre-entry → Use in Farmer Payment
+      
   - agent: "testing"
     message: |
       ✅ **BACKEND TESTING COMPLETED - ALL CRITICAL FUNCTIONALITY WORKING**
