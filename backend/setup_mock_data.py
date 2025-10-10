@@ -14,7 +14,9 @@ mongo_url = os.environ.get('MONGO_URL')
 
 async def setup_mock_data():
     client = AsyncIOMotorClient(mongo_url)
-    db = client.sudarshan_erp
+    db_name = os.environ.get('DB_NAME', 'sudarshan_erp')
+    db = client[db_name]
+    print(f"Using database: {db_name}")
     
     print("Setting up mock data for Farmer Payment module...")
     
