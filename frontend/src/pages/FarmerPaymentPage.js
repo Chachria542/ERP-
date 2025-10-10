@@ -77,13 +77,15 @@ function FarmerPaymentPage({ user, onLogout }) {
   const fetchData = async () => {
     try {
       const [itemsRes, paymentsRes] = await Promise.all([
-        axios.get(`${API}/items`),
-        axios.get(`${API}/farmer-payment/farmer-payments`)
+        axios.get(`${API}/items`).catch(err => ({ data: [] })),
+        axios.get(`${API}/farmer-payments`).catch(err => ({ data: [] }))
       ]);
-      setItems(itemsRes.data);
+      setItems(itemsRes.data || []);
       setPayments(paymentsRes.data || []);
     } catch (error) {
       console.error('Failed to load data:', error);
+      setItems([]);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
