@@ -379,9 +379,16 @@ async def create_farmer_payment(payment_data: FarmerPaymentCreate):
         
         # Mark weighbridge slip as settled if gate_entry_no provided
         if payment_data.gate_entry_no:
+            # Update old weighbridge_pre_entries if exists
             await db.weighbridge_pre_entries.update_one(
                 {"gate_entry_no": payment_data.gate_entry_no},
                 {"$set": {"status": "settled"}}
+            )
+            
+            # Update new weighbridge_entries payment status
+            await db.weighbridge_entries.update_one(
+                {"slip_id": payment_data.gate_entry_no},
+                {"$set": {"payment_status": "payment_completed"}}
             )
         
         farmer_payment.purchase_voucher_id = purchase_voucher.id
