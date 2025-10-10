@@ -95,58 +95,181 @@ class FarmerPaymentQueueTester:
             self.log_test("Test Data Setup", False, f"Request failed: {str(e)}")
             return False
     
-    def test_weighbridge_slip_fetch(self):
-        """Test GET /api/weighbridge/slip/{gate_entry_no}"""
-        print("🔍 Testing Weighbridge Slip Fetch...")
+    def test_queue_default(self):
+        """Test Case 1: Default queue (all pending)"""
+        print("🔍 Testing Queue Endpoint - Default (All Pending)...")
         
-        # Test valid gate entries
-        gate_entries = ["GT001", "GT002", "GT003"]
-        
-        for gate_entry in gate_entries:
-            try:
-                response = requests.get(f"{self.base_url}/weighbridge/slip/{gate_entry}", timeout=10)
-                
-                if response.status_code == 200:
-                    slip_data = response.json()
-                    
-                    # Store for later use
-                    self.weighbridge_data[gate_entry] = slip_data
-                    
-                    # Check required fields
-                    required_fields = [
-                        'farmer_name', 'mobile', 'city', 'token_no', 'vehicle_number', 
-                        'vehicle_type', 'item_id', 'item_name', 'bags', 'rem_kg', 
-                        'act_qtl', 'photo_gross_url', 'photo_tare_url'
-                    ]
-                    
-                    missing_fields = [field for field in required_fields if field not in slip_data or slip_data[field] is None]
-                    
-                    if not missing_fields:
-                        self.log_test(f"Weighbridge Slip Fetch - {gate_entry}", True, 
-                                    f"All required fields present. Farmer: {slip_data.get('farmer_name')}, Item: {slip_data.get('item_name')}, Qtl: {slip_data.get('act_qtl')}")
-                    else:
-                        self.log_test(f"Weighbridge Slip Fetch - {gate_entry}", False, 
-                                    f"Missing fields: {missing_fields}", slip_data)
-                        
-                elif response.status_code == 400 and "already settled" in response.text:
-                    self.log_test(f"Weighbridge Slip Fetch - {gate_entry}", True, 
-                                "Slip already settled (expected behavior)")
-                else:
-                    self.log_test(f"Weighbridge Slip Fetch - {gate_entry}", False, 
-                                f"HTTP {response.status_code}: {response.text}")
-                    
-            except Exception as e:
-                self.log_test(f"Weighbridge Slip Fetch - {gate_entry}", False, f"Request failed: {str(e)}")
-        
-        # Test non-existent gate entry
         try:
-            response = requests.get(f"{self.base_url}/weighbridge/slip/GT999", timeout=10)
-            if response.status_code == 404:
-                self.log_test("Weighbridge Slip Fetch - Non-existent", True, "Correctly returned 404 for non-existent gate entry")
+            response = requests.get(f"{self.base_url}/farmer-payment/queue", timeout=10)
+            
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list):
+                    # Check if our test slip is in the queue
+                    test_slip_found = False
+                    if self.test_slip_id:
+                        test_slip_found = any(item.get('slip_id') == self.test_slip_id for item in queue_items)
+                    
+                    # Verify response structure for each item
+                    if queue_items:
+                        sample_item = queue_items[0]
+                        required_fields = [
+                            'slip_id', 'farmer_name', 'farmer_mobile', 'item_name', 
+                            'act_qtl', 'vehicle_type', 'rate_per_qtl', 'estimated_amount',
+                            'payment_status', 'created_at', 'weighed_at'
+                        ]
+                        
+                        missing_fields = [field for field in required_fields if field not in sample_item]
+                        
+                        if not missing_fields:
+                            self.log_test("Queue Default", True, 
+                                        f"Found {len(queue_items)} pending items. Test slip found: {test_slip_found}")
+                        else:
+                            self.log_test("Queue Default", False, 
+                                        f"Missing fields in response: {missing_fields}", sample_item)
+                    else:
+                        self.log_test("Queue Default", True, "Empty queue (valid response)")
+                else:
+                    self.log_test("Queue Default", False, f"Expected list, got {type(queue_items)}")
             else:
-                self.log_test("Weighbridge Slip Fetch - Non-existent", False, f"Expected 404, got {response.status_code}")
+                self.log_test("Queue Default", False, f"HTTP {response.status_code}: {response.text}")
+                
         except Exception as e:
-            self.log_test("Weighbridge Slip Fetch - Non-existent", False, f"Request failed: {str(e)}")
+            self.log_test("Queue Default", False, f"Request failed: {str(e)}")
+    
+    def test_queue_search_slip_id(self):
+        """Test Case 2: Search by slip ID"""
+        print("🔍 Testing Queue Endpoint - Search by Slip ID...")
+        
+        if not self.test_slip_id:
+            self.log_test("Queue Search - Slip ID", False, "No test slip ID available")
+            return
+        
+        try:
+            response = requests.get(f"{self.base_url}/farmer-payment/queue?search={self.test_slip_id}", timeout=10)
+            
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list):
+                    if len(queue_items) == 1 and queue_items[0].get('slip_id') == self.test_slip_id:
+                        self.log_test("Queue Search - Slip ID", True, 
+                                    f"Found exact match for slip ID: {self.test_slip_id}")
+                    elif len(queue_items) == 0:
+                        self.log_test("Queue Search - Slip ID", False, 
+                                    f"No results found for slip ID: {self.test_slip_id}")
+                    else:
+                        self.log_test("Queue Search - Slip ID", False, 
+                                    f"Expected 1 result, got {len(queue_items)}")
+                else:
+                    self.log_test("Queue Search - Slip ID", False, f"Expected list, got {type(queue_items)}")
+            else:
+                self.log_test("Queue Search - Slip ID", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Queue Search - Slip ID", False, f"Request failed: {str(e)}")
+    
+    def test_queue_search_farmer_name(self):
+        """Test Case 3: Search by farmer name"""
+        print("🔍 Testing Queue Endpoint - Search by Farmer Name...")
+        
+        try:
+            response = requests.get(f"{self.base_url}/farmer-payment/queue?search=Test Farmer", timeout=10)
+            
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list):
+                    # Check if all results contain "Test Farmer" in name
+                    valid_results = all('test farmer' in item.get('farmer_name', '').lower() 
+                                      for item in queue_items)
+                    
+                    if valid_results:
+                        self.log_test("Queue Search - Farmer Name", True, 
+                                    f"Found {len(queue_items)} items matching 'Test Farmer'")
+                    else:
+                        self.log_test("Queue Search - Farmer Name", False, 
+                                    "Some results don't match search criteria")
+                else:
+                    self.log_test("Queue Search - Farmer Name", False, f"Expected list, got {type(queue_items)}")
+            else:
+                self.log_test("Queue Search - Farmer Name", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Queue Search - Farmer Name", False, f"Request failed: {str(e)}")
+    
+    def test_queue_date_filter_today(self):
+        """Test Case 4: Date filter - Today"""
+        print("🔍 Testing Queue Endpoint - Date Filter (Today)...")
+        
+        try:
+            response = requests.get(f"{self.base_url}/farmer-payment/queue?date_filter=today", timeout=10)
+            
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list):
+                    # Check if all items are from today
+                    today = datetime.now(timezone.utc).date()
+                    valid_dates = True
+                    
+                    for item in queue_items:
+                        created_at = item.get('created_at', '')
+                        if created_at:
+                            try:
+                                item_date = datetime.fromisoformat(created_at.replace('Z', '+00:00')).date()
+                                if item_date != today:
+                                    valid_dates = False
+                                    break
+                            except:
+                                pass  # Skip invalid dates
+                    
+                    if valid_dates:
+                        self.log_test("Queue Date Filter - Today", True, 
+                                    f"Found {len(queue_items)} items from today")
+                    else:
+                        self.log_test("Queue Date Filter - Today", False, 
+                                    "Some items are not from today")
+                else:
+                    self.log_test("Queue Date Filter - Today", False, f"Expected list, got {type(queue_items)}")
+            else:
+                self.log_test("Queue Date Filter - Today", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Queue Date Filter - Today", False, f"Request failed: {str(e)}")
+    
+    def test_queue_sort_by_amount(self):
+        """Test Case 5: Sort by amount"""
+        print("🔍 Testing Queue Endpoint - Sort by Amount (Descending)...")
+        
+        try:
+            response = requests.get(f"{self.base_url}/farmer-payment/queue?sort_by=amount&sort_order=desc", timeout=10)
+            
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list) and len(queue_items) > 1:
+                    # Check if sorted by estimated_amount descending
+                    amounts = [item.get('estimated_amount', 0) for item in queue_items]
+                    is_sorted = all(amounts[i] >= amounts[i+1] for i in range(len(amounts)-1))
+                    
+                    if is_sorted:
+                        self.log_test("Queue Sort - Amount Desc", True, 
+                                    f"Items correctly sorted by amount (highest: ₹{amounts[0]}, lowest: ₹{amounts[-1]})")
+                    else:
+                        self.log_test("Queue Sort - Amount Desc", False, 
+                                    f"Items not properly sorted. Amounts: {amounts[:5]}")
+                elif len(queue_items) <= 1:
+                    self.log_test("Queue Sort - Amount Desc", True, 
+                                f"Sort test passed (only {len(queue_items)} items)")
+                else:
+                    self.log_test("Queue Sort - Amount Desc", False, f"Expected list, got {type(queue_items)}")
+            else:
+                self.log_test("Queue Sort - Amount Desc", False, f"HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Queue Sort - Amount Desc", False, f"Request failed: {str(e)}")
     
     def test_book_number_generation(self):
         """Test GET /api/book-number-next?location=Sanawad"""
