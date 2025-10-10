@@ -22,9 +22,9 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Import purchase endpoints and initialize with db
-from purchase_endpoints import router as purchase_router, init_db
-init_db(db)
+# Import farmer payment endpoints and initialize with db
+from farmer_payment_endpoints import router as farmer_payment_router, init_db as init_farmer_db
+init_farmer_db(db)
 
 # Create the main app
 app = FastAPI()
