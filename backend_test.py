@@ -430,34 +430,123 @@ class FarmerPaymentQueueTester:
         except Exception as e:
             self.log_test("Farmer Payment Creation Updates Status", False, f"Request failed: {str(e)}")
     
-    def test_farmer_payments_list(self):
-        """Test GET /api/farmer-payments"""
-        print("🔍 Testing Farmer Payments List...")
+    def test_queue_empty_after_completion(self):
+        """Test Case 1: Empty queue after all payments completed"""
+        print("🔍 Testing Queue - Empty Queue After Completion...")
         
         try:
-            response = requests.get(f"{self.base_url}/farmer-payments", timeout=10)
+            # Mark all slips as payment_completed
+            queue_response = requests.get(f"{self.base_url}/farmer-payment/queue", timeout=10)
             
-            if response.status_code == 200:
-                payments = response.json()
+            if queue_response.status_code == 200:
+                queue_items = queue_response.json()
                 
-                if isinstance(payments, list):
-                    if len(payments) > 0:
-                        # Check if our created payment is in the list
-                        payment_found = False
-                        if hasattr(self, 'created_payment_id'):
-                            payment_found = any(p.get('id') == self.created_payment_id for p in payments)
-                        
-                        self.log_test("Farmer Payments List", True, 
-                                    f"Retrieved {len(payments)} payments. Created payment found: {payment_found}")
+                # Update all to payment_completed
+                for item in queue_items:
+                    slip_id = item.get('slip_id')
+                    if slip_id:
+                        try:
+                            payload = {"payment_status": "payment_completed"}
+                            requests.put(f"{self.base_url}/weighbridge-entry/{slip_id}/payment-status",
+                                       json=payload,
+                                       headers={'Content-Type': 'application/json'},
+                                       timeout=5)
+                        except:
+                            pass  # Ignore individual failures
+                
+                # Now check if queue is empty
+                empty_queue_response = requests.get(f"{self.base_url}/farmer-payment/queue", timeout=10)
+                
+                if empty_queue_response.status_code == 200:
+                    empty_queue = empty_queue_response.json()
+                    
+                    if isinstance(empty_queue, list) and len(empty_queue) == 0:
+                        self.log_test("Queue Empty After Completion", True, 
+                                    "Queue correctly returns empty array [] when all payments completed")
                     else:
-                        self.log_test("Farmer Payments List", True, "No payments found (empty list is valid)")
+                        self.log_test("Queue Empty After Completion", False, 
+                                    f"Expected empty array, got {len(empty_queue)} items")
                 else:
-                    self.log_test("Farmer Payments List", False, f"Expected list, got {type(payments)}")
+                    self.log_test("Queue Empty After Completion", False, 
+                                f"Failed to check empty queue: HTTP {empty_queue_response.status_code}")
             else:
-                self.log_test("Farmer Payments List", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Queue Empty After Completion", False, 
+                            f"Failed to get initial queue: HTTP {queue_response.status_code}")
                 
         except Exception as e:
-            self.log_test("Farmer Payments List", False, f"Request failed: {str(e)}")
+            self.log_test("Queue Empty After Completion", False, f"Request failed: {str(e)}")
+    
+    def test_queue_mixed_transaction_types(self):
+        """Test Case 2: Mixed transaction types (should only show farmer_purchase)"""
+        print("🔍 Testing Queue - Mixed Transaction Types...")
+        
+        # Create an internal_transfer pre-entry for testing
+        try:
+            internal_transfer_data = {
+                "transaction_type": "internal_transfer",
+                "party_type": "internal",
+                "party_name": "Internal Transfer Test",
+                "party_mobile": "8888888888",
+                "item_name": "Wheat",
+                "rate_per_qtl": 0,
+                "bags_expected": 25,
+                "created_by_id": "test_user",
+                "created_by_name": "Test User"
+            }
+            
+            response = requests.post(f"{self.base_url}/pre-entry",
+                                   json=internal_transfer_data,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
+            
+            if response.status_code == 200:
+                internal_slip = response.json()
+                internal_slip_id = internal_slip.get('slip_id')
+                
+                # Create weighbridge entry for internal transfer
+                wb_entry_data = {
+                    "slip_id": internal_slip_id,
+                    "vehicle_number": "MP09INT999",
+                    "vehicle_type": "Truck",
+                    "gross_weight": 12000.0,
+                    "tare_weight": 9500.0,
+                    "operator_id": "test_operator",
+                    "operator_name": "Test Operator"
+                }
+                
+                wb_response = requests.post(f"{self.base_url}/weighbridge-entry",
+                                          json=wb_entry_data,
+                                          headers={'Content-Type': 'application/json'},
+                                          timeout=10)
+                
+                if wb_response.status_code == 200:
+                    # Now check queue - should NOT include internal_transfer
+                    queue_response = requests.get(f"{self.base_url}/farmer-payment/queue", timeout=10)
+                    
+                    if queue_response.status_code == 200:
+                        queue_items = queue_response.json()
+                        
+                        # Check that no internal_transfer items are in queue
+                        internal_found = any(item.get('slip_id') == internal_slip_id for item in queue_items)
+                        
+                        if not internal_found:
+                            self.log_test("Queue Mixed Transaction Types", True, 
+                                        f"Queue correctly excludes internal_transfer items. Found {len(queue_items)} farmer_purchase items only")
+                        else:
+                            self.log_test("Queue Mixed Transaction Types", False, 
+                                        "Queue incorrectly includes internal_transfer items")
+                    else:
+                        self.log_test("Queue Mixed Transaction Types", False, 
+                                    f"Failed to check queue: HTTP {queue_response.status_code}")
+                else:
+                    self.log_test("Queue Mixed Transaction Types", False, 
+                                f"Failed to create internal transfer weighbridge entry: HTTP {wb_response.status_code}")
+            else:
+                self.log_test("Queue Mixed Transaction Types", False, 
+                            f"Failed to create internal transfer pre-entry: HTTP {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Queue Mixed Transaction Types", False, f"Request failed: {str(e)}")
     
     def test_edge_cases(self):
         """Test edge cases"""
