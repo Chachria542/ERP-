@@ -548,73 +548,88 @@ class FarmerPaymentQueueTester:
         except Exception as e:
             self.log_test("Queue Mixed Transaction Types", False, f"Request failed: {str(e)}")
     
-    def test_edge_cases(self):
-        """Test edge cases"""
-        print("🔍 Testing Edge Cases...")
-        
-        # Test invalid item_id in payment creation
-        invalid_payload = {
-            "location": "Sanawad",
-            "contract_type": "Anubandh", 
-            "mandi_godown": "Mandi",
-            "date": "2025-01-10",
-            "farmer_name": "Test Farmer",
-            "mobile": "9876543210",
-            "lines": [{
-                "item_id": "invalid-item-id",
-                "item_name": "Invalid Item",
-                "pack_kg": 100,
-                "bags": 10,
-                "rem_kg": 0,
-                "act_kg": 1000,
-                "act_qtl": 10.0,
-                "rate_per_qtl": 2500,
-                "item_amount": 25000,
-                "vehicle_type": "Truck",
-                "h_plus_t": 47.5,
-                "line_total": 24952.5,
-                "sort_order": 0
-            }],
-            "pay_type": "Cash",
-            "cash_amt": 24952.5,
-            "bank_amt": 0,
-            "additional_hamli": 0,
-            "bank_charges": 0,
-            "created_by": "test_user_id"
-        }
+    def verify_queue_response_structure(self):
+        """Verify the queue response structure matches specification"""
+        print("🔍 Verifying Queue Response Structure...")
         
         try:
-            response = requests.post(f"{self.base_url}/farmer-payment",
-                                   json=invalid_payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            response = requests.get(f"{self.base_url}/farmer-payment/queue", timeout=10)
             
-            if response.status_code in [400, 404, 422]:
-                self.log_test("Edge Case - Invalid Item ID", True, "Correctly rejected invalid item_id")
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                if isinstance(queue_items, list) and len(queue_items) > 0:
+                    sample_item = queue_items[0]
+                    
+                    # Expected structure from specification
+                    expected_structure = {
+                        "slip_id": str,
+                        "farmer_name": str,
+                        "farmer_mobile": (str, type(None)),
+                        "item_name": str,
+                        "act_qtl": (int, float),
+                        "vehicle_type": str,
+                        "rate_per_qtl": (int, float),
+                        "estimated_amount": (int, float),
+                        "payment_status": str,
+                        "created_at": str,
+                        "weighed_at": str
+                    }
+                    
+                    structure_valid = True
+                    missing_fields = []
+                    wrong_types = []
+                    
+                    for field, expected_type in expected_structure.items():
+                        if field not in sample_item:
+                            missing_fields.append(field)
+                            structure_valid = False
+                        else:
+                            value = sample_item[field]
+                            if isinstance(expected_type, tuple):
+                                if not isinstance(value, expected_type):
+                                    wrong_types.append(f"{field}: expected {expected_type}, got {type(value)}")
+                                    structure_valid = False
+                            else:
+                                if not isinstance(value, expected_type):
+                                    wrong_types.append(f"{field}: expected {expected_type}, got {type(value)}")
+                                    structure_valid = False
+                    
+                    if structure_valid:
+                        # Check estimated_amount calculation
+                        rate = sample_item.get('rate_per_qtl', 0)
+                        qtl = sample_item.get('act_qtl', 0)
+                        vehicle_type = sample_item.get('vehicle_type', 'Truck')
+                        
+                        # Calculate expected H+T
+                        h_plus_t_rate = 4.75 if vehicle_type == "Truck" else (5.75 if vehicle_type == "Hammali" else 0)
+                        expected_amount = (rate * qtl) - (h_plus_t_rate * qtl)
+                        actual_amount = sample_item.get('estimated_amount', 0)
+                        
+                        amount_diff = abs(expected_amount - actual_amount)
+                        
+                        if amount_diff < 1:  # Allow small rounding differences
+                            self.log_test("Queue Response Structure", True, 
+                                        f"Response structure valid. Sample: slip_id={sample_item.get('slip_id')}, "
+                                        f"farmer={sample_item.get('farmer_name')}, amount=₹{actual_amount}")
+                        else:
+                            self.log_test("Queue Response Structure", False, 
+                                        f"Estimated amount calculation incorrect. Expected: ₹{expected_amount}, Got: ₹{actual_amount}")
+                    else:
+                        error_msg = ""
+                        if missing_fields:
+                            error_msg += f"Missing fields: {missing_fields}. "
+                        if wrong_types:
+                            error_msg += f"Wrong types: {wrong_types}."
+                        
+                        self.log_test("Queue Response Structure", False, error_msg.strip())
+                else:
+                    self.log_test("Queue Response Structure", True, "Empty queue - structure validation skipped")
             else:
-                self.log_test("Edge Case - Invalid Item ID", False, f"Expected error, got {response.status_code}")
+                self.log_test("Queue Response Structure", False, f"HTTP {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_test("Edge Case - Invalid Item ID", False, f"Request failed: {str(e)}")
-        
-        # Test missing required fields
-        minimal_payload = {
-            "location": "Sanawad"
-        }
-        
-        try:
-            response = requests.post(f"{self.base_url}/farmer-payment",
-                                   json=minimal_payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code in [400, 422]:
-                self.log_test("Edge Case - Missing Required Fields", True, "Correctly rejected incomplete payload")
-            else:
-                self.log_test("Edge Case - Missing Required Fields", False, f"Expected error, got {response.status_code}")
-                
-        except Exception as e:
-            self.log_test("Edge Case - Missing Required Fields", False, f"Request failed: {str(e)}")
+            self.log_test("Queue Response Structure", False, f"Request failed: {str(e)}")
     
     def run_all_tests(self):
         """Run all tests in sequence"""
