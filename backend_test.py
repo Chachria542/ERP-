@@ -307,10 +307,7 @@ class FarmerPaymentQueueTester:
             return
         
         try:
-            payload = {"payment_status": "payment_completed"}
-            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
-                                  json=payload,
-                                  headers={'Content-Type': 'application/json'},
+            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status?payment_status=payment_completed",
                                   timeout=10)
             
             if response.status_code == 200:
@@ -337,10 +334,7 @@ class FarmerPaymentQueueTester:
             return
         
         try:
-            payload = {"payment_status": "invalid_status"}
-            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
-                                  json=payload,
-                                  headers={'Content-Type': 'application/json'},
+            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status?payment_status=invalid_status",
                                   timeout=10)
             
             if response.status_code == 400:
@@ -358,10 +352,7 @@ class FarmerPaymentQueueTester:
         print("🔍 Testing Update Payment Status - Non-existent Slip...")
         
         try:
-            payload = {"payment_status": "payment_completed"}
-            response = requests.put(f"{self.base_url}/weighbridge-entry/WB-99-999999/payment-status",
-                                  json=payload,
-                                  headers={'Content-Type': 'application/json'},
+            response = requests.put(f"{self.base_url}/weighbridge-entry/WB-99-999999/payment-status?payment_status=payment_completed",
                                   timeout=10)
             
             if response.status_code == 404:
