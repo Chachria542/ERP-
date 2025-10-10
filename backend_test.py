@@ -375,13 +375,29 @@ class FarmerPaymentQueueTester:
         
         # First reset the payment status to pending
         try:
-            reset_payload = {"payment_status": "pending_payment"}
-            requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
-                        json=reset_payload,
-                        headers={'Content-Type': 'application/json'},
+            requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status?payment_status=pending_payment",
                         timeout=10)
         except:
             pass  # Ignore reset errors
+        
+        # Get item ID for the payment
+        wheat_item_id = None
+        try:
+            items_response = requests.get(f"{self.base_url}/items", timeout=10)
+            if items_response.status_code == 200:
+                items = items_response.json()
+                for item in items:
+                    if 'wheat' in item.get('name', '').lower():
+                        wheat_item_id = item['id']
+                        break
+                if not wheat_item_id and items:
+                    wheat_item_id = items[0]['id']  # Use first available
+        except:
+            pass
+        
+        if not wheat_item_id:
+            self.log_test("Farmer Payment Creation Updates Status", False, "No item ID available for payment creation")
+            return
         
         # Create farmer payment
         payment_payload = {
@@ -395,6 +411,7 @@ class FarmerPaymentQueueTester:
             "city": "Test City",
             "token_no": "TK123",
             "lines": [{
+                "item_id": wheat_item_id,
                 "item_name": "Wheat",
                 "pack_kg": 100,
                 "bags": 50,
