@@ -93,16 +93,16 @@ function WeighbridgePage({ user, onLogout }) {
       toast.error(error.response?.data?.detail || 'Failed to create pre-entry');
     }
   };
-    } catch (error) {
-      toast.error('Failed to update weights');
-    }
-  };
 
   const resetForm = () => {
+    setGateEntryNo('');
+    setFarmerName('');
+    setMobile('');
+    setCity('');
+    setTokenNo('');
     setVehicleNumber('');
-    setPartyId('');
+    setVehicleType('Truck');
     setItemId('');
-    setFlowType('purchase');
     setGrossWeight('');
     setTareWeight('');
   };
@@ -119,232 +119,296 @@ function WeighbridgePage({ user, onLogout }) {
 
   return (
     <Layout user={user} onLogout={onLogout}>
-      <div className="animate-fade-in">
+      <div className="p-6">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2" style={{color: '#3E2723'}}>Weighbridge</h1>
-            <p className="text-lg" style={{color: '#6B5846'}}>QR-based weighbridge automation</p>
+            <h1 className="text-4xl font-bold mb-2" style={{color: '#3E2723'}}>Weighbridge Pre-Entry</h1>
+            <p className="text-lg" style={{color: '#6B5846'}}>तुलन केंद्र - पूर्व प्रविष्टि</p>
           </div>
           
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button className="btn-primary" data-testid="create-pre-entry-button">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Create Pre-Entry
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Create Weighbridge Pre-Entry</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleCreatePreEntry} className="space-y-4">
+          <Button 
+            onClick={() => setShowCreateDialog(true)} 
+            className="btn-primary" 
+            data-testid="create-pre-entry-button"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create Pre-Entry
+          </Button>
+        </div>
+
+        {/* Instructions Card */}
+        <Card className="p-6 mb-8" style={{background: 'linear-gradient(135deg, rgba(107, 142, 35, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%)'}}>
+          <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>
+            📋 Weighbridge Pre-Entry Instructions
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-start space-x-3">
+              <div className="text-3xl">1️⃣</div>
+              <div>
+                <h3 className="font-bold mb-1" style={{color: '#6B8E23'}}>Create Pre-Entry</h3>
+                <p className="text-sm" style={{color: '#6B5846'}}>
+                  Record farmer details, vehicle, item, and weights (gross & tare)
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="text-3xl">2️⃣</div>
+              <div>
+                <h3 className="font-bold mb-1" style={{color: '#6B8E23'}}>Get Gate Entry No</h3>
+                <p className="text-sm" style={{color: '#6B5846'}}>
+                  System generates unique Gate Entry Number (auto or manual)
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="text-3xl">3️⃣</div>
+              <div>
+                <h3 className="font-bold mb-1" style={{color: '#6B8E23'}}>Use in Farmer Payment</h3>
+                <p className="text-sm" style={{color: '#6B5846'}}>
+                  Enter Gate Entry No in Farmer Payment to auto-fill details
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Create Pre-Entry Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl" style={{color: '#3E2723'}}>
+                Create Weighbridge Pre-Entry
+              </DialogTitle>
+            </DialogHeader>
+            
+            <form onSubmit={handleCreatePreEntry} className="space-y-6">
+              {/* Gate Entry No */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="vehicle">Vehicle Number</Label>
+                  <Label htmlFor="gateEntryNo" className="text-sm font-semibold">
+                    Gate Entry No. / गेट एंट्री नं. (Optional - Auto-generated)
+                  </Label>
                   <Input
-                    id="vehicle"
-                    data-testid="vehicle-number-input"
-                    value={vehicleNumber}
-                    onChange={(e) => setVehicleNumber(e.target.value)}
-                    required
+                    id="gateEntryNo"
+                    data-testid="gate-entry-no-input"
+                    value={gateEntryNo}
+                    onChange={(e) => setGateEntryNo(e.target.value)}
+                    placeholder="Leave empty for auto-generation"
+                    className="mt-1"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="party">Party</Label>
-                  <select
-                    id="party"
-                    data-testid="party-select"
-                    value={partyId}
-                    onChange={(e) => setPartyId(e.target.value)}
-                    className="erp-select"
-                    required
-                  >
-                    <option value="">Select Party</option>
-                    {parties.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.type})</option>
-                    ))}
-                  </select>
+                  <Label htmlFor="tokenNo" className="text-sm font-semibold">
+                    Token No. / टोकन नं. (Optional)
+                  </Label>
+                  <Input
+                    id="tokenNo"
+                    data-testid="token-no-input"
+                    value={tokenNo}
+                    onChange={(e) => setTokenNo(e.target.value)}
+                    placeholder="Token number"
+                    className="mt-1"
+                  />
                 </div>
-                <div>
-                  <Label htmlFor="item">Item</Label>
-                  <select
-                    id="item"
-                    data-testid="item-select"
-                    value={itemId}
-                    onChange={(e) => setItemId(e.target.value)}
-                    className="erp-select"
-                    required
-                  >
-                    <option value="">Select Item</option>
-                    {items.map(i => (
-                      <option key={i.id} value={i.id}>{i.name} ({i.category})</option>
-                    ))}
-                  </select>
+              </div>
+
+              {/* Farmer Details */}
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
+                  Farmer Details / किसान विवरण
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="farmerName" className="text-sm font-semibold">
+                      Farmer Name / किसान का नाम *
+                    </Label>
+                    <Input
+                      id="farmerName"
+                      data-testid="farmer-name-input"
+                      value={farmerName}
+                      onChange={(e) => setFarmerName(e.target.value)}
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="mobile" className="text-sm font-semibold">
+                      Mobile / मोबाइल नं. *
+                    </Label>
+                    <Input
+                      id="mobile"
+                      data-testid="mobile-input"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      maxLength={10}
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="city" className="text-sm font-semibold">
+                      City / शहर (Optional)
+                    </Label>
+                    <Input
+                      id="city"
+                      data-testid="city-input"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="flowType">Flow Type</Label>
-                  <select
-                    id="flowType"
-                    data-testid="flow-type-select"
-                    value={flowType}
-                    onChange={(e) => setFlowType(e.target.value)}
-                    className="erp-select"
-                  >
-                    <option value="purchase">Purchase</option>
-                    <option value="sale">Sale</option>
-                    <option value="custody">Custody</option>
-                    <option value="transfer">Transfer</option>
-                  </select>
+              </div>
+
+              {/* Vehicle & Item Details */}
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
+                  Vehicle & Item / वाहन और वस्तु विवरण
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="vehicleNumber" className="text-sm font-semibold">
+                      Vehicle Number / वाहन नं. *
+                    </Label>
+                    <Input
+                      id="vehicleNumber"
+                      data-testid="vehicle-number-input"
+                      value={vehicleNumber}
+                      onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                      placeholder="MP09AB1234"
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="vehicleType" className="text-sm font-semibold">
+                      Vehicle Type / वाहन प्रकार *
+                    </Label>
+                    <select
+                      id="vehicleType"
+                      data-testid="vehicle-type-select"
+                      value={vehicleType}
+                      onChange={(e) => setVehicleType(e.target.value)}
+                      className="erp-select mt-1"
+                      required
+                    >
+                      <option value="Truck">Truck / ट्रक</option>
+                      <option value="Tractor">Tractor / ट्रैक्टर</option>
+                      <option value="Hammali">Hammali / हम्माली</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="item" className="text-sm font-semibold">
+                      Item / वस्तु *
+                    </Label>
+                    <select
+                      id="item"
+                      data-testid="item-select"
+                      value={itemId}
+                      onChange={(e) => setItemId(e.target.value)}
+                      className="erp-select mt-1"
+                      required
+                    >
+                      <option value="">Select Item</option>
+                      {items.map(i => (
+                        <option key={i.id} value={i.id}>{i.name}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <Button type="submit" className="w-full btn-primary" data-testid="submit-pre-entry">
+              </div>
+
+              {/* Weight Details */}
+              <div className="border-t pt-4">
+                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
+                  Weight Details / वजन विवरण
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="grossWeight" className="text-sm font-semibold">
+                      Gross Weight / भरा वजन (kg) *
+                    </Label>
+                    <Input
+                      id="grossWeight"
+                      data-testid="gross-weight-input"
+                      type="number"
+                      step="0.01"
+                      value={grossWeight}
+                      onChange={(e) => setGrossWeight(e.target.value)}
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="tareWeight" className="text-sm font-semibold">
+                      Tare Weight / खाली वजन (kg) *
+                    </Label>
+                    <Input
+                      id="tareWeight"
+                      data-testid="tare-weight-input"
+                      type="number"
+                      step="0.01"
+                      value={tareWeight}
+                      onChange={(e) => setTareWeight(e.target.value)}
+                      required
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+                
+                {/* Net Weight Calculation Preview */}
+                {grossWeight && tareWeight && parseFloat(grossWeight) > parseFloat(tareWeight) && (
+                  <div className="mt-4 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Net Weight / निवल वजन</p>
+                        <p className="text-xl font-bold" style={{color: '#6B8E23'}}>
+                          {(parseFloat(grossWeight) - parseFloat(tareWeight)).toFixed(2)} kg
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Bags / बोरे</p>
+                        <p className="text-xl font-bold" style={{color: '#6B8E23'}}>
+                          {Math.floor((parseFloat(grossWeight) - parseFloat(tareWeight)) / 100)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Quintals / कुंटल</p>
+                        <p className="text-xl font-bold" style={{color: '#6B8E23'}}>
+                          {((parseFloat(grossWeight) - parseFloat(tareWeight)) / 100).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    setShowCreateDialog(false);
+                    resetForm();
+                  }} 
+                  className="btn-secondary"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="btn-primary" 
+                  data-testid="submit-pre-entry"
+                >
                   Create Pre-Entry
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* QR Scan Section */}
-        <Card className="erp-card mb-8">
-          <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Scan QR / Search Slip</h2>
-          <div className="flex space-x-4">
-            <Input
-              data-testid="search-slip-input"
-              placeholder="Enter slip number (e.g., WB000001)"
-              value={searchSlip}
-              onChange={(e) => setSearchSlip(e.target.value)}
-              className="flex-1"
-            />
-            <Button onClick={handleSearchSlip} className="btn-primary" data-testid="search-slip-button">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Search
-            </Button>
-          </div>
-        </Card>
-
-        {/* Weighing Dialog */}
-        <Dialog open={showWeighDialog} onOpenChange={setShowWeighDialog}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Weighbridge Entry - {selectedSlip?.slip_number}</DialogTitle>
-            </DialogHeader>
-            {selectedSlip && (
-              <div>
-                {/* Slip Details */}
-                <div className="grid grid-cols-2 gap-4 mb-6 p-4 rounded-lg" style={{background: '#F5E6D3'}}>
-                  <div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Vehicle Number</p>
-                    <p className="font-bold" style={{color: '#3E2723'}}>{selectedSlip.vehicle_number}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Party</p>
-                    <p className="font-bold" style={{color: '#3E2723'}}>{selectedSlip.party_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Item</p>
-                    <p className="font-bold" style={{color: '#3E2723'}}>{selectedSlip.item_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Flow Type</p>
-                    <p className="font-bold capitalize" style={{color: '#3E2723'}}>{selectedSlip.flow_type}</p>
-                  </div>
-                </div>
-
-                {/* QR Code Display */}
-                <div className="mb-6 text-center">
-                  <img src={selectedSlip.qr_code} alt="QR Code" className="mx-auto" style={{width: '200px', height: '200px'}} />
-                </div>
-
-                {/* Weight Entry Form */}
-                <form onSubmit={handleUpdateWeights} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="grossWeight">Gross Weight (kg)</Label>
-                      <Input
-                        id="grossWeight"
-                        data-testid="gross-weight-input"
-                        type="number"
-                        step="0.01"
-                        value={grossWeight}
-                        onChange={(e) => setGrossWeight(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="tareWeight">Tare Weight (kg)</Label>
-                      <Input
-                        id="tareWeight"
-                        data-testid="tare-weight-input"
-                        type="number"
-                        step="0.01"
-                        value={tareWeight}
-                        onChange={(e) => setTareWeight(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  {grossWeight && tareWeight && (
-                    <div className="p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
-                      <p className="text-sm" style={{color: '#6B5846'}}>Net Weight</p>
-                      <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>
-                        {(parseFloat(grossWeight) - parseFloat(tareWeight)).toFixed(2)} kg
-                      </p>
-                    </div>
-                  )}
-                  <Button type="submit" className="w-full btn-primary" data-testid="update-weights-button">
-                    Update Weights
-                  </Button>
-                </form>
               </div>
-            )}
+            </form>
           </DialogContent>
         </Dialog>
-
-        {/* Slips Table */}
-        <Card className="erp-card">
-          <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Recent Weighbridge Slips</h2>
-          <div className="overflow-x-auto">
-            <table className="erp-table" data-testid="slips-table">
-              <thead>
-                <tr>
-                  <th>Slip Number</th>
-                  <th>Vehicle</th>
-                  <th>Party</th>
-                  <th>Item</th>
-                  <th>Gross (kg)</th>
-                  <th>Tare (kg)</th>
-                  <th>Net (kg)</th>
-                  <th>Flow Type</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {slips.map(slip => (
-                  <tr key={slip.id} data-testid={`slip-row-${slip.slip_number}`}>
-                    <td className="font-semibold" style={{color: '#6B8E23'}}>{slip.slip_number}</td>
-                    <td>{slip.vehicle_number}</td>
-                    <td>{slip.party_name}</td>
-                    <td>{slip.item_name}</td>
-                    <td>{slip.gross_weight?.toFixed(2) || '-'}</td>
-                    <td>{slip.tare_weight?.toFixed(2) || '-'}</td>
-                    <td className="font-bold">{slip.net_weight?.toFixed(2) || '-'}</td>
-                    <td className="capitalize">{slip.flow_type}</td>
-                    <td>
-                      <span className={`badge ${
-                        slip.status === 'completed' ? 'badge-success' :
-                        slip.status === 'weighed' ? 'badge-info' :
-                        'badge-warning'
-                      }`}>
-                        {slip.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
       </div>
     </Layout>
   );
