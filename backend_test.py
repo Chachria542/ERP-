@@ -39,19 +39,46 @@ class FarmerPaymentQueueTester:
         """Create test weighbridge entry for queue testing"""
         print("🔧 Setting up test data...")
         
-        # First create a pre-entry
+        # First get available items
+        try:
+            items_response = requests.get(f"{self.base_url}/items", timeout=10)
+            if items_response.status_code != 200:
+                self.log_test("Get Items for Setup", False, f"HTTP {items_response.status_code}: {items_response.text}")
+                return False
+            
+            items = items_response.json()
+            if not items:
+                self.log_test("Get Items for Setup", False, "No items available")
+                return False
+            
+            # Find wheat item or use first available
+            wheat_item = None
+            for item in items:
+                if 'wheat' in item.get('name', '').lower():
+                    wheat_item = item
+                    break
+            
+            if not wheat_item:
+                wheat_item = items[0]  # Use first available item
+            
+            self.log_test("Get Items for Setup", True, f"Using item: {wheat_item['name']} (ID: {wheat_item['id']})")
+            
+        except Exception as e:
+            self.log_test("Get Items for Setup", False, f"Request failed: {str(e)}")
+            return False
+        
+        # Now create a pre-entry
         try:
             pre_entry_data = {
                 "transaction_type": "farmer_purchase",
+                "from_location": "Test Warehouse",
                 "party_type": "farmer",
                 "party_name": "Test Farmer E2E",
                 "party_mobile": "9999111222",
-                "party_city": "Test City",
-                "item_name": "Wheat",
+                "item_id": wheat_item['id'],
                 "rate_per_qtl": 2500.0,
-                "bags_expected": 50,
-                "created_by_id": "test_user",
-                "created_by_name": "Test User"
+                "expected_bags": 50,
+                "created_by": "test_user"
             }
             
             response = requests.post(f"{self.base_url}/pre-entry", 
