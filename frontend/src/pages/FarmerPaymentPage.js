@@ -204,14 +204,13 @@ function FarmerPaymentPage({ user, onLogout }) {
         created_by: user.id
       };
 
-      await axios.post(`${API}/farmer-payment`, payload);
+      const response = await axios.post(`${API}/farmer-payment`, payload);
       
       toast.success('Farmer payment saved successfully! Vouchers generated.');
       
-      // Return to queue
-      resetForm();
-      setView('queue');
-      fetchQueue();
+      // Show success modal with print option
+      setSavedPayment(response.data);
+      setShowSuccessModal(true);
       
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to save payment');
