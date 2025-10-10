@@ -522,18 +522,65 @@ function FarmerPaymentPage({ user, onLogout }) {
           {/* Payment Details */}
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Payment Details</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-4 gap-4 mb-4">
               <div>
                 <Label>Pay Type</Label>
                 <select value={payType} onChange={(e) => setPayType(e.target.value)} className="erp-select">
                   <option value="Cash">Cash</option>
                   <option value="Bank">Bank</option>
+                  <option value="Both">Both</option>
                 </select>
               </div>
               <div>
-                <Label>Amount</Label>
-                <Input type="number" value={payType === 'Cash' ? totalAmount : (payType === 'Bank' ? totalAmount : 0)} readOnly />
+                <Label>Cash/Bank A/c ID</Label>
+                <Input 
+                  value={cashBankAcId} 
+                  onChange={(e) => setCashBankAcId(e.target.value)} 
+                  placeholder="Account identifier"
+                />
               </div>
+              <div>
+                <Label>Additional Hamli</Label>
+                <Input 
+                  type="number" 
+                  value={additionalHamli} 
+                  onChange={(e) => setAdditionalHamli(parseFloat(e.target.value) || 0)} 
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label>Bank Charges</Label>
+                <Input 
+                  type="number" 
+                  value={bankCharges} 
+                  onChange={(e) => setBankCharges(parseFloat(e.target.value) || 0)} 
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {(payType === 'Cash' || payType === 'Both') && (
+                <div>
+                  <Label>Cash Amount</Label>
+                  <Input 
+                    type="number" 
+                    value={cashAmt} 
+                    onChange={(e) => setCashAmt(parseFloat(e.target.value) || 0)} 
+                    placeholder="0"
+                  />
+                </div>
+              )}
+              {(payType === 'Bank' || payType === 'Both') && (
+                <div>
+                  <Label>Bank Amount</Label>
+                  <Input 
+                    type="number" 
+                    value={bankAmt} 
+                    onChange={(e) => setBankAmt(parseFloat(e.target.value) || 0)} 
+                    placeholder="0"
+                  />
+                </div>
+              )}
             </div>
           </Card>
 
