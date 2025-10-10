@@ -116,7 +116,7 @@ function FarmerPaymentPage({ user, onLogout }) {
 
   const handleApproveSlip = async () => {
     try {
-      await axios.put(`${API}/farmer-payment/weighbridge/approve/${gateEntryNo}?user_id=${user.id}`);
+      await axios.put(`${API}/weighbridge/approve/${gateEntryNo}?user_id=${user.id}`);
       
       // Auto-fill form
       setFarmerName(slipData.farmer_name);
