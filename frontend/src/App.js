@@ -53,7 +53,7 @@ function App() {
           />
           <Route 
             path="/weighbridge" 
-            element={user ? <WeighbridgePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
+            element={user ? <WeighbridgeEntryPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
           <Route 
             path="/custody" 
