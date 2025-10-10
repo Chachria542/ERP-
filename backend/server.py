@@ -830,9 +830,11 @@ async def get_dashboard_stats():
         total_inventory_value=total_value
     )
 
+# Include farmer payment router in api_router BEFORE adding to app
+api_router.include_router(farmer_payment_router, tags=["farmer-payment"])
+
 # Include routers in app
 app.include_router(api_router)
-api_router.include_router(farmer_payment_router, prefix="/farmer-payment", tags=["farmer-payment"])
 
 app.add_middleware(
     CORSMiddleware,
