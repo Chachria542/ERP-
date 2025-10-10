@@ -93,10 +93,11 @@ function FarmerPaymentPage({ user, onLogout }) {
 
   const fetchNextBookNo = async () => {
     try {
-      const response = await axios.get(`${API}/farmer-payment/book-number-next?location=Sanawad`);
+      const response = await axios.get(`${API}/book-number-next?location=Sanawad`);
       setBookNo(response.data.book_no);
     } catch (error) {
-      console.error('Failed to get book number');
+      console.error('Failed to get book number:', error);
+      setBookNo('SAN-25-000001'); // Fallback
     }
   };
 
