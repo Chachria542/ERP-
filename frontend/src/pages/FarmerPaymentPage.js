@@ -514,6 +514,203 @@ function FarmerPaymentPage({ user, onLogout }) {
             </Button>
           </div>
         </form>
+
+        {/* Success Modal with Print Option */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
+                ✅ Payment Saved Successfully!
+              </DialogTitle>
+            </DialogHeader>
+            
+            {savedPayment && (
+              <div className="space-y-6">
+                {/* Voucher Details */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="p-4" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                    <p className="text-sm mb-2" style={{color: '#6B5846'}}>Purchase Voucher</p>
+                    <p className="font-bold text-lg">{savedPayment.purchase_voucher_id?.substring(0, 8)}...</p>
+                  </Card>
+                  <Card className="p-4" style={{background: 'rgba(212, 175, 55, 0.1)'}}>
+                    <p className="text-sm mb-2" style={{color: '#6B5846'}}>Payment Voucher</p>
+                    <p className="font-bold text-lg">{savedPayment.payment_voucher_id?.substring(0, 8)}...</p>
+                  </Card>
+                </div>
+
+                {/* Payment Summary */}
+                <Card className="p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm" style={{color: '#6B5846'}}>Book No</p>
+                      <p className="font-bold text-xl">{savedPayment.book_no}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm" style={{color: '#6B5846'}}>Total Amount</p>
+                      <p className="font-bold text-xl" style={{color: '#6B8E23'}}>
+                        {formatCurrency(savedPayment.total_amount)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-sm" style={{color: '#6B5846'}}>Farmer</p>
+                    <p className="font-bold">{savedPayment.farmer_name} | {savedPayment.mobile}</p>
+                  </div>
+                </Card>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-3 gap-3">
+                  <Button 
+                    onClick={() => window.print()}
+                    className="btn-secondary"
+                  >
+                    🖨️ Print
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setShowSuccessModal(false);
+                      setSavedPayment(null);
+                      // Stay in form to process another
+                    }}
+                    className="btn-secondary"
+                  >
+                    📝 Process Another
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setShowSuccessModal(false);
+                      setSavedPayment(null);
+                      resetForm();
+                      setView('queue');
+                      fetchQueue();
+                    }}
+                    className="btn-primary"
+                  >
+                    ✅ Back to Queue
+                  </Button>
+                </div>
+
+                {/* Print View (Hidden on Screen) */}
+                <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:bg-white print:p-8">
+                  <div className="text-center mb-6">
+                    <h1 className="text-3xl font-bold mb-2">Sudarshan Trading Company</h1>
+                    <p className="text-lg">Farmer Payment Receipt</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6 pb-4 border-b-2">
+                    <div>
+                      <p className="text-sm text-gray-600">Book No</p>
+                      <p className="font-bold text-lg">{savedPayment.book_no}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Date</p>
+                      <p className="font-bold">{savedPayment.date}</p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-3">Farmer Details</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Name</p>
+                        <p className="font-bold">{savedPayment.farmer_name}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Mobile</p>
+                        <p className="font-bold">{savedPayment.mobile}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">City</p>
+                        <p className="font-bold">{savedPayment.city || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Token No</p>
+                        <p className="font-bold">{savedPayment.token_no || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-3">Items</h3>
+                    <table className="w-full border">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="p-2 border text-left">Item</th>
+                          <th className="p-2 border text-right">Quantity (qtl)</th>
+                          <th className="p-2 border text-right">Rate</th>
+                          <th className="p-2 border text-right">Amount</th>
+                          <th className="p-2 border text-right">H+T</th>
+                          <th className="p-2 border text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {savedPayment.lines?.map((line, idx) => (
+                          <tr key={idx}>
+                            <td className="p-2 border">{line.item_name}</td>
+                            <td className="p-2 border text-right">{line.act_qtl}</td>
+                            <td className="p-2 border text-right">₹{line.rate_per_qtl}</td>
+                            <td className="p-2 border text-right">₹{line.item_amount}</td>
+                            <td className="p-2 border text-right">₹{line.h_plus_t}</td>
+                            <td className="p-2 border text-right font-bold">₹{line.line_total}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="flex justify-end mb-6">
+                    <div className="w-1/2">
+                      <div className="flex justify-between py-2">
+                        <span>Sub Total:</span>
+                        <span className="font-bold">₹{savedPayment.lines?.reduce((sum, l) => sum + l.line_total, 0)}</span>
+                      </div>
+                      {savedPayment.additional_hamli > 0 && (
+                        <div className="flex justify-between py-2">
+                          <span>Additional Hamli:</span>
+                          <span>- ₹{savedPayment.additional_hamli}</span>
+                        </div>
+                      )}
+                      {savedPayment.bank_charges > 0 && (
+                        <div className="flex justify-between py-2">
+                          <span>Bank Charges:</span>
+                          <span>- ₹{savedPayment.bank_charges}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-2 border-t-2 font-bold text-lg">
+                        <span>Total Amount:</span>
+                        <span>₹{savedPayment.total_amount}</span>
+                      </div>
+                      <div className="flex justify-between py-2">
+                        <span>Payment Mode:</span>
+                        <span>{savedPayment.pay_type}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t-2">
+                    <p className="text-sm text-gray-600">Voucher IDs:</p>
+                    <p className="text-xs">Purchase: {savedPayment.purchase_voucher_id}</p>
+                    <p className="text-xs">Payment: {savedPayment.payment_voucher_id}</p>
+                  </div>
+
+                  <div className="mt-12 pt-8 border-t">
+                    <div className="grid grid-cols-3 gap-8">
+                      <div className="text-center">
+                        <div className="border-t border-black pt-2">Prepared By</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="border-t border-black pt-2">Checked By</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="border-t border-black pt-2">Authorized Signature</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
