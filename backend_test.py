@@ -35,35 +35,65 @@ class FarmerPaymentQueueTester:
             "response": response_data
         })
     
-    def test_items_endpoint(self):
-        """Test GET /api/items - Check if mock data exists"""
-        print("🔍 Testing Items Endpoint...")
+    def setup_test_data(self):
+        """Create test weighbridge entry for queue testing"""
+        print("🔧 Setting up test data...")
+        
+        # First create a pre-entry
         try:
-            response = requests.get(f"{self.base_url}/items", timeout=10)
+            pre_entry_data = {
+                "transaction_type": "farmer_purchase",
+                "party_type": "farmer",
+                "party_name": "Test Farmer E2E",
+                "party_mobile": "9999111222",
+                "party_city": "Test City",
+                "item_name": "Wheat",
+                "rate_per_qtl": 2500.0,
+                "bags_expected": 50,
+                "created_by_id": "test_user",
+                "created_by_name": "Test User"
+            }
+            
+            response = requests.post(f"{self.base_url}/pre-entry", 
+                                   json=pre_entry_data,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
             
             if response.status_code == 200:
-                items = response.json()
-                if len(items) >= 4:
-                    # Store items for later use
-                    for item in items:
-                        self.items[item['name']] = item
-                    
-                    wheat_found = any('Wheat' in item['name'] for item in items)
-                    soybean_found = any('Soybean' in item['name'] for item in items)
-                    chana_found = any('Chana' in item['name'] for item in items)
-                    corn_found = any('Corn' in item['name'] for item in items)
-                    
-                    if wheat_found and soybean_found and chana_found and corn_found:
-                        self.log_test("Items Endpoint", True, f"Found {len(items)} items including Wheat, Soybean, Chana, Corn")
-                    else:
-                        self.log_test("Items Endpoint", False, f"Missing required items. Found: {[item['name'] for item in items]}")
+                pre_entry = response.json()
+                self.test_slip_id = pre_entry.get('slip_id')
+                self.log_test("Pre-Entry Creation", True, f"Created pre-entry with slip_id: {self.test_slip_id}")
+                
+                # Now create weighbridge entry
+                wb_entry_data = {
+                    "slip_id": self.test_slip_id,
+                    "vehicle_number": "MP09TEST999",
+                    "vehicle_type": "Truck",
+                    "driver_name": "Test Driver",
+                    "gross_weight": 15000.0,
+                    "tare_weight": 10000.0,
+                    "operator_id": "test_operator",
+                    "operator_name": "Test Operator"
+                }
+                
+                wb_response = requests.post(f"{self.base_url}/weighbridge-entry",
+                                          json=wb_entry_data,
+                                          headers={'Content-Type': 'application/json'},
+                                          timeout=10)
+                
+                if wb_response.status_code == 200:
+                    self.log_test("Weighbridge Entry Creation", True, f"Created weighbridge entry for slip: {self.test_slip_id}")
+                    return True
                 else:
-                    self.log_test("Items Endpoint", False, f"Expected at least 4 items, found {len(items)}")
+                    self.log_test("Weighbridge Entry Creation", False, f"HTTP {wb_response.status_code}: {wb_response.text}")
+                    return False
             else:
-                self.log_test("Items Endpoint", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Pre-Entry Creation", False, f"HTTP {response.status_code}: {response.text}")
+                return False
                 
         except Exception as e:
-            self.log_test("Items Endpoint", False, f"Request failed: {str(e)}")
+            self.log_test("Test Data Setup", False, f"Request failed: {str(e)}")
+            return False
     
     def test_weighbridge_slip_fetch(self):
         """Test GET /api/weighbridge/slip/{gate_entry_no}"""
