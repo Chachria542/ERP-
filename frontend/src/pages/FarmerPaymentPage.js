@@ -256,7 +256,7 @@ function FarmerPaymentPage({ user, onLogout }) {
         created_by: user.id
       };
 
-      await axios.post(`${API}/farmer-payment/farmer-payment`, payload);
+      await axios.post(`${API}/farmer-payment`, payload);
       
       toast.success('Farmer payment saved successfully! Vouchers generated.');
       resetForm();
