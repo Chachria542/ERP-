@@ -45,6 +45,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   }]);
   
   const [payType, setPayType] = useState('Cash');
+  const [cashBankAcId, setCashBankAcId] = useState('');
   const [cashAmt, setCashAmt] = useState(0);
   const [bankAmt, setBankAmt] = useState(0);
   const [additionalHamli, setAdditionalHamli] = useState(0);
