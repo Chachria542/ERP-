@@ -29,74 +29,70 @@ function WeighbridgePage({ user, onLogout }) {
   const [tareWeight, setTareWeight] = useState('');
 
   useEffect(() => {
-    fetchData();
+    fetchItems();
   }, []);
 
-  const fetchData = async () => {
+  const fetchItems = async () => {
     try {
-      const [slipsRes, partiesRes, itemsRes] = await Promise.all([
-        axios.get(`${API}/weighbridge/slips`),
-        axios.get(`${API}/parties`),
-        axios.get(`${API}/items`)
-      ]);
-      
-      setSlips(slipsRes.data);
-      setParties(partiesRes.data);
-      setItems(itemsRes.data);
+      const response = await axios.get(`${API}/items`);
+      setItems(response.data);
     } catch (error) {
-      toast.error('Failed to load data');
+      toast.error('Failed to load items');
     } finally {
       setLoading(false);
     }
   };
 
+  const generateGateEntryNo = () => {
+    const timestamp = Date.now().toString().slice(-6);
+    return `GT${timestamp}`;
+  };
+
   const handleCreatePreEntry = async (e) => {
     e.preventDefault();
     
+    // Validation
+    if (!farmerName || !mobile || !vehicleNumber || !itemId || !grossWeight || !tareWeight) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    if (mobile.length !== 10) {
+      toast.error('Mobile number must be 10 digits');
+      return;
+    }
+
+    const grossWt = parseFloat(grossWeight);
+    const tareWt = parseFloat(tareWeight);
+
+    if (grossWt <= tareWt) {
+      toast.error('Gross weight must be greater than tare weight');
+      return;
+    }
+    
     try {
-      await axios.post(`${API}/weighbridge/pre-entry`, {
+      const autoGateEntry = gateEntryNo || generateGateEntryNo();
+      
+      const response = await axios.post(`${API}/weighbridge/pre-entry`, {
+        gate_entry_no: autoGateEntry,
+        farmer_name: farmerName,
+        mobile: mobile,
+        city: city || null,
+        token_no: tokenNo || null,
         vehicle_number: vehicleNumber,
-        party_id: partyId,
+        vehicle_type: vehicleType,
         item_id: itemId,
-        flow_type: flowType,
-        created_by: user.id
+        gross_weight: grossWt,
+        tare_weight: tareWt
       });
       
-      toast.success('Pre-entry slip created successfully!');
+      toast.success(`Pre-entry created! Gate Entry No: ${response.data.gate_entry_no}, Slip No: ${response.data.slip_number}`);
       setShowCreateDialog(false);
       resetForm();
-      fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create pre-entry');
     }
   };
-
-  const handleSearchSlip = async () => {
-    if (!searchSlip) return;
-    
-    try {
-      const response = await axios.get(`${API}/weighbridge/slip/${searchSlip}`);
-      setSelectedSlip(response.data);
-      setShowWeighDialog(true);
-      setGrossWeight(response.data.gross_weight || '');
-      setTareWeight(response.data.tare_weight || '');
-    } catch (error) {
-      toast.error('Slip not found');
-    }
-  };
-
-  const handleUpdateWeights = async (e) => {
-    e.preventDefault();
-    
-    try {
-      await axios.put(`${API}/weighbridge/weigh/${selectedSlip.slip_number}`, {
-        gross_weight: parseFloat(grossWeight) || null,
-        tare_weight: parseFloat(tareWeight) || null
-      });
-      
-      toast.success('Weights updated successfully!');
-      setShowWeighDialog(false);
-      fetchData();
     } catch (error) {
       toast.error('Failed to update weights');
     }
