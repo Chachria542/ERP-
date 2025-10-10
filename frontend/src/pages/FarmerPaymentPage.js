@@ -109,11 +109,19 @@ function FarmerPaymentPage({ user, onLogout }) {
     if (!value) return;
 
     try {
-      const response = await axios.get(`${API}/weighbridge/slip/${value}`);
+      const response = await axios.get(`${API}/weighbridge-entry/${value}`);
+      
+      // Validate transaction type
+      if (response.data.transaction_type !== 'farmer_purchase') {
+        toast.error(`This slip is for ${response.data.transaction_type}, not Farmer Purchase!`);
+        setGateEntryNo('');
+        return;
+      }
+      
       setSlipData(response.data);
       setShowPhotoModal(true);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Weighbridge slip not found');
+      toast.error(error.response?.data?.detail || 'Weighbridge entry not found');
     }
   };
 
