@@ -51,6 +51,8 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [slipData, setSlipData] = useState(null);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [savedPayment, setSavedPayment] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     if (view === 'queue') {
