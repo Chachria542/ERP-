@@ -10,6 +10,9 @@ from farmer_payment_models import (
     calculate_h_plus_t, calculate_line_total, convert_kg_to_bags_and_qtl
 )
 from typing import List
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 db = None
