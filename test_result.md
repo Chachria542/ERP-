@@ -125,7 +125,7 @@ backend:
     file: "backend/farmer_payment_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "main"
@@ -133,18 +133,24 @@ backend:
       - working: true
         agent: "main"
         comment: "Fixed route conflict by commenting out old weighbridge endpoints in server.py (lines 427-507). Endpoint now successfully returns weighbridge slip data with all required fields."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All weighbridge slip fetch endpoints working correctly. GT001, GT002, GT003 return complete data with all required fields (farmer_name, mobile, city, token_no, vehicle_number, vehicle_type, item_id, item_name, bags, rem_kg, act_qtl, photo URLs). Non-existent gate entries correctly return 404. Settled slips correctly return 400 with 'already settled' message."
 
   - task: "Farmer Payment Endpoints - Create and List"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/farmer_payment_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Endpoints exist for creating farmer payments and generating vouchers. Not yet tested."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Fixed missing uuid import in farmer_payment_endpoints.py. All farmer payment endpoints working correctly: 1) Book number generation (GET /api/book-number-next) generates proper SAN-YY-###### format, 2) Farmer payment creation (POST /api/farmer-payment) successfully creates payments with voucher generation (purchase_voucher_id, payment_voucher_id), calculates totals correctly, and updates weighbridge slip status to 'settled', 3) Farmer payments list (GET /api/farmer-payments) returns all payments. Minor: Item ID validation not implemented but core functionality works."
 
 frontend:
   - task: "Farmer Payment Form - Auto-fill from Weighbridge Slip"
