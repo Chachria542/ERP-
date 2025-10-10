@@ -26,6 +26,10 @@ db = client[os.environ['DB_NAME']]
 from farmer_payment_endpoints import router as farmer_payment_router, init_db as init_farmer_db
 init_farmer_db(db)
 
+# Import universal weighbridge endpoints and initialize with db
+from universal_weighbridge_endpoints import router as universal_wb_router, init_db as init_universal_wb_db
+init_universal_wb_db(db)
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
