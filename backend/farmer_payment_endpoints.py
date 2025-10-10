@@ -227,7 +227,6 @@ async def approve_weighbridge_slip(gate_entry_no: str, user_id: str):
 @router.post("/farmer-payment", response_model=FarmerPayment)
 async def create_farmer_payment(payment_data: FarmerPaymentCreate):
     """Create farmer payment with voucher generation"""
-    import uuid
     
     try:
         # Generate book number
