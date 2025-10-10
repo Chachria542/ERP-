@@ -142,24 +142,52 @@ function FarmerPaymentPage({ user, onLogout }) {
     setLines(newLines);
   };
 
-  const calculateLineTotal = (index, currentLines) => {
+  const calculateLineTotal = (index, currentLines, skipField = null) => {
     const line = currentLines[index];
-    const itemAmount = line.ratePerQtl * line.actQtl;
     
-    // H+T calculation
-    let hPlusTRate = 0;
-    if (line.vehicleType === 'Truck') hPlusTRate = 4.75;
-    else if (line.vehicleType === 'Hammali') hPlusTRate = 5.75;
+    // Calculate Act.Qtl if not manual override
+    if (skipField !== 'actQtl') {
+      const actKg = (line.bags * line.packKg) + line.remKg;
+      const actQtl = actKg / 100;
+      currentLines[index].actKg = actKg;
+      currentLines[index].actQtl = parseFloat(actQtl.toFixed(2));
+    }
     
-    const hPlusT = hPlusTRate * line.actQtl;
-    const lineTotal = itemAmount - hPlusT;
+    // Calculate Item Amount if not manual override
+    if (skipField !== 'itemAmount') {
+      const itemAmount = line.ratePerQtl * currentLines[index].actQtl;
+      currentLines[index].itemAmount = Math.round(itemAmount);
+    }
     
-    currentLines[index] = {
-      ...line,
-      itemAmount: Math.round(itemAmount),
-      hPlusT: Math.round(hPlusT),
-      lineTotal: Math.round(lineTotal)
-    };
+    // Calculate H+T if not manual override
+    if (skipField !== 'hPlusT') {
+      let hPlusTRate = 0;
+      if (line.vehicleType === 'Truck') hPlusTRate = 4.75;
+      else if (line.vehicleType === 'Hammali') hPlusTRate = 5.75;
+      
+      const hPlusT = hPlusTRate * currentLines[index].actQtl;
+      currentLines[index].hPlusT = Math.round(hPlusT);
+    }
+    
+    // Calculate Line Total if not manual override
+    if (skipField !== 'lineTotal') {
+      const lineTotal = currentLines[index].itemAmount - currentLines[index].hPlusT;
+      currentLines[index].lineTotal = Math.round(lineTotal);
+    }
+  };
+
+  const handleLineChange = (index, field, value, isManualOverride = false) => {
+    const newLines = [...lines];
+    newLines[index][field] = value;
+    
+    // If manual override, skip recalculating that field
+    if (isManualOverride) {
+      calculateLineTotal(index, newLines, field);
+    } else {
+      calculateLineTotal(index, newLines);
+    }
+    
+    setLines(newLines);
   };
 
   const handleSavePayment = async (e) => {
