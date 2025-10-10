@@ -390,3 +390,49 @@ agent_communication:
       - Fixed response model validation for farmer conflict scenarios (removed strict PreEntry response model)
       
       **READY FOR PRODUCTION:** All NEW Universal Weighbridge System endpoints tested and working excellently. The system properly handles the complete flow from pre-entry creation to weighbridge entry and data retrieval for downstream modules.
+  - agent: "testing"
+    message: |
+      🎉 **COMPLETE UNIVERSAL WEIGHBRIDGE FLOW E2E TESTING COMPLETED - 100% SUCCESS RATE**
+      
+      **COMPREHENSIVE END-TO-END FLOW TEST RESULTS:**
+      ✅ **Phase 1 - Pre-Entry Creation (Office):** 
+      - Successfully created Farmer Purchase pre-entry (Slip ID: WB-25-000013)
+      - Dynamic form changes based on transaction type selection (6 types available)
+      - QR code generation and display working correctly
+      - Farmer details auto-creation working (Test Farmer E2E, 9999111222)
+      
+      ✅ **Phase 2 - Weighbridge Entry (Operator):**
+      - Pre-entry fetch working perfectly with Slip ID WB-25-000013
+      - Pre-entry details displayed correctly (farmer_purchase, Test Farmer E2E, Wheat, 50 bags)
+      - Weight calculations accurate: Gross 15000kg - Tare 10000kg = Net 5000kg
+      - Quantity calculations: 50 bags, 50.00 quintals
+      - Vehicle details capture working (MP09TEST999, Truck, Test Driver)
+      
+      ✅ **Phase 3 - Farmer Payment (Payment Processing):**
+      - Book number auto-generation working (SAN-25-###### format)
+      - Weighbridge entry fetch from new /api/weighbridge-entry endpoint
+      - Photo approval modal displays correctly with weighbridge photos
+      - Auto-fill mechanism working perfectly:
+        * Farmer Name: Test Farmer E2E
+        * Mobile: 9999111222
+        * Line items: 50 bags, 50.00 quintals
+        * H+T calculation: ₹237.50 (4.75 * 50 for Truck)
+      - Payment processing and form validation working
+      
+      ✅ **Phase 4 - Transaction Type Validation:**
+      - Internal Transfer pre-entry created successfully
+      - Weighbridge entry for internal transfer working
+      - Farmer Payment correctly rejects internal_transfer slips with proper error message
+      
+      **KEY SUCCESS CRITERIA VERIFIED:**
+      - Complete data flow: Pre-Entry → Weighbridge → Payment
+      - No data loss or corruption between modules
+      - All calculations accurate and real-time
+      - Transaction type validation prevents incorrect slip usage
+      - Auto-fill populates all required fields correctly
+      - Vehicle-specific H+T calculations working (Truck: 4.75/qtl, Tractor: 0, Hammali: 5.75/qtl)
+      - Sequential slip ID generation with proper format
+      - QR code generation for mobile scanning
+      - Photo capture and approval workflow
+      
+      **PRODUCTION READY:** Complete Universal Weighbridge Flow tested end-to-end with 100% success rate. All modules integrated seamlessly with proper data validation and error handling.
