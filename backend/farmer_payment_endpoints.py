@@ -11,6 +11,7 @@ from farmer_payment_models import (
 )
 from typing import List
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
