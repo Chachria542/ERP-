@@ -15,8 +15,8 @@ class FarmerPaymentQueueTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
-        self.items = {}
-        self.weighbridge_data = {}
+        self.test_slip_id = None
+        self.created_payment_id = None
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
