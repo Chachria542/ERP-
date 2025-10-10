@@ -101,3 +101,105 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Fix auto-population of farmer details in Farmer Payment screen from weighbridge slip data.
+  Delete old weighbridge data and create mock entries in the new format matching farmer_payment_models.py schema.
+
+backend:
+  - task: "Mock Data Setup - Items and Weighbridge Pre-Entries"
+    implemented: true
+    working: true
+    file: "backend/setup_mock_data.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Created setup_mock_data.py script to generate 4 items (Wheat, Soybean, Chana, Corn) and 3 weighbridge pre-entries (GT001, GT002, GT003) with complete schema including mobile, city, token_no, vehicle_type, bags, rem_kg, act_qtl fields. Fixed database name to use DB_NAME environment variable."
+
+  - task: "Weighbridge Slip Fetch Endpoint - /api/weighbridge/slip/{gate_entry_no}"
+    implemented: true
+    working: true
+    file: "backend/farmer_payment_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Initial implementation had route conflict with old weighbridge endpoints in server.py"
+      - working: true
+        agent: "main"
+        comment: "Fixed route conflict by commenting out old weighbridge endpoints in server.py (lines 427-507). Endpoint now successfully returns weighbridge slip data with all required fields."
+
+  - task: "Farmer Payment Endpoints - Create and List"
+    implemented: true
+    working: "NA"
+    file: "backend/farmer_payment_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Endpoints exist for creating farmer payments and generating vouchers. Not yet tested."
+
+frontend:
+  - task: "Farmer Payment Form - Auto-fill from Weighbridge Slip"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/FarmerPaymentPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Frontend has graceful fallback logic in handleApproveSlip function (lines 120-164) to handle missing fields from weighbridge data. Uses slipData fields when available, otherwise calculates from net_weight. Ready for testing."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Weighbridge Slip Fetch Endpoint"
+    - "Farmer Payment Form Auto-fill"
+    - "Farmer Payment Creation with Voucher Generation"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      Completed Phase 1: Fixed auto-population issue in Farmer Payment module.
+      
+      **What was done:**
+      1. Created setup_mock_data.py to generate test data (4 items, 3 weighbridge pre-entries)
+      2. Fixed database name mismatch (using DB_NAME env var instead of hardcoded 'sudarshan_erp')
+      3. Identified and fixed route conflict - old weighbridge endpoints in server.py were shadowing new endpoints
+      4. Commented out old weighbridge endpoints in server.py (lines 427-507)
+      5. Verified weighbridge slip fetch endpoint now works correctly
+      
+      **Test Data Available:**
+      - Gate Entry Numbers: GT001, GT002, GT003
+      - GT001: Ramesh Kumar, Truck, Wheat, 52.34 qtl
+      - GT002: Suresh Patil, Tractor, Soybean, 35.67 qtl
+      - GT003: Mahesh Jain, Hammali, Chana, 21.89 qtl
+      
+      **Ready for Backend Testing:**
+      - Test weighbridge slip fetch for GT001, GT002, GT003
+      - Test farmer payment creation flow
+      - Test voucher generation (Purchase and Payment vouchers)
+      
+      **Frontend Testing:**
+      - Test Gate Entry No input and weighbridge slip fetch
+      - Test photo approval modal display
+      - Test auto-fill of farmer details and line items
+      - Test H+T calculation for different vehicle types
+      - Test saving farmer payment
