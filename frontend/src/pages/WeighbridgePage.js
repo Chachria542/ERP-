@@ -5,27 +5,26 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 function WeighbridgePage({ user, onLogout }) {
-  const [slips, setSlips] = useState([]);
-  const [parties, setParties] = useState([]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showWeighDialog, setShowWeighDialog] = useState(false);
-  const [selectedSlip, setSelectedSlip] = useState(null);
-  const [searchSlip, setSearchSlip] = useState('');
 
-  // Form state
+  // Pre-entry form state
+  const [gateEntryNo, setGateEntryNo] = useState('');
+  const [farmerName, setFarmerName] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [city, setCity] = useState('');
+  const [tokenNo, setTokenNo] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  const [partyId, setPartyId] = useState('');
+  const [vehicleType, setVehicleType] = useState('Truck');
   const [itemId, setItemId] = useState('');
-  const [flowType, setFlowType] = useState('purchase');
   const [grossWeight, setGrossWeight] = useState('');
   const [tareWeight, setTareWeight] = useState('');
 
