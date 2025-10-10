@@ -365,8 +365,8 @@ yarn start
 ```
 
 ### Access:
-- Frontend: https://cropfund-platform.preview.emergentagent.com
-- Backend API: https://cropfund-platform.preview.emergentagent.com/api
+- Frontend: https://farmers-ledger.preview.emergentagent.com
+- Backend API: https://farmers-ledger.preview.emergentagent.com/api
 
 ## Testing Recommendations
 
