@@ -633,22 +633,61 @@ class FarmerPaymentQueueTester:
     
     def run_all_tests(self):
         """Run all tests in sequence"""
-        print("🚀 Starting Farmer Payment Backend API Tests")
+        print("🚀 Starting NEW Farmer Payment Queue Backend API Tests")
         print(f"Testing against: {self.base_url}")
-        print("=" * 60)
+        print("=" * 80)
         
-        # Run tests in order
-        self.test_items_endpoint()
-        self.test_weighbridge_slip_fetch()
-        self.test_book_number_generation()
-        self.test_farmer_payment_creation()
-        self.test_farmer_payments_list()
-        self.test_edge_cases()
+        # Setup test data first
+        if not self.setup_test_data():
+            print("❌ Failed to setup test data. Aborting tests.")
+            return False
+        
+        print("\n" + "=" * 80)
+        print("📋 TESTING FARMER PAYMENT QUEUE ENDPOINTS")
+        print("=" * 80)
+        
+        # Test queue functionality
+        self.test_queue_default()
+        self.test_queue_search_slip_id()
+        self.test_queue_search_farmer_name()
+        self.test_queue_date_filter_today()
+        self.test_queue_sort_by_amount()
+        
+        print("\n" + "=" * 80)
+        print("📋 TESTING PAYMENT STATUS UPDATE ENDPOINTS")
+        print("=" * 80)
+        
+        # Test payment status updates
+        self.test_update_payment_status_valid()
+        self.test_update_payment_status_invalid()
+        self.test_update_payment_status_nonexistent()
+        
+        print("\n" + "=" * 80)
+        print("📋 TESTING FARMER PAYMENT INTEGRATION")
+        print("=" * 80)
+        
+        # Test farmer payment creation and status updates
+        self.test_farmer_payment_creation_updates_status()
+        
+        print("\n" + "=" * 80)
+        print("📋 TESTING QUEUE EDGE CASES")
+        print("=" * 80)
+        
+        # Test edge cases
+        self.test_queue_empty_after_completion()
+        self.test_queue_mixed_transaction_types()
+        
+        print("\n" + "=" * 80)
+        print("📋 VERIFYING RESPONSE STRUCTURE")
+        print("=" * 80)
+        
+        # Verify response structure
+        self.verify_queue_response_structure()
         
         # Summary
-        print("=" * 60)
-        print("📊 TEST SUMMARY")
-        print("=" * 60)
+        print("\n" + "=" * 80)
+        print("📊 COMPREHENSIVE TEST SUMMARY")
+        print("=" * 80)
         
         total_tests = len(self.test_results)
         passed_tests = sum(1 for result in self.test_results if result['success'])
@@ -664,8 +703,10 @@ class FarmerPaymentQueueTester:
             for result in self.test_results:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
+        else:
+            print("\n🎉 ALL TESTS PASSED! Farmer Payment Queue functionality is working correctly.")
         
-        print("\n" + "=" * 60)
+        print("\n" + "=" * 80)
         return failed_tests == 0
 
 if __name__ == "__main__":
