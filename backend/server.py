@@ -424,87 +424,89 @@ async def update_item_price(item_id: str, new_price: float):
     
     return {"message": "Price updated and LTV recalculated"}
 
-# ============= WEIGHBRIDGE ENDPOINTS =============
+# ============= OLD WEIGHBRIDGE ENDPOINTS (COMMENTED OUT - NOW USING farmer_payment_endpoints.py) =============
+# These old endpoints have been replaced by the new farmer payment module
+# The new endpoints are in farmer_payment_endpoints.py and use a different schema
 
-@api_router.post("/weighbridge/pre-entry", response_model=WeighbridgeSlip)
-async def create_weighbridge_pre_entry(slip_data: WeighbridgeSlipCreate):
-    # Get party and item details
-    party = await db.parties.find_one({"id": slip_data.party_id})
-    item = await db.items.find_one({"id": slip_data.item_id})
-    
-    if not party or not item:
-        raise HTTPException(status_code=404, detail="Party or Item not found")
-    
-    # Generate slip number
-    count = await db.weighbridge_slips.count_documents({})
-    slip_number = f"WB{count + 1:06d}"
-    
-    # Generate QR code with slip details
-    qr_data = f"SLIP:{slip_number}|VEHICLE:{slip_data.vehicle_number}|PARTY:{party['name']}|ITEM:{item['name']}"
-    qr_code = generate_qr_code(qr_data)
-    
-    slip = WeighbridgeSlip(
-        slip_number=slip_number,
-        qr_code=qr_code,
-        vehicle_number=slip_data.vehicle_number,
-        party_id=slip_data.party_id,
-        party_name=party['name'],
-        item_id=slip_data.item_id,
-        item_name=item['name'],
-        status="pre_entry",
-        flow_type=slip_data.flow_type,
-        created_by=slip_data.created_by
-    )
-    
-    doc = slip.model_dump()
-    doc['created_at'] = doc['created_at'].isoformat()
-    await db.weighbridge_slips.insert_one(doc)
-    
-    return slip
-
-@api_router.get("/weighbridge/slip/{slip_number}", response_model=WeighbridgeSlip)
-async def get_weighbridge_slip(slip_number: str):
-    slip = await db.weighbridge_slips.find_one({"slip_number": slip_number}, {"_id": 0})
-    if not slip:
-        raise HTTPException(status_code=404, detail="Slip not found")
-    if isinstance(slip.get('created_at'), str):
-        slip['created_at'] = datetime.fromisoformat(slip['created_at'])
-    return slip
-
-@api_router.put("/weighbridge/weigh/{slip_number}")
-async def update_weighbridge_weights(slip_number: str, weights: WeighbridgeSlipUpdate):
-    slip = await db.weighbridge_slips.find_one({"slip_number": slip_number})
-    if not slip:
-        raise HTTPException(status_code=404, detail="Slip not found")
-    
-    update_data = {}
-    if weights.gross_weight is not None:
-        update_data['gross_weight'] = weights.gross_weight
-    if weights.tare_weight is not None:
-        update_data['tare_weight'] = weights.tare_weight
-    
-    # Calculate net weight if both available
-    if slip.get('gross_weight') and slip.get('tare_weight'):
-        update_data['net_weight'] = slip['gross_weight'] - slip['tare_weight']
-        update_data['status'] = 'weighed'
-    elif weights.gross_weight and weights.tare_weight:
-        update_data['net_weight'] = weights.gross_weight - weights.tare_weight
-        update_data['status'] = 'weighed'
-    
-    await db.weighbridge_slips.update_one(
-        {"slip_number": slip_number},
-        {"$set": update_data}
-    )
-    
-    return {"message": "Weights updated successfully"}
-
-@api_router.get("/weighbridge/slips", response_model=List[WeighbridgeSlip])
-async def get_weighbridge_slips():
-    slips = await db.weighbridge_slips.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    for slip in slips:
-        if isinstance(slip.get('created_at'), str):
-            slip['created_at'] = datetime.fromisoformat(slip['created_at'])
-    return slips
+# @api_router.post("/weighbridge/pre-entry", response_model=WeighbridgeSlip)
+# async def create_weighbridge_pre_entry(slip_data: WeighbridgeSlipCreate):
+#     # Get party and item details
+#     party = await db.parties.find_one({"id": slip_data.party_id})
+#     item = await db.items.find_one({"id": slip_data.item_id})
+#     
+#     if not party or not item:
+#         raise HTTPException(status_code=404, detail="Party or Item not found")
+#     
+#     # Generate slip number
+#     count = await db.weighbridge_slips.count_documents({})
+#     slip_number = f"WB{count + 1:06d}"
+#     
+#     # Generate QR code with slip details
+#     qr_data = f"SLIP:{slip_number}|VEHICLE:{slip_data.vehicle_number}|PARTY:{party['name']}|ITEM:{item['name']}"
+#     qr_code = generate_qr_code(qr_data)
+#     
+#     slip = WeighbridgeSlip(
+#         slip_number=slip_number,
+#         qr_code=qr_code,
+#         vehicle_number=slip_data.vehicle_number,
+#         party_id=slip_data.party_id,
+#         party_name=party['name'],
+#         item_id=slip_data.item_id,
+#         item_name=item['name'],
+#         status="pre_entry",
+#         flow_type=slip_data.flow_type,
+#         created_by=slip_data.created_by
+#     )
+#     
+#     doc = slip.model_dump()
+#     doc['created_at'] = doc['created_at'].isoformat()
+#     await db.weighbridge_slips.insert_one(doc)
+#     
+#     return slip
+# 
+# @api_router.get("/weighbridge/slip/{slip_number}", response_model=WeighbridgeSlip)
+# async def get_weighbridge_slip(slip_number: str):
+#     slip = await db.weighbridge_slips.find_one({"slip_number": slip_number}, {"_id": 0})
+#     if not slip:
+#         raise HTTPException(status_code=404, detail="Slip not found")
+#     if isinstance(slip.get('created_at'), str):
+#         slip['created_at'] = datetime.fromisoformat(slip['created_at'])
+#     return slip
+# 
+# @api_router.put("/weighbridge/weigh/{slip_number}")
+# async def update_weighbridge_weights(slip_number: str, weights: WeighbridgeSlipUpdate):
+#     slip = await db.weighbridge_slips.find_one({"slip_number": slip_number})
+#     if not slip:
+#         raise HTTPException(status_code=404, detail="Slip not found")
+#     
+#     update_data = {}
+#     if weights.gross_weight is not None:
+#         update_data['gross_weight'] = weights.gross_weight
+#     if weights.tare_weight is not None:
+#         update_data['tare_weight'] = weights.tare_weight
+#     
+#     # Calculate net weight if both available
+#     if slip.get('gross_weight') and slip.get('tare_weight'):
+#         update_data['net_weight'] = slip['gross_weight'] - slip['tare_weight']
+#         update_data['status'] = 'weighed'
+#     elif weights.gross_weight and weights.tare_weight:
+#         update_data['net_weight'] = weights.gross_weight - weights.tare_weight
+#         update_data['status'] = 'weighed'
+#     
+#     await db.weighbridge_slips.update_one(
+#         {"slip_number": slip_number},
+#         {"$set": update_data}
+#     )
+#     
+#     return {"message": "Weights updated successfully"}
+# 
+# @api_router.get("/weighbridge/slips", response_model=List[WeighbridgeSlip])
+# async def get_weighbridge_slips():
+#     slips = await db.weighbridge_slips.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+#     for slip in slips:
+#         if isinstance(slip.get('created_at'), str):
+#             slip['created_at'] = datetime.fromisoformat(slip['created_at'])
+#     return slips
 
 # ============= CUSTODY & PLEDGE ENDPOINTS =============
 
