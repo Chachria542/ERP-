@@ -173,9 +173,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Weighbridge Slip Fetch Endpoint"
     - "Farmer Payment Form Auto-fill"
-    - "Farmer Payment Creation with Voucher Generation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
