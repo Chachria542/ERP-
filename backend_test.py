@@ -271,31 +271,81 @@ class FarmerPaymentQueueTester:
         except Exception as e:
             self.log_test("Queue Sort - Amount Desc", False, f"Request failed: {str(e)}")
     
-    def test_book_number_generation(self):
-        """Test GET /api/book-number-next?location=Sanawad"""
-        print("🔍 Testing Book Number Generation...")
+    def test_update_payment_status_valid(self):
+        """Test Case 1: Valid status update"""
+        print("🔍 Testing Update Payment Status - Valid Status...")
+        
+        if not self.test_slip_id:
+            self.log_test("Update Payment Status - Valid", False, "No test slip ID available")
+            return
         
         try:
-            response = requests.get(f"{self.base_url}/book-number-next?location=Sanawad", timeout=10)
+            payload = {"payment_status": "payment_completed"}
+            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
+                                  json=payload,
+                                  headers={'Content-Type': 'application/json'},
+                                  timeout=10)
             
             if response.status_code == 200:
-                data = response.json()
-                book_no = data.get('book_no', '')
-                
-                # Check format: SAN-YY-######
-                if book_no.startswith('SAN-') and len(book_no.split('-')) == 3:
-                    parts = book_no.split('-')
-                    if len(parts[1]) == 2 and len(parts[2]) == 6 and parts[2].isdigit():
-                        self.log_test("Book Number Generation", True, f"Generated: {book_no}")
-                    else:
-                        self.log_test("Book Number Generation", False, f"Invalid format: {book_no}")
+                result = response.json()
+                if (result.get('slip_id') == self.test_slip_id and 
+                    result.get('payment_status') == 'payment_completed'):
+                    self.log_test("Update Payment Status - Valid", True, 
+                                f"Successfully updated status to payment_completed for {self.test_slip_id}")
                 else:
-                    self.log_test("Book Number Generation", False, f"Invalid format: {book_no}")
+                    self.log_test("Update Payment Status - Valid", False, 
+                                f"Unexpected response: {result}")
             else:
-                self.log_test("Book Number Generation", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Update Payment Status - Valid", False, f"HTTP {response.status_code}: {response.text}")
                 
         except Exception as e:
-            self.log_test("Book Number Generation", False, f"Request failed: {str(e)}")
+            self.log_test("Update Payment Status - Valid", False, f"Request failed: {str(e)}")
+    
+    def test_update_payment_status_invalid(self):
+        """Test Case 2: Invalid status"""
+        print("🔍 Testing Update Payment Status - Invalid Status...")
+        
+        if not self.test_slip_id:
+            self.log_test("Update Payment Status - Invalid", False, "No test slip ID available")
+            return
+        
+        try:
+            payload = {"payment_status": "invalid_status"}
+            response = requests.put(f"{self.base_url}/weighbridge-entry/{self.test_slip_id}/payment-status",
+                                  json=payload,
+                                  headers={'Content-Type': 'application/json'},
+                                  timeout=10)
+            
+            if response.status_code == 400:
+                self.log_test("Update Payment Status - Invalid", True, 
+                            "Correctly rejected invalid status with 400 error")
+            else:
+                self.log_test("Update Payment Status - Invalid", False, 
+                            f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Update Payment Status - Invalid", False, f"Request failed: {str(e)}")
+    
+    def test_update_payment_status_nonexistent(self):
+        """Test Case 3: Non-existent slip"""
+        print("🔍 Testing Update Payment Status - Non-existent Slip...")
+        
+        try:
+            payload = {"payment_status": "payment_completed"}
+            response = requests.put(f"{self.base_url}/weighbridge-entry/WB-99-999999/payment-status",
+                                  json=payload,
+                                  headers={'Content-Type': 'application/json'},
+                                  timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test("Update Payment Status - Non-existent", True, 
+                            "Correctly returned 404 for non-existent slip")
+            else:
+                self.log_test("Update Payment Status - Non-existent", False, 
+                            f"Expected 404, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Update Payment Status - Non-existent", False, f"Request failed: {str(e)}")
     
     def test_farmer_payment_creation(self):
         """Test POST /api/farmer-payment"""
