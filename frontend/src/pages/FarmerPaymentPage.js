@@ -129,11 +129,13 @@ function FarmerPaymentPage({ user, onLogout }) {
       ...newLines[0],
       itemId: data.item_id || '',
       itemName: data.item_name || '',
+      packKg: 100,
       bags: data.bags || 0,
       remKg: data.rem_kg || 0,
       actKg: data.net_weight || 0,
       actQtl: data.act_qtl || 0,
       ratePerQtl: data.rate_per_qtl || 0,
+      originalRate: data.rate_per_qtl || 0,  // Store original rate
       vehicleType: data.vehicle_type || 'Truck'
     };
     
