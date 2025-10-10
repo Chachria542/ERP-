@@ -171,6 +171,9 @@ class WeighbridgeEntry(BaseModel):
     operator_name: str
     shift: Optional[str] = None  # Morning, Evening, Night
     
+    # Payment tracking (for downstream processing)
+    payment_status: str = "pending_payment"  # "pending_payment" | "payment_completed" | "payment_cancelled"
+    
     # Metadata
     status: WeighbridgeStatus = WeighbridgeStatus.COMPLETED
     weighed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
