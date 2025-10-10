@@ -512,18 +512,38 @@ class FarmerPaymentQueueTester:
         """Test Case 2: Mixed transaction types (should only show farmer_purchase)"""
         print("🔍 Testing Queue - Mixed Transaction Types...")
         
+        # Get item ID for internal transfer
+        wheat_item_id = None
+        try:
+            items_response = requests.get(f"{self.base_url}/items", timeout=10)
+            if items_response.status_code == 200:
+                items = items_response.json()
+                for item in items:
+                    if 'wheat' in item.get('name', '').lower():
+                        wheat_item_id = item['id']
+                        break
+                if not wheat_item_id and items:
+                    wheat_item_id = items[0]['id']
+        except:
+            pass
+        
+        if not wheat_item_id:
+            self.log_test("Queue Mixed Transaction Types", False, "No item ID available for internal transfer")
+            return
+        
         # Create an internal_transfer pre-entry for testing
         try:
             internal_transfer_data = {
                 "transaction_type": "internal_transfer",
+                "from_location": "Warehouse A",
+                "to_location": "Warehouse B",
                 "party_type": "internal",
                 "party_name": "Internal Transfer Test",
                 "party_mobile": "8888888888",
-                "item_name": "Wheat",
+                "item_id": wheat_item_id,
                 "rate_per_qtl": 0,
-                "bags_expected": 25,
-                "created_by_id": "test_user",
-                "created_by_name": "Test User"
+                "expected_bags": 25,
+                "created_by": "test_user"
             }
             
             response = requests.post(f"{self.base_url}/pre-entry",
