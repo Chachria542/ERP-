@@ -8,6 +8,7 @@ import WeighbridgePage from "./pages/WeighbridgePage";
 import CustodyPage from "./pages/CustodyPage";
 import PurchasePage from "./pages/PurchasePage";
 import FarmerPaymentPage from "./pages/FarmerPaymentPage";
+import PreEntryPage from "./pages/PreEntryPage";
 import SalesPage from "./pages/SalesPage";
 import ProductionPage from "./pages/ProductionPage";
 import LedgerPage from "./pages/LedgerPage";
