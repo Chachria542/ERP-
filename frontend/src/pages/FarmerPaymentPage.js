@@ -451,6 +451,38 @@ function FarmerPaymentPage({ user, onLogout }) {
 
         {/* Rest of the existing payment form... */}
         <form onSubmit={handleSavePayment} className="space-y-6">
+          {/* Header Section */}
+          <Card className="p-6">
+            <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Document Details</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>Gate Entry No</Label>
+                <Input 
+                  value={gateEntryNo} 
+                  onChange={(e) => setGateEntryNo(e.target.value)} 
+                  placeholder="WB-25-000001"
+                  readOnly
+                />
+              </div>
+              <div>
+                <Label>Tulai No</Label>
+                <Input 
+                  value={tulaiNo} 
+                  onChange={(e) => setTulaiNo(e.target.value)} 
+                  placeholder="Tulai number"
+                />
+              </div>
+              <div>
+                <Label>Agreement No</Label>
+                <Input 
+                  value={agrNo} 
+                  onChange={(e) => setAgrNo(e.target.value)} 
+                  placeholder="Agreement number"
+                />
+              </div>
+            </div>
+          </Card>
+
           {/* Farmer Details Section */}
           <Card className="p-6">
             <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Farmer Details</h2>
