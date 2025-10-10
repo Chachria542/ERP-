@@ -222,10 +222,13 @@ function FarmerPaymentPage({ user, onLogout }) {
 
   const resetForm = () => {
     setGateEntryNo('');
+    setTulaiNo('');
+    setAgrNo('');
     setFarmerName('');
     setMobile('');
     setCity('');
     setTokenNo('');
+    setCashBankAcId('');
     setLines([{
       itemId: '', itemName: '', packKg: 100, bags: 0, remKg: 0,
       actKg: 0, actQtl: 0, ratePerQtl: 0, itemAmount: 0,
