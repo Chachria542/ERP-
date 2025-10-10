@@ -436,3 +436,59 @@ agent_communication:
       - Photo capture and approval workflow
       
       **PRODUCTION READY:** Complete Universal Weighbridge Flow tested end-to-end with 100% success rate. All modules integrated seamlessly with proper data validation and error handling.
+
+backend:
+  - task: "NEW Farmer Payment Queue Endpoints"
+    implemented: true
+    working: true
+    file: "backend/farmer_payment_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: All NEW farmer payment queue endpoints working perfectly (15/15 tests passed - 100% success rate). Queue endpoint (GET /api/farmer-payment/queue) supports all required filters: default queue (pending_payment), search by slip_id, search by farmer_name, date_filter=today, sort_by=amount with sort_order=desc. Response structure matches specification exactly with all required fields (slip_id, farmer_name, farmer_mobile, item_name, act_qtl, vehicle_type, rate_per_qtl, estimated_amount, payment_status, created_at, weighed_at). Payment status update endpoint (PUT /api/weighbridge-entry/{slip_id}/payment-status) working correctly with proper validation (accepts pending_payment, payment_completed, payment_cancelled; rejects invalid statuses with 400; returns 404 for non-existent slips). Farmer payment creation automatically updates weighbridge entry status to payment_completed and removes slip from queue. Queue correctly returns empty array when all payments completed. Queue filtering correctly shows only farmer_purchase transaction types, excluding internal_transfer and other types. Estimated amount calculations accurate (rate * qtl - H+T based on vehicle type: Truck=4.75/qtl, Tractor=0, Hammali=5.75/qtl)."
+
+agent_communication:
+  - agent: "testing"
+    message: |
+      🎉 **NEW FARMER PAYMENT QUEUE ENDPOINTS TESTING COMPLETED - 100% SUCCESS RATE**
+      
+      **COMPREHENSIVE TEST RESULTS (15/15 TESTS PASSED):**
+      
+      **✅ QUEUE FUNCTIONALITY TESTS:**
+      - **Default Queue:** Returns all weighbridge entries with payment_status="pending_payment" and transaction_type="farmer_purchase"
+      - **Search by Slip ID:** Exact match filtering working (e.g., search=WB-25-000020)
+      - **Search by Farmer Name:** Partial name matching working (e.g., search="Test Farmer")
+      - **Date Filter Today:** Correctly filters entries created today
+      - **Sort by Amount:** Descending sort by estimated_amount working correctly
+      
+      **✅ PAYMENT STATUS UPDATE TESTS:**
+      - **Valid Status Update:** PUT /api/weighbridge-entry/{slip_id}/payment-status?payment_status=payment_completed works correctly
+      - **Invalid Status Validation:** Properly rejects invalid statuses with 400 error
+      - **Non-existent Slip Handling:** Returns 404 for non-existent slip IDs
+      
+      **✅ INTEGRATION TESTS:**
+      - **Farmer Payment Creation Updates Status:** Creating farmer payment automatically sets weighbridge entry payment_status to "payment_completed"
+      - **Queue Removal After Payment:** Paid slips correctly removed from queue (0 results when searching for completed payments)
+      
+      **✅ EDGE CASE TESTS:**
+      - **Empty Queue:** Returns empty array [] when all payments completed
+      - **Transaction Type Filtering:** Queue shows ONLY farmer_purchase types, excludes internal_transfer and other transaction types
+      
+      **✅ RESPONSE STRUCTURE VERIFICATION:**
+      - All required fields present: slip_id, farmer_name, farmer_mobile, item_name, act_qtl, vehicle_type, rate_per_qtl, estimated_amount, payment_status, created_at, weighed_at
+      - Estimated amount calculation verified: (rate_per_qtl * act_qtl) - (H+T_rate * act_qtl)
+      - Vehicle-specific H+T rates: Truck=₹4.75/qtl, Tractor=₹0/qtl, Hammali=₹5.75/qtl
+      
+      **KEY VERIFIED FEATURES:**
+      - Complete queue management for farmer payments
+      - Advanced search and filtering capabilities
+      - Real-time payment status tracking
+      - Automatic status updates via farmer payment creation
+      - Proper transaction type segregation
+      - Accurate financial calculations
+      - Comprehensive error handling and validation
+      
+      **PRODUCTION READY:** All NEW Farmer Payment Queue endpoints tested comprehensively and working excellently. Ready for production deployment.
