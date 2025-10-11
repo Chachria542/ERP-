@@ -105,18 +105,72 @@ function FarmerPaymentPage({ user, onLogout }) {
   };
 
   const handleProcessPayment = async (slipId) => {
-    // Fetch weighbridge entry and switch to form view
+    // Fetch weighbridge entry and show photo approval modal
     try {
       const response = await axios.get(`${API}/weighbridge-entry/${slipId}`);
       setSlipData(response.data);
       setGateEntryNo(slipId);
-      setView('form');
       
-      // Auto-fill form
-      autoFillFromSlip(response.data);
+      // Show photo approval modal first
+      setShowPhotoModal(true);
       
     } catch (error) {
       toast.error('Failed to load slip data');
+    }
+  };
+
+  const handleApprovePhotos = async () => {
+    try {
+      // Update backend with approval
+      await axios.put(`${API}/weighbridge-entry/${gateEntryNo}/photo-approval`, null, {
+        params: {
+          approved: true,
+          user_id: user.id
+        }
+      });
+      
+      // Close modal and open payment form
+      setShowPhotoModal(false);
+      setView('form');
+      
+      // Auto-fill form
+      autoFillFromSlip(slipData);
+      
+      toast.success('Photos approved. Processing payment...');
+      
+    } catch (error) {
+      toast.error('Failed to approve photos');
+    }
+  };
+
+  const handleRejectPhotos = () => {
+    // Show rejection reason dialog
+    setShowRejectionDialog(true);
+  };
+
+  const handleConfirmRejection = async () => {
+    try {
+      // Update backend with rejection
+      await axios.put(`${API}/weighbridge-entry/${gateEntryNo}/photo-approval`, null, {
+        params: {
+          approved: false,
+          user_id: user.id,
+          rejection_reason: rejectionReason || 'No reason provided'
+        }
+      });
+      
+      // Close modals and return to queue
+      setShowRejectionDialog(false);
+      setShowPhotoModal(false);
+      setSlipData(null);
+      setGateEntryNo('');
+      setRejectionReason('');
+      
+      toast.error('Photos rejected. Slip returned to queue.');
+      fetchQueue();
+      
+    } catch (error) {
+      toast.error('Failed to reject photos');
     }
   };
 
