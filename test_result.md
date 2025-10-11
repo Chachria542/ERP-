@@ -568,11 +568,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OTP Verification System - Send OTP Endpoint"
-    - "OTP Verification System - Verify OTP Endpoint"
-    - "Farmer Model Mobile Verification Fields"
+    - "OTP-Farmer Integration - Preserve Verification Status"
     - "Pre-Entry Page OTP Verification Flow"
-  stuck_tasks: []
+  stuck_tasks:
+    - "OTP Verification System - Verify OTP Endpoint"
   test_all: false
   test_priority: "high_first"
 
