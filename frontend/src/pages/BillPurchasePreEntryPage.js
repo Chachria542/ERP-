@@ -89,6 +89,17 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
     }
   };
 
+  const handleItemChange = (itemId) => {
+    const item = items.find(i => i.id === itemId);
+    if (item) {
+      setFormData(prev => ({
+        ...prev,
+        item_id: itemId,
+        item_name: item.name
+      }));
+    }
+  };
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
