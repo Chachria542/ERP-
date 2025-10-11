@@ -213,6 +213,12 @@ function PreEntryPage({ user, onLogout }) {
       return;
     }
 
+    // OTP Verification Check (only for farmer_purchase with NEW farmers)
+    if (transactionType === 'farmer_purchase' && partyMobile && !otpVerified) {
+      toast.error('Please verify mobile number first');
+      return;
+    }
+
     try {
       const payload = {
         transaction_type: transactionType,
