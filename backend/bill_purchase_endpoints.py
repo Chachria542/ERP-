@@ -85,7 +85,7 @@ async def create_extended_party(party_data: PartyExtendedCreate):
     await db.parties.insert_one(doc)
     return party
 
-@router.get("/parties/extended/{party_id}", response_model=PartyExtended)
+@router.get("/suppliers/{party_id}", response_model=PartyExtended)
 async def get_extended_party(party_id: str):
     """Get party with extended fields"""
     party = await db.parties.find_one({"id": party_id}, {"_id": 0})
