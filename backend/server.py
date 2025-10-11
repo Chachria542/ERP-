@@ -34,6 +34,10 @@ init_universal_wb_db(db)
 from otp_endpoints import router as otp_router, init_db as init_otp_db
 init_otp_db(db)
 
+# Import bill purchase endpoints and initialize with db
+from bill_purchase_endpoints import router as bill_purchase_router, init_db as init_bill_purchase_db
+init_bill_purchase_db(db)
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
