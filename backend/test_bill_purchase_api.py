@@ -41,7 +41,7 @@ def test_get_suppliers():
     """Test getting suppliers list"""
     print("🧪 Testing suppliers list...")
     
-    response = requests.get(f"{BASE_URL}/parties/suppliers")
+    response = requests.get(f"{BASE_URL}/suppliers")
     
     if response.status_code == 200:
         suppliers = response.json()
