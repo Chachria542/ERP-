@@ -23,6 +23,7 @@ const BROKERAGE_TYPES = [
 
 function BillPurchasePreEntryPage({ user, onLogout }) {
   const [suppliers, setSuppliers] = useState([]);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
