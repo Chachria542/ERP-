@@ -711,6 +711,80 @@ function PreEntryPage({ user, onLogout }) {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* OTP Verification Dialog */}
+        <Dialog open={showOTPDialog} onOpenChange={setShowOTPDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
+                📱 Mobile Verification
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Instructions */}
+              <div className="text-center p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                <p className="text-sm mb-2" style={{color: '#6B5846'}}>
+                  Enter 4-digit OTP sent to
+                </p>
+                <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{partyMobile}</p>
+                <p className="text-xs mt-2 text-gray-500">
+                  🔑 [MOCK MODE] Check backend console for OTP
+                </p>
+              </div>
+
+              {/* OTP Input */}
+              <div>
+                <Label className="text-sm font-semibold">Enter OTP</Label>
+                <Input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="****"
+                  maxLength={4}
+                  className="mt-1 text-center text-2xl tracking-widest font-bold"
+                  autoFocus
+                />
+              </div>
+
+              {/* Timer */}
+              <div className="text-center">
+                {otpTimer > 0 ? (
+                  <p className="text-sm">
+                    ⏱️ OTP expires in: <strong className="text-red-600">{Math.floor(otpTimer / 60)}:{(otpTimer % 60).toString().padStart(2, '0')}</strong>
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-600">⚠️ OTP expired. Please resend.</p>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={handleResendOTP}
+                  disabled={resendCooldown > 0 || otpLoading}
+                  className="btn-secondary"
+                >
+                  {resendCooldown > 0 ? `Resend (${resendCooldown}s)` : '🔄 Resend OTP'}
+                </Button>
+                <Button
+                  onClick={handleVerifyOTP}
+                  disabled={otp.length !== 4 || otpLoading}
+                  className="btn-primary"
+                >
+                  {otpLoading ? '⏳ Verifying...' : '✅ Verify'}
+                </Button>
+              </div>
+
+              {/* Help Text */}
+              <div className="text-center">
+                <p className="text-xs text-gray-500">
+                  Didn't receive OTP? Wait {resendCooldown > 0 ? resendCooldown : 60} seconds to resend
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
