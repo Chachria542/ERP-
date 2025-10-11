@@ -30,6 +30,10 @@ init_farmer_db(db)
 from universal_weighbridge_endpoints import router as universal_wb_router, init_db as init_universal_wb_db
 init_universal_wb_db(db)
 
+# Import OTP endpoints and initialize with db
+from otp_endpoints import router as otp_router, init_db as init_otp_db
+init_otp_db(db)
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
