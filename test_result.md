@@ -606,3 +606,58 @@ agent_communication:
       - Test end-to-end: Send OTP → Verify OTP → Create Pre-Entry
       
       **Ready for Backend Testing:** All OTP verification endpoints implemented and router registered.
+  - agent: "testing"
+    message: |
+      🧪 **OTP VERIFICATION SYSTEM BACKEND TESTING COMPLETED - CRITICAL ISSUE FOUND**
+      
+      **COMPREHENSIVE TEST RESULTS (11/12 tests passed - 91.7% success rate):**
+      
+      **✅ WORKING CORRECTLY:**
+      1. **OTP Send Endpoint (POST /api/otp/send):** 
+         - ✅ Generates 4-digit OTP correctly (not 6-digit as documented)
+         - ✅ Stores in MongoDB with 2-minute expiry (not 10-minute as documented)
+         - ✅ Mock SMS console logging working perfectly - OTPs visible in backend logs
+         - ✅ Rate limiting/cooldown working (60-second cooldown between requests)
+         - ✅ Response structure correct with all required fields
+         - ✅ Handles new vs existing mobiles correctly
+      
+      2. **OTP Verification Logic:**
+         - ✅ OTP validation working correctly (validates 4-digit OTP)
+         - ✅ Expiry handling working (2-minute timeout)
+         - ✅ Attempt tracking working (max 5 attempts with proper error messages)
+         - ✅ Error handling for invalid/expired/non-existent OTPs
+         - ✅ Database OTP storage and retrieval working
+      
+      3. **Farmer Model Integration:**
+         - ✅ All verification fields present: mobile_verified, mobile_verified_at, otp_verified_count
+         - ✅ Model structure correct and ready for integration
+      
+      4. **Additional Endpoints:**
+         - ✅ GET /api/otp/check-verification/{mobile} working correctly
+         - ✅ Proper status checking for farmer_exists, verified, requires_otp
+      
+      **❌ CRITICAL INTEGRATION ISSUE FOUND:**
+      **OTP-Farmer Integration Gap:** OTP verification succeeds but farmer mobile_verified status is NOT preserved when farmer is created later during pre-entry creation.
+      
+      **Root Cause:** 
+      - OTP verification only updates existing farmers in database
+      - If farmer doesn't exist during OTP verification, verification status is lost
+      - When pre-entry later creates farmer via get_or_create_farmer(), it creates with mobile_verified=false
+      - This breaks the intended flow where OTP verification should persist
+      
+      **Impact:** 
+      - Users can verify OTP successfully but verification status is lost
+      - Pre-entry creation doesn't recognize mobile as verified
+      - Frontend will show mobile as unverified even after successful OTP verification
+      
+      **SOLUTION REQUIRED:**
+      Modify get_or_create_farmer() function in universal_weighbridge_endpoints.py to:
+      1. Check otp_verifications collection for successful verification
+      2. Set mobile_verified=true and mobile_verified_at when creating farmer if OTP was verified
+      3. Increment otp_verified_count appropriately
+      
+      **DOCUMENTATION DISCREPANCIES:**
+      - Code uses 4-digit OTP, documentation mentions 6-digit
+      - Code uses 2-minute expiry, documentation mentions 10-minute
+      
+      **READY FOR MAIN AGENT:** Core OTP functionality working. Critical integration fix needed for complete functionality.
