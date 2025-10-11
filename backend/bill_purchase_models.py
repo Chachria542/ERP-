@@ -97,6 +97,10 @@ class BillPurchasePreEntry(BaseModel):
     supplier_gstin: Optional[str] = None  # Auto-filled but editable
     place_of_supply: str  # Required free text
     
+    # Item details
+    item_id: Optional[str] = None  # FK to items collection
+    item_name: Optional[str] = None  # Auto-filled from item
+    
     # Broker details
     has_broker: bool = False
     broker_name: Optional[str] = None
