@@ -136,6 +136,10 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
       newErrors.place_of_supply = 'Place of supply is required';
     }
     
+    if (!formData.item_id) {
+      newErrors.item_id = 'Item is required';
+    }
+    
     if (formData.has_broker) {
       if (!formData.broker_name.trim()) {
         newErrors.broker_name = 'Broker name is required when broker is enabled';
