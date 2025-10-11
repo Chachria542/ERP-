@@ -28,6 +28,15 @@ function PreEntryPage({ user, onLogout }) {
   const [createdSlip, setCreatedSlip] = useState(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [farmerConflict, setFarmerConflict] = useState(null);
+  
+  // OTP Verification state
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // Form state
   const [transactionType, setTransactionType] = useState('farmer_purchase');
