@@ -68,50 +68,115 @@ class OTPFarmerIntegrationTester:
         
         return True
     
-    def test_otp_send_new_mobile(self):
-        """Test Case 1: Send OTP to new mobile number"""
-        print("🔍 Testing OTP Send - New Mobile Number...")
+    def test_complete_integration_flow(self):
+        """
+        CRITICAL TEST: Complete OTP → Verify → Pre-Entry → Farmer Creation Flow
+        This tests the main fix: OTP verification status preservation during farmer creation
+        """
+        print("🔍 CRITICAL TEST: Complete OTP-Farmer Integration Flow...")
+        
+        mobile = self.test_mobile_new
+        farmer_name = "Test Farmer Integration"
         
         try:
-            payload = {"mobile": self.test_mobile}
-            response = requests.post(f"{self.base_url}/otp/send", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            # Step 1: Send OTP to new mobile
+            print("  Step 1: Sending OTP...")
+            send_payload = {"mobile": mobile}
+            send_response = requests.post(f"{self.base_url}/otp/send", 
+                                        json=send_payload,
+                                        headers={'Content-Type': 'application/json'},
+                                        timeout=10)
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Check response structure
-                required_fields = ["message", "mobile", "expires_in", "requires_otp", "farmer_exists", "verified"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if not missing_fields:
-                    if (data.get("requires_otp") == True and 
-                        data.get("farmer_exists") == False and 
-                        data.get("verified") == False and
-                        data.get("expires_in") == 120):
-                        
-                        self.log_test("OTP Send - New Mobile", True, 
-                                    f"OTP sent to {self.test_mobile}. Expires in {data.get('expires_in')} seconds")
-                        
-                        # Try to extract OTP from console logs (this is a mock, so we'll simulate)
-                        # In real testing, we'd check server logs or use a test SMS gateway
-                        print("    📱 Check console for mock SMS with OTP")
-                        return True
-                    else:
-                        self.log_test("OTP Send - New Mobile", False, 
-                                    f"Unexpected response values: requires_otp={data.get('requires_otp')}, "
-                                    f"farmer_exists={data.get('farmer_exists')}, verified={data.get('verified')}")
-                else:
-                    self.log_test("OTP Send - New Mobile", False, f"Missing fields: {missing_fields}", data)
+            if send_response.status_code != 200:
+                self.log_test("Complete Integration Flow - Step 1", False, 
+                            f"Failed to send OTP: HTTP {send_response.status_code}")
+                return False
+            
+            # Step 2: Extract OTP from logs and verify
+            print("  Step 2: Extracting and verifying OTP...")
+            time.sleep(1)  # Wait for logs
+            actual_otp = self.get_otp_from_logs(mobile)
+            
+            if not actual_otp:
+                self.log_test("Complete Integration Flow - Step 2", False, 
+                            "Could not extract OTP from backend logs")
+                return False
+            
+            verify_payload = {"mobile": mobile, "otp": actual_otp}
+            verify_response = requests.post(f"{self.base_url}/otp/verify", 
+                                          json=verify_payload,
+                                          headers={'Content-Type': 'application/json'},
+                                          timeout=10)
+            
+            if verify_response.status_code != 200:
+                self.log_test("Complete Integration Flow - Step 2", False, 
+                            f"OTP verification failed: HTTP {verify_response.status_code}")
+                return False
+            
+            verify_data = verify_response.json()
+            if not verify_data.get("verified"):
+                self.log_test("Complete Integration Flow - Step 2", False, 
+                            f"OTP not verified: {verify_data}")
+                return False
+            
+            print(f"    ✅ OTP {actual_otp} verified successfully")
+            
+            # Step 3: Create Pre-Entry (this should create farmer with mobile_verified=true)
+            print("  Step 3: Creating Pre-Entry (triggers farmer creation)...")
+            pre_entry_payload = {
+                "transaction_type": "farmer_purchase",
+                "from_location": "Test Warehouse",
+                "party_type": "farmer",
+                "party_name": farmer_name,
+                "party_mobile": mobile,
+                "item_id": self.test_item_id,
+                "rate_per_qtl": 2500.0,
+                "created_by": "test_user"
+            }
+            
+            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
+                                             json=pre_entry_payload,
+                                             headers={'Content-Type': 'application/json'},
+                                             timeout=10)
+            
+            if pre_entry_response.status_code != 200:
+                self.log_test("Complete Integration Flow - Step 3", False, 
+                            f"Pre-entry creation failed: HTTP {pre_entry_response.status_code}: {pre_entry_response.text}")
+                return False
+            
+            pre_entry_data = pre_entry_response.json()
+            print(f"    ✅ Pre-entry created: {pre_entry_data.get('slip_id')}")
+            
+            # Step 4: Verify farmer was created with mobile_verified=true
+            print("  Step 4: Verifying farmer verification status...")
+            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
+            
+            if farmer_response.status_code != 200:
+                self.log_test("Complete Integration Flow - Step 4", False, 
+                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
+                return False
+            
+            farmer_data = farmer_response.json()
+            
+            # Check critical verification fields
+            mobile_verified = farmer_data.get('mobile_verified')
+            mobile_verified_at = farmer_data.get('mobile_verified_at')
+            otp_verified_count = farmer_data.get('otp_verified_count')
+            
+            if mobile_verified == True and mobile_verified_at and otp_verified_count >= 1:
+                self.log_test("Complete Integration Flow", True, 
+                            f"✅ INTEGRATION WORKING: Farmer {farmer_name} created with mobile_verified=True, "
+                            f"verified_at={mobile_verified_at}, count={otp_verified_count}")
+                return True
             else:
-                self.log_test("OTP Send - New Mobile", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Complete Integration Flow", False, 
+                            f"❌ INTEGRATION FAILED: Farmer created but verification status not preserved. "
+                            f"mobile_verified={mobile_verified}, verified_at={mobile_verified_at}, count={otp_verified_count}")
+                return False
                 
         except Exception as e:
-            self.log_test("OTP Send - New Mobile", False, f"Request failed: {str(e)}")
-        
-        return False
+            self.log_test("Complete Integration Flow", False, f"Integration test failed: {str(e)}")
+            return False
     
     def test_otp_send_duplicate_request(self):
         """Test Case 2: Send OTP again immediately (should handle cooldown)"""
