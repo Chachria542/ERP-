@@ -57,7 +57,7 @@ async def check_duplicate_supplier_eway(supplier_id: str, eway_bill_no: str) -> 
 
 # ============= PARTY MANAGEMENT ENDPOINTS =============
 
-@router.get("/parties/suppliers", response_model=List[PartyExtended])
+@router.get("/suppliers", response_model=List[PartyExtended])
 async def get_suppliers():
     """Get all parties with supplier role"""
     parties = await db.parties.find(
