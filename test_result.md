@@ -568,10 +568,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "OTP-Farmer Integration - Preserve Verification Status"
-    - "Pre-Entry Page OTP Verification Flow"
-  stuck_tasks:
-    - "OTP Verification System - Verify OTP Endpoint"
+    - "OTP-Farmer Integration Fix"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
