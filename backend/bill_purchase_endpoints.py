@@ -11,7 +11,7 @@ from bill_purchase_models import (
     PartyExtended, PartyExtendedCreate, PartyExtendedUpdate,
     get_financial_year, calculate_brokerage_amount, calculate_bill_totals
 )
-from universal_weighbridge_models import generate_qr_code_data
+from universal_weighbridge_models import generate_qr_code_data, TransactionType
 from typing import List, Optional
 import uuid
 
