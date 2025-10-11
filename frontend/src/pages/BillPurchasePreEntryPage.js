@@ -401,6 +401,26 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
                   )}
                 </div>
 
+                {/* Item Selection */}
+                <div>
+                  <Label htmlFor="item">Item *</Label>
+                  <Select value={formData.item_id} onValueChange={handleItemChange}>
+                    <SelectTrigger className={errors.item_id ? 'border-red-500' : ''}>
+                      <SelectValue placeholder="Select item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.name} ({item.category})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.item_id && (
+                    <p className="text-sm text-red-600 mt-1">{errors.item_id}</p>
+                  )}
+                </div>
+
                 {/* E-Way Bill No */}
                 <div>
                   <Label htmlFor="eway_bill_no">E-Way Bill No.</Label>
