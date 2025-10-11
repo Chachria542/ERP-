@@ -42,13 +42,31 @@ class OTPFarmerIntegrationTester:
             "response": response_data
         })
     
-    def cleanup_test_data(self):
-        """Clean up test data before starting"""
-        print("🧹 Cleaning up test data...")
+    def setup_test_data(self):
+        """Setup test data - get available item for pre-entry creation"""
+        print("🔧 Setting up test data...")
         
-        # Note: In a real scenario, we might want to clean up test OTPs and farmers
-        # For now, we'll just proceed with testing
-        self.log_test("Test Data Cleanup", True, "Ready for OTP testing")
+        try:
+            # Get available items for pre-entry creation
+            response = requests.get(f"{self.base_url}/items", timeout=10)
+            
+            if response.status_code == 200:
+                items = response.json()
+                if items and len(items) > 0:
+                    self.test_item_id = items[0]['id']
+                    self.log_test("Test Data Setup", True, f"Using item: {items[0]['name']} (ID: {self.test_item_id})")
+                else:
+                    self.log_test("Test Data Setup", False, "No items available for testing")
+                    return False
+            else:
+                self.log_test("Test Data Setup", False, f"Failed to get items: HTTP {response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Test Data Setup", False, f"Setup failed: {str(e)}")
+            return False
+        
+        return True
     
     def test_otp_send_new_mobile(self):
         """Test Case 1: Send OTP to new mobile number"""
