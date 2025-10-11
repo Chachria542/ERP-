@@ -172,6 +172,8 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
             supplier_name=supplier['name'],
             supplier_gstin=pre_entry_data.supplier_gstin or supplier.get('gstin'),
             place_of_supply=pre_entry_data.place_of_supply,
+            item_id=pre_entry_data.item_id,
+            item_name=item_name,
             has_broker=pre_entry_data.has_broker,
             broker_name=pre_entry_data.broker_name,
             brokerage_type=pre_entry_data.brokerage_type,
