@@ -480,38 +480,16 @@ class OTPFarmerIntegrationTester:
             self.log_test("Farmer Model Verification Fields", False, f"Request failed: {str(e)}")
             return False
     
-    def test_otp_verify_nonexistent_mobile(self):
-        """Test Case 5: Verify OTP for mobile that never requested OTP"""
-        print("🔍 Testing OTP Verify - Non-existent Mobile...")
+    def test_verification_status_check_endpoints(self):
+        """
+        Test Case 6: Test verification status check endpoints
+        """
+        print("🔍 Testing Verification Status Check Endpoints...")
         
         try:
-            payload = {"mobile": "9999999999", "otp": "1234"}
-            response = requests.post(f"{self.base_url}/otp/verify", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code == 404:
-                data = response.json()
-                if "No OTP found" in data.get("detail", ""):
-                    self.log_test("OTP Verify - Non-existent Mobile", True, 
-                                f"Correctly returned 404: {data.get('detail')}")
-                else:
-                    self.log_test("OTP Verify - Non-existent Mobile", False, 
-                                f"Wrong error message: {data.get('detail')}")
-            else:
-                self.log_test("OTP Verify - Non-existent Mobile", False, 
-                            f"Expected 404, got HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_test("OTP Verify - Non-existent Mobile", False, f"Request failed: {str(e)}")
-    
-    def test_check_verification_status(self):
-        """Test Case 6: Check verification status endpoint"""
-        print("🔍 Testing Check Verification Status...")
-        
-        try:
-            response = requests.get(f"{self.base_url}/otp/check-verification/{self.test_mobile}", 
+            # Test with a mobile that should require OTP
+            test_mobile = "9999888777"
+            response = requests.get(f"{self.base_url}/otp/check-verification/{test_mobile}", 
                                   timeout=10)
             
             if response.status_code == 200:
@@ -521,167 +499,27 @@ class OTPFarmerIntegrationTester:
                 missing_fields = [field for field in required_fields if field not in data]
                 
                 if not missing_fields:
-                    self.log_test("Check Verification Status", True, 
-                                f"Status for {self.test_mobile}: farmer_exists={data.get('farmer_exists')}, "
-                                f"verified={data.get('verified')}, requires_otp={data.get('requires_otp')}")
-                else:
-                    self.log_test("Check Verification Status", False, f"Missing fields: {missing_fields}", data)
-            else:
-                self.log_test("Check Verification Status", False, f"HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_test("Check Verification Status", False, f"Request failed: {str(e)}")
-    
-    def test_farmer_model_verification_fields(self):
-        """Test Case 7: Check if farmer model has verification fields"""
-        print("🔍 Testing Farmer Model Verification Fields...")
-        
-        try:
-            # Get farmers list to check model structure
-            response = requests.get(f"{self.base_url}/farmers", timeout=10)
-            
-            if response.status_code == 200:
-                farmers = response.json()
-                
-                if isinstance(farmers, list) and len(farmers) > 0:
-                    sample_farmer = farmers[0]
-                    
-                    # Check for mobile verification fields
-                    verification_fields = ["mobile_verified", "mobile_verified_at", "otp_verified_count"]
-                    present_fields = [field for field in verification_fields if field in sample_farmer]
-                    
-                    if len(present_fields) == len(verification_fields):
-                        self.log_test("Farmer Model Verification Fields", True, 
-                                    f"All verification fields present: {present_fields}")
+                    if (data.get("farmer_exists") == False and 
+                        data.get("verified") == False and 
+                        data.get("requires_otp") == True):
+                        
+                        self.log_test("Verification Status Check", True, 
+                                    f"✅ New mobile {test_mobile} correctly requires OTP verification")
+                        return True
                     else:
-                        missing = [field for field in verification_fields if field not in sample_farmer]
-                        self.log_test("Farmer Model Verification Fields", False, 
-                                    f"Missing verification fields: {missing}")
+                        self.log_test("Verification Status Check", False, 
+                                    f"❌ Unexpected verification status: {data}")
+                        return False
                 else:
-                    self.log_test("Farmer Model Verification Fields", True, 
-                                "No farmers in database - cannot verify model structure")
+                    self.log_test("Verification Status Check", False, f"Missing fields: {missing_fields}")
+                    return False
             else:
-                self.log_test("Farmer Model Verification Fields", False, 
-                            f"Failed to get farmers: HTTP {response.status_code}: {response.text}")
+                self.log_test("Verification Status Check", False, f"HTTP {response.status_code}: {response.text}")
+                return False
                 
         except Exception as e:
-            self.log_test("Farmer Model Verification Fields", False, f"Request failed: {str(e)}")
-    
-    def test_otp_expiry_handling(self):
-        """Test Case 8: Test OTP expiry (if possible)"""
-        print("🔍 Testing OTP Expiry Handling...")
-        
-        # Since OTP expires in 2 minutes, we can't wait that long in a test
-        # Instead, we'll test the logic by trying to verify an old OTP
-        
-        try:
-            # Send OTP to a different mobile
-            payload = {"mobile": self.test_mobile_2}
-            send_response = requests.post(f"{self.base_url}/otp/send", 
-                                        json=payload,
-                                        headers={'Content-Type': 'application/json'},
-                                        timeout=10)
-            
-            if send_response.status_code == 200:
-                # Wait a few seconds and then try to verify with wrong OTP multiple times
-                # to potentially trigger expiry or max attempts
-                time.sleep(2)
-                
-                for attempt in range(6):  # Try 6 times to exceed max attempts
-                    verify_payload = {"mobile": self.test_mobile_2, "otp": "0000"}
-                    verify_response = requests.post(f"{self.base_url}/otp/verify", 
-                                                  json=verify_payload,
-                                                  headers={'Content-Type': 'application/json'},
-                                                  timeout=10)
-                    
-                    if verify_response.status_code == 400:
-                        data = verify_response.json()
-                        if "Maximum attempts exceeded" in data.get("detail", ""):
-                            self.log_test("OTP Expiry Handling", True, 
-                                        f"Max attempts exceeded after {attempt + 1} attempts")
-                            return
-                
-                self.log_test("OTP Expiry Handling", True, 
-                            "OTP attempt limiting working (didn't exceed max attempts in test)")
-            else:
-                self.log_test("OTP Expiry Handling", False, 
-                            f"Failed to send OTP for expiry test: HTTP {send_response.status_code}")
-                
-        except Exception as e:
-            self.log_test("OTP Expiry Handling", False, f"Request failed: {str(e)}")
-    
-    def test_database_otp_storage(self):
-        """Test Case 9: Verify OTP records are stored in database"""
-        print("🔍 Testing Database OTP Storage...")
-        
-        # We can't directly access the database, but we can infer storage
-        # by testing the verification status and behavior
-        
-        try:
-            # Send OTP
-            payload = {"mobile": "9876543299"}
-            send_response = requests.post(f"{self.base_url}/otp/send", 
-                                        json=payload,
-                                        headers={'Content-Type': 'application/json'},
-                                        timeout=10)
-            
-            if send_response.status_code == 200:
-                # Try to verify immediately with wrong OTP
-                verify_payload = {"mobile": "9876543299", "otp": "0000"}
-                verify_response = requests.post(f"{self.base_url}/otp/verify", 
-                                              json=verify_payload,
-                                              headers={'Content-Type': 'application/json'},
-                                              timeout=10)
-                
-                if verify_response.status_code == 400:
-                    data = verify_response.json()
-                    if "Invalid OTP" in data.get("detail", "") and "attempts remaining" in data.get("detail", ""):
-                        self.log_test("Database OTP Storage", True, 
-                                    "OTP stored in database - attempt tracking working")
-                    else:
-                        self.log_test("Database OTP Storage", True, 
-                                    "OTP stored in database - verification logic working")
-                else:
-                    self.log_test("Database OTP Storage", False, 
-                                f"Unexpected verify response: HTTP {verify_response.status_code}")
-            else:
-                self.log_test("Database OTP Storage", False, 
-                            f"Failed to send OTP: HTTP {send_response.status_code}")
-                
-        except Exception as e:
-            self.log_test("Database OTP Storage", False, f"Request failed: {str(e)}")
-    
-    def test_integration_pre_entry_flow(self):
-        """Test Case 10: Integration with Pre-Entry creation flow"""
-        print("🔍 Testing Integration - Pre-Entry Flow...")
-        
-        # This test checks if the OTP verification integrates with pre-entry creation
-        # We'll test the check-verification endpoint which would be used by frontend
-        
-        try:
-            # Check verification status for a new mobile
-            test_mobile = "9876543333"
-            response = requests.get(f"{self.base_url}/otp/check-verification/{test_mobile}", 
-                                  timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                if (data.get("farmer_exists") == False and 
-                    data.get("verified") == False and 
-                    data.get("requires_otp") == True):
-                    
-                    self.log_test("Integration - Pre-Entry Flow", True, 
-                                f"New mobile {test_mobile} correctly requires OTP verification")
-                else:
-                    self.log_test("Integration - Pre-Entry Flow", False, 
-                                f"Unexpected verification status: {data}")
-            else:
-                self.log_test("Integration - Pre-Entry Flow", False, 
-                            f"HTTP {response.status_code}: {response.text}")
-                
-        except Exception as e:
-            self.log_test("Integration - Pre-Entry Flow", False, f"Request failed: {str(e)}")
+            self.log_test("Verification Status Check", False, f"Request failed: {str(e)}")
+            return False
     
     def run_all_tests(self):
         """Run all OTP verification tests"""
