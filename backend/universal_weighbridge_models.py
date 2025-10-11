@@ -49,6 +49,9 @@ class Farmer(BaseModel):
     name: str
     city: Optional[str] = None
     aadhaar: Optional[str] = None
+    mobile_verified: bool = False
+    mobile_verified_at: Optional[datetime] = None
+    otp_verified_count: int = 0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
 
