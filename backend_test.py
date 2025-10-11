@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Farmer Payment Queue Module
-Tests NEW farmer payment queue endpoints and functionality
+Backend API Testing for OTP Verification System
+Tests OTP send, verify, and farmer mobile verification functionality
 """
 import requests
 import json
 import sys
+import time
 from datetime import datetime, timezone, timedelta
 
 # Backend URL from frontend/.env
 BASE_URL = "https://grain-erp-trading.preview.emergentagent.com/api"
 
-class FarmerPaymentQueueTester:
+class OTPVerificationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
