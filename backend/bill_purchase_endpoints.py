@@ -99,7 +99,7 @@ async def get_extended_party(party_id: str):
     
     return party
 
-@router.put("/parties/extended/{party_id}", response_model=PartyExtended)
+@router.put("/suppliers/{party_id}", response_model=PartyExtended)
 async def update_extended_party(party_id: str, update_data: PartyExtendedUpdate):
     """Update party with extended fields"""
     # Check if party exists
