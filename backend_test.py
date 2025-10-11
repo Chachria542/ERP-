@@ -327,6 +327,42 @@ class OTPFarmerIntegrationTester:
         except:
             return None
     
+    def send_and_verify_otp(self, mobile):
+        """Helper method to send and verify OTP for a mobile"""
+        try:
+            # Send OTP
+            send_payload = {"mobile": mobile}
+            send_response = requests.post(f"{self.base_url}/otp/send", 
+                                        json=send_payload,
+                                        headers={'Content-Type': 'application/json'},
+                                        timeout=10)
+            
+            if send_response.status_code != 200:
+                return False
+            
+            # Wait and extract OTP
+            time.sleep(1)
+            actual_otp = self.get_otp_from_logs(mobile)
+            
+            if not actual_otp:
+                return False
+            
+            # Verify OTP
+            verify_payload = {"mobile": mobile, "otp": actual_otp}
+            verify_response = requests.post(f"{self.base_url}/otp/verify", 
+                                          json=verify_payload,
+                                          headers={'Content-Type': 'application/json'},
+                                          timeout=10)
+            
+            if verify_response.status_code != 200:
+                return False
+            
+            verify_data = verify_response.json()
+            return verify_data.get("verified") == True
+            
+        except:
+            return False
+    
     def test_otp_verify_valid_otp(self):
         """Test Case 4: Verify with valid OTP (extracted from logs)"""
         print("🔍 Testing OTP Verify - Valid OTP...")
