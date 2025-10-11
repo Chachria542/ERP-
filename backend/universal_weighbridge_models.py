@@ -61,6 +61,28 @@ class FarmerCreate(BaseModel):
     city: Optional[str] = None
     aadhaar: Optional[str] = None
 
+# ============= OTP VERIFICATION MODELS =============
+
+class OTPVerification(BaseModel):
+    """OTP verification for mobile numbers"""
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    mobile: str
+    otp: str  # 4-digit OTP (stored hashed in production)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime  # 2 minutes from creation
+    verified: bool = False
+    attempts: int = 0
+    max_attempts: int = 5
+    last_resend_at: Optional[datetime] = None
+
+class OTPSendRequest(BaseModel):
+    mobile: str
+
+class OTPVerifyRequest(BaseModel):
+    mobile: str
+    otp: str
+
 # ============= PRE-ENTRY MODELS (Office Side - Before Weighbridge) =============
 
 class PreEntry(BaseModel):
