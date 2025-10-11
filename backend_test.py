@@ -144,48 +144,102 @@ class OTPVerificationTester:
         except Exception as e:
             self.log_test("OTP Verify - Invalid OTP", False, f"Request failed: {str(e)}")
     
+    def get_otp_from_logs(self, mobile):
+        """Extract OTP from backend logs for a specific mobile"""
+        try:
+            import subprocess
+            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.out.log'], 
+                                  capture_output=True, text=True)
+            logs = result.stdout
+            
+            # Look for the OTP pattern for this mobile
+            import re
+            pattern = rf"📱 \[MOCK SMS\] Sending OTP to {mobile}: (\d+)"
+            matches = re.findall(pattern, logs)
+            
+            if matches:
+                return matches[-1]  # Return the most recent OTP
+            return None
+        except:
+            return None
+    
     def test_otp_verify_valid_otp(self):
-        """Test Case 4: Verify with valid OTP (simulated)"""
+        """Test Case 4: Verify with valid OTP (extracted from logs)"""
         print("🔍 Testing OTP Verify - Valid OTP...")
         
-        # Since we're using mock SMS, we need to simulate getting the correct OTP
-        # In a real test, we'd extract this from logs or use a test SMS gateway
-        
-        # First, let's try common test OTPs that might be generated
-        test_otps = ["1234", "5678", "9999", "1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888"]
-        
-        success = False
-        for test_otp in test_otps:
-            try:
-                payload = {"mobile": self.test_mobile, "otp": test_otp}
-                response = requests.post(f"{self.base_url}/otp/verify", 
-                                       json=payload,
-                                       headers={'Content-Type': 'application/json'},
-                                       timeout=10)
+        # First send a fresh OTP
+        try:
+            test_mobile = "9876543888"
+            payload = {"mobile": test_mobile}
+            send_response = requests.post(f"{self.base_url}/otp/send", 
+                                        json=payload,
+                                        headers={'Content-Type': 'application/json'},
+                                        timeout=10)
+            
+            if send_response.status_code != 200:
+                self.log_test("OTP Verify - Valid OTP", False, 
+                            f"Failed to send OTP: HTTP {send_response.status_code}")
+                return
+            
+            # Wait a moment for logs to be written
+            time.sleep(1)
+            
+            # Extract OTP from logs
+            actual_otp = self.get_otp_from_logs(test_mobile)
+            
+            if actual_otp:
+                # Now verify with the actual OTP
+                verify_payload = {"mobile": test_mobile, "otp": actual_otp}
+                verify_response = requests.post(f"{self.base_url}/otp/verify", 
+                                              json=verify_payload,
+                                              headers={'Content-Type': 'application/json'},
+                                              timeout=10)
                 
-                if response.status_code == 200:
-                    data = response.json()
+                if verify_response.status_code == 200:
+                    data = verify_response.json()
                     if data.get("verified") == True:
                         self.log_test("OTP Verify - Valid OTP", True, 
-                                    f"OTP {test_otp} verified successfully for {self.test_mobile}")
-                        success = True
-                        break
-                elif response.status_code == 400:
-                    # Continue trying other OTPs
-                    continue
+                                    f"OTP {actual_otp} verified successfully for {test_mobile}")
+                        
+                        # Test farmer verification status update
+                        self.test_farmer_verification_update(test_mobile)
+                    else:
+                        self.log_test("OTP Verify - Valid OTP", False, 
+                                    f"Verification failed: {data}")
                 else:
                     self.log_test("OTP Verify - Valid OTP", False, 
-                                f"Unexpected status with OTP {test_otp}: HTTP {response.status_code}")
-                    break
-                    
-            except Exception as e:
-                self.log_test("OTP Verify - Valid OTP", False, f"Request failed with OTP {test_otp}: {str(e)}")
-                break
+                                f"Verification failed: HTTP {verify_response.status_code}: {verify_response.text}")
+            else:
+                self.log_test("OTP Verify - Valid OTP", False, 
+                            "Could not extract OTP from backend logs")
+                
+        except Exception as e:
+            self.log_test("OTP Verify - Valid OTP", False, f"Request failed: {str(e)}")
+    
+    def test_farmer_verification_update(self, mobile):
+        """Test that farmer verification status is updated after OTP verification"""
+        print("🔍 Testing Farmer Verification Status Update...")
         
-        if not success:
-            # Try to get the actual OTP by checking backend logs
-            self.log_test("OTP Verify - Valid OTP", False, 
-                        "Could not verify with test OTPs. Check backend logs for actual OTP or implement log parsing.")
+        try:
+            # Check verification status after OTP verification
+            response = requests.get(f"{self.base_url}/otp/check-verification/{mobile}", 
+                                  timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                if data.get("verified") == True:
+                    self.log_test("Farmer Verification Update", True, 
+                                f"Farmer {mobile} verification status correctly updated to verified=True")
+                else:
+                    self.log_test("Farmer Verification Update", False, 
+                                f"Farmer verification status not updated: {data}")
+            else:
+                self.log_test("Farmer Verification Update", False, 
+                            f"Failed to check verification status: HTTP {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Farmer Verification Update", False, f"Request failed: {str(e)}")
     
     def test_otp_verify_nonexistent_mobile(self):
         """Test Case 5: Verify OTP for mobile that never requested OTP"""
