@@ -365,8 +365,8 @@ yarn start
 ```
 
 ### Access:
-- Frontend: https://farmers-ledger.preview.emergentagent.com
-- Backend API: https://farmers-ledger.preview.emergentagent.com/api
+- Frontend: https://grain-erp-trading.preview.emergentagent.com
+- Backend API: https://grain-erp-trading.preview.emergentagent.com/api
 
 ## Testing Recommendations
 
