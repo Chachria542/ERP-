@@ -52,6 +52,7 @@ async def generate_slip_id() -> str:
 async def get_or_create_farmer(mobile: str, name: str, city: Optional[str] = None) -> tuple:
     """
     Get existing farmer or create new one.
+    Preserves OTP verification status from otp_verifications collection.
     Returns: (farmer_id, name_conflict: bool, existing_name: str)
     """
     existing = await db.farmers.find_one({"mobile": mobile})
@@ -62,10 +63,29 @@ async def get_or_create_farmer(mobile: str, name: str, city: Optional[str] = Non
             return existing['id'], True, existing['name']
         return existing['id'], False, None
     
-    # Create new farmer
-    farmer = Farmer(mobile=mobile, name=name, city=city)
+    # Check for successful OTP verification before creating farmer
+    otp_verification = await db.otp_verifications.find_one(
+        {"mobile": mobile, "verified": True},
+        sort=[("created_at", -1)]  # Get latest verification
+    )
+    
+    # Create new farmer with OTP verification status preserved
+    if otp_verification:
+        farmer = Farmer(
+            mobile=mobile, 
+            name=name, 
+            city=city,
+            mobile_verified=True,
+            mobile_verified_at=datetime.now(timezone.utc),
+            otp_verified_count=1
+        )
+    else:
+        farmer = Farmer(mobile=mobile, name=name, city=city)
+    
     doc = farmer.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
+    if doc.get('mobile_verified_at'):
+        doc['mobile_verified_at'] = doc['mobile_verified_at'].isoformat()
     await db.farmers.insert_one(doc)
     
     return farmer.id, False, None
