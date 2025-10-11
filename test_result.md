@@ -103,8 +103,7 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Fix auto-population of farmer details in Farmer Payment screen from weighbridge slip data.
-  Delete old weighbridge data and create mock entries in the new format matching farmer_payment_models.py schema.
+  Test the newly implemented OTP verification flow for new farmers in the Pre-Entry module to ensure mobile number verification works correctly before pre-entry creation.
 
 backend:
   - task: "Mock Data Setup - Items and Weighbridge Pre-Entries"
