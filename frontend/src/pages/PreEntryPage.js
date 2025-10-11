@@ -348,14 +348,32 @@ function PreEntryPage({ user, onLogout }) {
               {(partyType === 'farmer' || transactionType === 'sale') && (
                 <div>
                   <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
-                  <Input
-                    value={partyMobile}
-                    onChange={(e) => setPartyMobile(e.target.value)}
-                    placeholder="10-digit mobile"
-                    maxLength={10}
-                    className="mt-1"
-                    required={partyType === 'farmer'}
-                  />
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      value={partyMobile}
+                      onChange={(e) => {
+                        setPartyMobile(e.target.value);
+                        setOtpVerified(false); // Reset verification on mobile change
+                      }}
+                      placeholder="10-digit mobile"
+                      maxLength={10}
+                      className="flex-1"
+                      required={partyType === 'farmer'}
+                    />
+                    {partyType === 'farmer' && partyMobile.length === 10 && (
+                      <Button
+                        type="button"
+                        onClick={handleCheckAndSendOTP}
+                        disabled={otpVerified || otpLoading}
+                        className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
+                      >
+                        {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
+                      </Button>
+                    )}
+                  </div>
+                  {otpVerified && (
+                    <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
+                  )}
                 </div>
               )}
               {transactionType === 'bill_purchase' && (
