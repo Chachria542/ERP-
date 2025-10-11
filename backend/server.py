@@ -63,18 +63,38 @@ class Party(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    type: str  # farmer, supplier, buyer, broker
-    contact: Optional[str] = None
+    roles: List[str] = Field(default_factory=list)  # ["supplier", "trader", "buyer", "farmer"]
+    
+    # Contact details
+    contact: Optional[str] = None  # Mobile number
     address: Optional[str] = None
+    
+    # Business details
     gstin: Optional[str] = None
+    state: Optional[str] = None
+    place_of_supply: Optional[str] = None  # Free text field
+    pan: Optional[str] = None
+    
+    # Banking details (optional)
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
+    
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
 
 class PartyCreate(BaseModel):
     name: str
-    type: str
+    roles: List[str] = Field(default_factory=list)
     contact: Optional[str] = None
     address: Optional[str] = None
     gstin: Optional[str] = None
+    state: Optional[str] = None
+    place_of_supply: Optional[str] = None
+    pan: Optional[str] = None
+    bank_name: Optional[str] = None
+    account_number: Optional[str] = None
+    ifsc_code: Optional[str] = None
 
 class Item(BaseModel):
     model_config = ConfigDict(extra="ignore")
