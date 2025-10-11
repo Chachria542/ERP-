@@ -38,7 +38,7 @@ class OTPVerificationTester:
             "response": response_data
         })
     
-    def setup_test_data(self):
+    def cleanup_test_data(self):
         """Create test weighbridge entry for queue testing"""
         print("🔧 Setting up test data...")
         
