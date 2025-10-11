@@ -522,63 +522,53 @@ class OTPFarmerIntegrationTester:
             return False
     
     def run_all_tests(self):
-        """Run all OTP verification tests"""
-        print("🚀 Starting OTP Verification System Backend API Tests")
+        """Run all OTP-Farmer Integration tests"""
+        print("🚀 Starting OTP-Farmer Integration Fix Testing")
         print(f"Testing against: {self.base_url}")
         print("=" * 80)
         
-        # Cleanup first
-        self.cleanup_test_data()
+        # Setup test data first
+        if not self.setup_test_data():
+            print("❌ Test setup failed. Cannot proceed with testing.")
+            return False
         
         print("\n" + "=" * 80)
-        print("📋 TESTING OTP SEND ENDPOINTS")
+        print("🔥 CRITICAL INTEGRATION TESTS")
         print("=" * 80)
         
-        # Test OTP sending
-        self.test_otp_send_new_mobile()
-        self.test_otp_send_duplicate_request()
+        # Test 1: Complete integration flow (MOST IMPORTANT)
+        self.test_complete_integration_flow()
         
         print("\n" + "=" * 80)
-        print("📋 TESTING OTP VERIFY ENDPOINTS")
+        print("📋 VERIFICATION STATUS PRESERVATION TESTS")
         print("=" * 80)
         
-        # Test OTP verification
-        self.test_otp_verify_invalid_otp()
-        self.test_otp_verify_valid_otp()
-        self.test_otp_verify_nonexistent_mobile()
+        # Test 2: Pre-entry without OTP verification
+        self.test_pre_entry_without_otp_verification()
         
         print("\n" + "=" * 80)
-        print("📋 TESTING VERIFICATION STATUS")
+        print("📋 EDGE CASE TESTS")
         print("=" * 80)
         
-        # Test status checking
-        self.test_check_verification_status()
+        # Test 3: Multiple OTP verifications
+        self.test_multiple_otp_verifications_before_farmer_creation()
+        
+        # Test 4: Failed pre-entry scenarios
+        self.test_otp_verification_with_failed_pre_entry()
         
         print("\n" + "=" * 80)
-        print("📋 TESTING FARMER MODEL INTEGRATION")
+        print("📋 MODEL AND ENDPOINT VALIDATION")
         print("=" * 80)
         
-        # Test farmer model
+        # Test 5: Farmer model verification fields
         self.test_farmer_model_verification_fields()
         
-        print("\n" + "=" * 80)
-        print("📋 TESTING EDGE CASES")
-        print("=" * 80)
-        
-        # Test edge cases
-        self.test_otp_expiry_handling()
-        self.test_database_otp_storage()
-        
-        print("\n" + "=" * 80)
-        print("📋 TESTING INTEGRATION")
-        print("=" * 80)
-        
-        # Test integration
-        self.test_integration_pre_entry_flow()
+        # Test 6: Verification status endpoints
+        self.test_verification_status_check_endpoints()
         
         # Summary
         print("\n" + "=" * 80)
-        print("📊 COMPREHENSIVE TEST SUMMARY")
+        print("📊 OTP-FARMER INTEGRATION TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -590,13 +580,20 @@ class OTPFarmerIntegrationTester:
         print(f"Failed: {failed_tests} ❌")
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
+        # Detailed results
         if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
             for result in self.test_results:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
+            
+            print("\n🚨 CRITICAL INTEGRATION ISSUES FOUND:")
+            print("The OTP-Farmer integration fix may not be working correctly.")
+            print("Please review the failed tests above and check the implementation.")
         else:
-            print("\n🎉 ALL TESTS PASSED! OTP Verification System is working correctly.")
+            print("\n🎉 ALL INTEGRATION TESTS PASSED!")
+            print("✅ OTP verification status is correctly preserved during farmer creation")
+            print("✅ The critical integration gap has been resolved")
         
         print("\n" + "=" * 80)
         return failed_tests == 0
