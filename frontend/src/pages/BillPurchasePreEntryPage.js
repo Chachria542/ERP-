@@ -67,6 +67,16 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
     }
   };
 
+  const fetchItems = async () => {
+    try {
+      const response = await axios.get(`${API}/items`);
+      setItems(response.data);
+    } catch (error) {
+      console.error('Error fetching items:', error);
+      toast.error('Failed to load items');
+    }
+  };
+
   const handleSupplierChange = (supplierId) => {
     const supplier = suppliers.find(s => s.id === supplierId);
     if (supplier) {
