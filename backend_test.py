@@ -363,58 +363,80 @@ class OTPFarmerIntegrationTester:
         except:
             return False
     
-    def test_otp_verify_valid_otp(self):
-        """Test Case 4: Verify with valid OTP (extracted from logs)"""
-        print("🔍 Testing OTP Verify - Valid OTP...")
+    def test_otp_verification_with_failed_pre_entry(self):
+        """
+        Test Case 4: OTP verification followed by failed pre-entry creation
+        Tests edge case where OTP is verified but pre-entry creation fails
+        """
+        print("🔍 Testing OTP Verification with Failed Pre-Entry...")
         
-        # First send a fresh OTP
+        mobile = self.test_mobile_edge
+        
         try:
-            test_mobile = "9876543888"
-            payload = {"mobile": test_mobile}
-            send_response = requests.post(f"{self.base_url}/otp/send", 
-                                        json=payload,
-                                        headers={'Content-Type': 'application/json'},
-                                        timeout=10)
+            # First verify OTP
+            if not self.send_and_verify_otp(mobile):
+                self.log_test("OTP with Failed Pre-Entry", False, "OTP verification failed")
+                return False
             
-            if send_response.status_code != 200:
-                self.log_test("OTP Verify - Valid OTP", False, 
-                            f"Failed to send OTP: HTTP {send_response.status_code}")
-                return
+            # Try to create pre-entry with invalid item_id (should fail)
+            pre_entry_payload = {
+                "transaction_type": "farmer_purchase",
+                "from_location": "Test Warehouse",
+                "party_type": "farmer",
+                "party_name": "Test Farmer Edge Case",
+                "party_mobile": mobile,
+                "item_id": "invalid-item-id",  # This should cause failure
+                "rate_per_qtl": 2500.0,
+                "created_by": "test_user"
+            }
             
-            # Wait a moment for logs to be written
-            time.sleep(1)
+            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
+                                             json=pre_entry_payload,
+                                             headers={'Content-Type': 'application/json'},
+                                             timeout=10)
             
-            # Extract OTP from logs
-            actual_otp = self.get_otp_from_logs(test_mobile)
+            # Pre-entry should fail
+            if pre_entry_response.status_code == 200:
+                self.log_test("OTP with Failed Pre-Entry", False, 
+                            "Pre-entry should have failed with invalid item_id")
+                return False
             
-            if actual_otp:
-                # Now verify with the actual OTP
-                verify_payload = {"mobile": test_mobile, "otp": actual_otp}
-                verify_response = requests.post(f"{self.base_url}/otp/verify", 
-                                              json=verify_payload,
-                                              headers={'Content-Type': 'application/json'},
-                                              timeout=10)
-                
-                if verify_response.status_code == 200:
-                    data = verify_response.json()
-                    if data.get("verified") == True:
-                        self.log_test("OTP Verify - Valid OTP", True, 
-                                    f"OTP {actual_otp} verified successfully for {test_mobile}")
-                        
-                        # Test farmer verification status update
-                        self.test_farmer_verification_update(test_mobile)
-                    else:
-                        self.log_test("OTP Verify - Valid OTP", False, 
-                                    f"Verification failed: {data}")
-                else:
-                    self.log_test("OTP Verify - Valid OTP", False, 
-                                f"Verification failed: HTTP {verify_response.status_code}: {verify_response.text}")
+            # Now try with valid item_id - farmer should still be created with verification status
+            pre_entry_payload["item_id"] = self.test_item_id
+            
+            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
+                                             json=pre_entry_payload,
+                                             headers={'Content-Type': 'application/json'},
+                                             timeout=10)
+            
+            if pre_entry_response.status_code != 200:
+                self.log_test("OTP with Failed Pre-Entry", False, 
+                            f"Second pre-entry creation failed: HTTP {pre_entry_response.status_code}")
+                return False
+            
+            # Verify farmer was created with verification status preserved
+            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
+            
+            if farmer_response.status_code != 200:
+                self.log_test("OTP with Failed Pre-Entry", False, 
+                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
+                return False
+            
+            farmer_data = farmer_response.json()
+            mobile_verified = farmer_data.get('mobile_verified')
+            
+            if mobile_verified == True:
+                self.log_test("OTP with Failed Pre-Entry", True, 
+                            f"✅ OTP verification status preserved even after failed pre-entry attempt")
+                return True
             else:
-                self.log_test("OTP Verify - Valid OTP", False, 
-                            "Could not extract OTP from backend logs")
+                self.log_test("OTP with Failed Pre-Entry", False, 
+                            f"❌ Verification status lost: mobile_verified={mobile_verified}")
+                return False
                 
         except Exception as e:
-            self.log_test("OTP Verify - Valid OTP", False, f"Request failed: {str(e)}")
+            self.log_test("OTP with Failed Pre-Entry", False, f"Test failed: {str(e)}")
+            return False
     
     def test_farmer_verification_update(self, mobile):
         """Test that farmer verification status is updated after OTP verification"""
