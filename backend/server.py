@@ -846,6 +846,9 @@ api_router.include_router(farmer_payment_router, tags=["farmer-payment"])
 # Include universal weighbridge router
 api_router.include_router(universal_wb_router, tags=["universal-weighbridge"])
 
+# Include OTP router
+api_router.include_router(otp_router, tags=["otp-verification"])
+
 # Include routers in app
 app.include_router(api_router)
 
