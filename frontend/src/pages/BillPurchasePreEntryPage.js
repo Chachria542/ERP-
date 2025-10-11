@@ -35,6 +35,8 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
     supplier_id: '',
     supplier_gstin: '',
     place_of_supply: '',
+    item_id: '',
+    item_name: '',
     has_broker: false,
     broker_name: '',
     brokerage_type: 'none',
