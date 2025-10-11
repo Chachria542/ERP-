@@ -116,6 +116,89 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  // OTP Verification Functions
+  const handleCheckAndSendOTP = async () => {
+    if (!partyMobile || partyMobile.length !== 10) {
+      toast.error('Please enter valid 10-digit mobile number');
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      // Check if farmer exists and is verified
+      const checkResponse = await axios.get(`${API}/otp/check-verification/${partyMobile}`);
+      
+      if (checkResponse.data.verified) {
+        setOtpVerified(true);
+        toast.success(`✅ Mobile already verified for ${checkResponse.data.farmer_name}`);
+        return;
+      }
+
+      // Send OTP for new farmer
+      const sendResponse = await axios.post(`${API}/otp/send`, { mobile: partyMobile });
+      
+      if (sendResponse.data.requires_otp) {
+        setOtpSent(true);
+        setShowOTPDialog(true);
+        setOtpTimer(120); // 2 minutes
+        setOtp('');
+        toast.success('📱 OTP sent to ' + partyMobile);
+        
+        // Show mock OTP in console (for testing)
+        console.log('🔑 [MOCK OTP] Check backend console for OTP');
+      } else {
+        setOtpVerified(true);
+        toast.success('Mobile already verified');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otp || otp.length !== 4) {
+      toast.error('Please enter 4-digit OTP');
+      return;
+    }
+
+    setOtpLoading(true);
+    try {
+      const response = await axios.post(`${API}/otp/verify`, {
+        mobile: partyMobile,
+        otp: otp
+      });
+
+      if (response.data.verified) {
+        setOtpVerified(true);
+        setShowOTPDialog(false);
+        setOtp('');
+        toast.success('✅ Mobile verified successfully!');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Invalid OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setOtpLoading(true);
+    try {
+      await axios.post(`${API}/otp/resend`, { mobile: partyMobile });
+      setResendCooldown(60); // 60 seconds cooldown
+      setOtpTimer(120); // Reset timer to 2 minutes
+      setOtp('');
+      toast.success('📱 OTP resent to ' + partyMobile);
+      console.log('🔑 [MOCK OTP] Check backend console for new OTP');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to resend OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e, confirmFarmerUpdate = false) => {
     e.preventDefault();
     
