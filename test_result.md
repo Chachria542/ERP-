@@ -538,6 +538,18 @@ backend:
         agent: "testing"
         comment: "✅ TESTED: Farmer model correctly includes all mobile verification fields: mobile_verified (boolean), mobile_verified_at (datetime), otp_verified_count (integer). Fields are properly defined in universal_weighbridge_models.py and appear in farmer records returned by /api/farmers endpoint. Model structure is correct and ready for OTP verification integration."
 
+  - task: "OTP-Farmer Integration - Preserve Verification Status"
+    implemented: false
+    working: false
+    file: "backend/universal_weighbridge_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL INTEGRATION GAP: The get_or_create_farmer function in universal_weighbridge_endpoints.py does not check for existing OTP verification status when creating new farmers. When a mobile is OTP-verified but farmer doesn't exist yet, and later pre-entry creates the farmer, the verification status is lost (farmer created with mobile_verified=false). SOLUTION NEEDED: Modify get_or_create_farmer to check OTP verification status from otp_verifications collection and set mobile_verified=true if mobile was successfully verified."
+
 frontend:
   - task: "Pre-Entry Page OTP Verification Flow"
     implemented: true
