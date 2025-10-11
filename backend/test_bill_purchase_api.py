@@ -27,7 +27,7 @@ def test_create_supplier():
         "ifsc_code": "TEST0001234"
     }
     
-    response = requests.post(f"{BASE_URL}/parties/extended", json=supplier_data)
+    response = requests.post(f"{BASE_URL}/suppliers", json=supplier_data)
     
     if response.status_code == 200:
         supplier = response.json()
