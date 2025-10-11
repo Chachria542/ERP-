@@ -495,15 +495,18 @@ agent_communication:
 backend:
   - task: "OTP Verification System - Send OTP Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/otp_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE: Implemented OTP verification system for new farmers in Pre-Entry module. Created /api/otp/send endpoint that generates 6-digit OTP and stores in MongoDB with 10-minute expiry. Uses mock SMS console logging for development. Needs testing to verify OTP generation, storage, and expiry logic."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: OTP Send endpoint working correctly. Generates 4-digit OTP (not 6-digit as documented), stores in MongoDB with 2-minute expiry (not 10-minute as documented), mock SMS console logging working perfectly. Rate limiting/cooldown working (60-second cooldown between requests). Response structure correct with all required fields (message, mobile, expires_in=120, requires_otp, farmer_exists, verified). Handles new mobiles correctly. Minor: Documentation mentions 6-digit OTP and 10-minute expiry, but implementation uses 4-digit OTP and 2-minute expiry."
 
   - task: "OTP Verification System - Verify OTP Endpoint"
     implemented: true
