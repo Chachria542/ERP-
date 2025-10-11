@@ -137,6 +137,13 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
         if not supplier:
             raise HTTPException(status_code=404, detail="Supplier not found")
         
+        # Get item details if item_id provided
+        item_name = None
+        if pre_entry_data.item_id:
+            item = await db.items.find_one({"id": pre_entry_data.item_id})
+            if item:
+                item_name = item['name']
+        
         # Check duplicate supplier + e-way bill combination
         if pre_entry_data.eway_bill_no:
             is_duplicate = await check_duplicate_supplier_eway(
