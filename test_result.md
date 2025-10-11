@@ -491,3 +491,98 @@ agent_communication:
       - Comprehensive error handling and validation
       
       **PRODUCTION READY:** All NEW Farmer Payment Queue endpoints tested comprehensively and working excellently. Ready for production deployment.
+
+backend:
+  - task: "OTP Verification System - Send OTP Endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/otp_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Implemented OTP verification system for new farmers in Pre-Entry module. Created /api/otp/send endpoint that generates 6-digit OTP and stores in MongoDB with 10-minute expiry. Uses mock SMS console logging for development. Needs testing to verify OTP generation, storage, and expiry logic."
+
+  - task: "OTP Verification System - Verify OTP Endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/otp_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Implemented /api/otp/verify endpoint that validates OTP against stored record, checks expiry time, and updates farmer mobile_verified status. Includes proper error handling for invalid/expired OTPs. Needs testing to verify OTP validation logic, expiry handling, and farmer status updates."
+
+  - task: "Farmer Model Mobile Verification Fields"
+    implemented: true
+    working: "NA"
+    file: "backend/universal_weighbridge_models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Updated Farmer model to include mobile_verified (boolean), mobile_verified_at (datetime), and otp_verified_count (integer) fields. These fields track mobile verification status and history. Needs testing to verify field updates during OTP verification process."
+
+frontend:
+  - task: "Pre-Entry Page OTP Verification Flow"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/PreEntryPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Integrated OTP verification flow in Pre-Entry page. Added 'Verify Mobile' button, OTP input dialog with countdown timer, verification status badge, and form validation. OTP is required for new farmers before pre-entry can be saved. Includes proper state management (otpSent, otpVerified, otpTimer) and error handling. Needs testing to verify end-to-end OTP flow integration."
+
+metadata:
+  test_sequence: 2
+
+test_plan:
+  current_focus:
+    - "OTP Verification System - Send OTP Endpoint"
+    - "OTP Verification System - Verify OTP Endpoint"
+    - "Farmer Model Mobile Verification Fields"
+    - "Pre-Entry Page OTP Verification Flow"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      🔧 **NEW OTP VERIFICATION FEATURE IMPLEMENTED - READY FOR TESTING**
+      
+      **What was implemented:**
+      1. **Backend OTP Models:** Created otp_models.py with OTP Pydantic model for storing OTP details
+      2. **Backend OTP Endpoints:** Created otp_endpoints.py with:
+         - POST /api/otp/send - Generates 6-digit OTP, stores in MongoDB with 10-minute expiry, mock SMS logging
+         - POST /api/otp/verify - Validates OTP, checks expiry, updates farmer mobile_verified status
+      3. **Farmer Model Updates:** Updated universal_weighbridge_models.py Farmer model with:
+         - mobile_verified: boolean field to track verification status
+         - mobile_verified_at: datetime field for verification timestamp
+         - otp_verified_count: integer field to track verification history
+      4. **Frontend Integration:** Updated PreEntryPage.js with complete OTP verification flow:
+         - 'Verify Mobile' button next to mobile input
+         - OTP input dialog with 60-second countdown timer
+         - Visual verification badge when OTP verified
+         - Form validation prevents submission without verification for new farmers
+         - Proper state management and error handling
+      5. **Router Registration:** Added otp_router to server.py for endpoint activation
+      
+      **Test Requirements:**
+      - Verify OTP generation and console logging (mock SMS)
+      - Test OTP validation with correct/incorrect codes
+      - Test OTP expiry handling (10-minute timeout)
+      - Verify farmer mobile_verified status updates
+      - Test frontend OTP flow integration and form validation
+      - Test end-to-end: Send OTP → Verify OTP → Create Pre-Entry
+      
+      **Ready for Backend Testing:** All OTP verification endpoints implemented and router registered.
