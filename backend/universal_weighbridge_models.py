@@ -174,6 +174,12 @@ class WeighbridgeEntry(BaseModel):
     # Payment tracking (for downstream processing)
     payment_status: str = "pending_payment"  # "pending_payment" | "payment_completed" | "payment_cancelled"
     
+    # Photo approval tracking
+    photo_approval_status: str = "pending"  # "pending" | "approved" | "rejected"
+    approved_by: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    rejection_reason: Optional[str] = None
+    
     # Metadata
     status: WeighbridgeStatus = WeighbridgeStatus.COMPLETED
     weighed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
