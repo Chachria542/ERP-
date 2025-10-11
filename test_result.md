@@ -510,15 +510,18 @@ backend:
 
   - task: "OTP Verification System - Verify OTP Endpoint"
     implemented: true
-    working: "NA"
+    working: false
     file: "backend/otp_endpoints.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE: Implemented /api/otp/verify endpoint that validates OTP against stored record, checks expiry time, and updates farmer mobile_verified status. Includes proper error handling for invalid/expired OTPs. Needs testing to verify OTP validation logic, expiry handling, and farmer status updates."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE: OTP verification endpoint works for OTP validation but has integration gap. OTP verification succeeds but farmer mobile_verified status is NOT preserved when farmer is created later during pre-entry. Issue: OTP verification only updates existing farmers, but if farmer doesn't exist, verification status is lost. When pre-entry creates farmer later, it creates with mobile_verified=false, losing the OTP verification. This breaks the intended flow where OTP verification should persist farmer verification status. Core OTP validation working correctly: validates OTP, checks expiry (2 minutes), tracks attempts (max 5), proper error handling for invalid/expired OTPs, returns 404 for non-existent mobile OTPs."
 
   - task: "Farmer Model Mobile Verification Fields"
     implemented: true
