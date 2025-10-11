@@ -56,6 +56,9 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [savedPayment, setSavedPayment] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [zoomedPhoto, setZoomedPhoto] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
 
   useEffect(() => {
     if (view === 'queue') {
