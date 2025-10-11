@@ -682,3 +682,40 @@ agent_communication:
       - Code uses 2-minute expiry, documentation mentions 10-minute
       
       **READY FOR MAIN AGENT:** Core OTP functionality working. Critical integration fix needed for complete functionality.
+  - agent: "testing"
+    message: |
+      🎉 **OTP-FARMER INTEGRATION FIX TESTING COMPLETED - 100% SUCCESS RATE**
+      
+      **COMPREHENSIVE INTEGRATION TEST RESULTS (7/7 TESTS PASSED):**
+      
+      **✅ CRITICAL INTEGRATION TEST:**
+      - **Complete OTP → Pre-Entry → Farmer Flow:** WORKING PERFECTLY
+      - Send OTP to new mobile (9876543210) → Verify OTP → Create Pre-Entry → Farmer created with mobile_verified=true
+      - Verification status correctly preserved: mobile_verified_at timestamp and otp_verified_count=1
+      
+      **✅ VERIFICATION STATUS PRESERVATION TESTS:**
+      - **With OTP Verification:** Farmers created with mobile_verified=true ✅
+      - **Without OTP Verification:** Farmers created with mobile_verified=false (default) ✅
+      
+      **✅ EDGE CASE TESTS:**
+      - **Multiple OTP Verifications:** Status preserved correctly after multiple verifications ✅
+      - **Failed Pre-Entry Scenarios:** OTP verification status preserved even after failed pre-entry attempts ✅
+      
+      **✅ MODEL AND ENDPOINT VALIDATION:**
+      - **Farmer Model Fields:** All verification fields present (mobile_verified, mobile_verified_at, otp_verified_count) ✅
+      - **Status Check Endpoints:** Verification status endpoints working correctly ✅
+      
+      **KEY VERIFIED FEATURES:**
+      - get_or_create_farmer() function now checks otp_verifications collection before creating farmers
+      - Successful OTP verification creates farmers with mobile_verified=true and proper timestamps
+      - Default behavior preserved: farmers without OTP verification have mobile_verified=false
+      - Integration gap completely resolved - no more loss of verification status
+      
+      **CRITICAL FIX CONFIRMED WORKING:**
+      The main agent's fix to the get_or_create_farmer() function in universal_weighbridge_endpoints.py is working perfectly. The function now:
+      1. Checks otp_verifications collection for successful verification (verified=true)
+      2. Creates farmers with mobile_verified=true if OTP was verified
+      3. Sets proper mobile_verified_at timestamp and otp_verified_count
+      4. Maintains default behavior for non-verified mobiles
+      
+      **PRODUCTION READY:** The OTP-Farmer integration fix has been thoroughly tested and is working excellently. The critical integration gap has been resolved.
