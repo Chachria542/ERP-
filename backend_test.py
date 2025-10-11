@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for OTP Verification System
-Tests OTP send, verify, and farmer mobile verification functionality
+Backend API Testing for OTP-Farmer Integration Fix
+Tests the complete OTP → Pre-Entry → Farmer creation flow to verify integration is working
 """
 import requests
 import json
@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://grain-erp-trading.preview.emergentagent.com/api"
 
-class OTPVerificationTester:
+class OTPFarmerIntegrationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
