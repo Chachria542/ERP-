@@ -893,6 +893,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_db():
+    """Initialize database collections and indexes"""
+    try:
+        # Create indexes for bill purchase collections
+        await db.bill_purchase_pre_entries.create_index("pre_entry_number", unique=True)
+        await db.bill_purchase_pre_entries.create_index([("supplier_id", 1), ("eway_bill_no", 1)])
+        await db.bill_purchase_pre_entries.create_index("status")
+        await db.bill_purchase_pre_entries.create_index("created_at")
+        
+        await db.bill_purchases.create_index("pre_entry_id")
+        await db.bill_purchases.create_index("supplier_id")
+        await db.bill_purchases.create_index("status")
+        await db.bill_purchases.create_index("created_at")
+        
+        # Ensure parties collection supports roles array
+        await db.parties.create_index("roles")
+        await db.parties.create_index("gstin")
+        
+        logger.info("Database indexes created successfully")
+    except Exception as e:
+        logger.error(f"Error creating database indexes: {e}")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
