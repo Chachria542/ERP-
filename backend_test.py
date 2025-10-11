@@ -178,32 +178,63 @@ class OTPFarmerIntegrationTester:
             self.log_test("Complete Integration Flow", False, f"Integration test failed: {str(e)}")
             return False
     
-    def test_otp_send_duplicate_request(self):
-        """Test Case 2: Send OTP again immediately (should handle cooldown)"""
-        print("🔍 Testing OTP Send - Duplicate Request (Cooldown)...")
+    def test_pre_entry_without_otp_verification(self):
+        """
+        Test Case 2: Create pre-entry without OTP verification
+        Farmer should be created with mobile_verified=false (default behavior)
+        """
+        print("🔍 Testing Pre-Entry Without OTP Verification...")
+        
+        mobile = self.test_mobile_no_otp
+        farmer_name = "Test Farmer No OTP"
         
         try:
-            payload = {"mobile": self.test_mobile}
-            response = requests.post(f"{self.base_url}/otp/send", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            # Create Pre-Entry directly without OTP verification
+            pre_entry_payload = {
+                "transaction_type": "farmer_purchase",
+                "from_location": "Test Warehouse",
+                "party_type": "farmer",
+                "party_name": farmer_name,
+                "party_mobile": mobile,
+                "item_id": self.test_item_id,
+                "rate_per_qtl": 2500.0,
+                "created_by": "test_user"
+            }
             
-            # Should either succeed (if no cooldown implemented) or return 429 (if cooldown implemented)
-            if response.status_code == 200:
-                data = response.json()
-                self.log_test("OTP Send - Duplicate Request", True, 
-                            f"New OTP sent successfully (no cooldown enforced)")
-            elif response.status_code == 429:
-                data = response.json()
-                self.log_test("OTP Send - Duplicate Request", True, 
-                            f"Cooldown enforced correctly: {data.get('detail', 'Rate limited')}")
+            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
+                                             json=pre_entry_payload,
+                                             headers={'Content-Type': 'application/json'},
+                                             timeout=10)
+            
+            if pre_entry_response.status_code != 200:
+                self.log_test("Pre-Entry Without OTP", False, 
+                            f"Pre-entry creation failed: HTTP {pre_entry_response.status_code}: {pre_entry_response.text}")
+                return False
+            
+            # Verify farmer was created with mobile_verified=false
+            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
+            
+            if farmer_response.status_code != 200:
+                self.log_test("Pre-Entry Without OTP", False, 
+                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
+                return False
+            
+            farmer_data = farmer_response.json()
+            mobile_verified = farmer_data.get('mobile_verified')
+            otp_verified_count = farmer_data.get('otp_verified_count')
+            
+            if mobile_verified == False and otp_verified_count == 0:
+                self.log_test("Pre-Entry Without OTP", True, 
+                            f"✅ Farmer {farmer_name} created with mobile_verified=False (default behavior)")
+                return True
             else:
-                self.log_test("OTP Send - Duplicate Request", False, 
-                            f"Unexpected status: HTTP {response.status_code}: {response.text}")
+                self.log_test("Pre-Entry Without OTP", False, 
+                            f"❌ Unexpected verification status: mobile_verified={mobile_verified}, count={otp_verified_count}")
+                return False
                 
         except Exception as e:
-            self.log_test("OTP Send - Duplicate Request", False, f"Request failed: {str(e)}")
+            self.log_test("Pre-Entry Without OTP", False, f"Test failed: {str(e)}")
+            return False
     
     def test_otp_verify_invalid_otp(self):
         """Test Case 3: Verify with invalid OTP"""
