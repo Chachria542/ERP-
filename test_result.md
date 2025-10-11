@@ -604,6 +604,27 @@ agent_communication:
       - Test end-to-end: Send OTP → Verify OTP → Create Pre-Entry
       
       **Ready for Backend Testing:** All OTP verification endpoints implemented and router registered.
+  - agent: "main"
+    message: |
+      🔧 **CRITICAL FIX IMPLEMENTED - OTP VERIFICATION STATUS PRESERVATION**
+      
+      **Issue Identified by Testing Agent:**
+      OTP verification status was not being preserved when farmers were created during pre-entry creation. The get_or_create_farmer() function in universal_weighbridge_endpoints.py didn't check for existing OTP verification records.
+      
+      **Fix Implemented:**
+      Modified get_or_create_farmer() function to:
+      - Check otp_verifications collection for successful verification (verified=True) before creating new farmer
+      - If successful OTP verification found, create farmer with mobile_verified=True, mobile_verified_at timestamp, and otp_verified_count=1
+      - If no OTP verification found, create farmer with default verification status (false)
+      - Properly handle datetime serialization for mobile_verified_at field
+      
+      **Test Requirements:**
+      - Verify complete OTP flow: Send OTP → Verify OTP → Create Pre-Entry → Check farmer verification status is preserved
+      - Test that farmers created with OTP verification have mobile_verified=true
+      - Test that farmers created without OTP verification have mobile_verified=false
+      - Verify integration between OTP verification and farmer creation workflows
+      
+      **Ready for Integration Testing:** Critical fix implemented to preserve OTP verification status during farmer creation.
   - agent: "testing"
     message: |
       🧪 **OTP VERIFICATION SYSTEM BACKEND TESTING COMPLETED - CRITICAL ISSUE FOUND**
