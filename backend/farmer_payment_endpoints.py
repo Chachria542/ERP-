@@ -137,6 +137,34 @@ async def update_payment_status(slip_id: str, payment_status: str):
     
     return {"message": "Payment status updated", "slip_id": slip_id, "payment_status": payment_status}
 
+@router.put("/weighbridge-entry/{slip_id}/photo-approval")
+async def update_photo_approval(slip_id: str, approved: bool, user_id: str, rejection_reason: str = None):
+    """Update photo approval status"""
+    from datetime import datetime, timezone
+    
+    update_data = {
+        "photo_approval_status": "approved" if approved else "rejected",
+        "approved_by": user_id if approved else None,
+        "approved_at": datetime.now(timezone.utc).isoformat() if approved else None
+    }
+    
+    if not approved and rejection_reason:
+        update_data["rejection_reason"] = rejection_reason
+    
+    result = await db.weighbridge_entries.update_one(
+        {"slip_id": slip_id},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Weighbridge entry not found")
+    
+    return {
+        "message": "Photo approval updated",
+        "slip_id": slip_id,
+        "approved": approved
+    }
+
 # ============= HELPER FUNCTIONS =============
 
 async def generate_book_number(location: str, fy_year: int) -> str:
