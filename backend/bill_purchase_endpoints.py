@@ -153,7 +153,7 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
         pre_entry_number = await generate_pre_entry_number()
         
         # Generate QR code data
-        qr_data = generate_qr_code_data(pre_entry_number, "bill_purchase")
+        qr_data = generate_qr_code_data(pre_entry_number, TransactionType.BILL_PURCHASE)
         
         # Create pre-entry
         pre_entry = BillPurchasePreEntry(
