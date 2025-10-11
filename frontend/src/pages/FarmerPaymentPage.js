@@ -508,6 +508,175 @@ function FarmerPaymentPage({ user, onLogout }) {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Photo Approval Modal */}
+          <Dialog open={showPhotoModal} onOpenChange={setShowPhotoModal}>
+            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl" style={{color: '#3E2723'}}>
+                  📸 Weighbridge Photos - Approval Required
+                </DialogTitle>
+                {slipData && (
+                  <p className="text-sm" style={{color: '#6B5846'}}>
+                    Slip ID: <strong>{slipData.slip_id}</strong> | Farmer: <strong>{slipData.party_name}</strong>
+                  </p>
+                )}
+              </DialogHeader>
+
+              {slipData && (
+                <div className="space-y-6">
+                  {/* Photo Upload Status Warning */}
+                  {slipData.photo_upload_status !== 'success' && (
+                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ Photo upload status: {slipData.photo_upload_status}. You can still approve.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Side-by-Side Photos */}
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Gross Weight Photo */}
+                    <div className="space-y-2">
+                      <div 
+                        className="relative border-2 rounded-lg overflow-hidden cursor-pointer hover:border-green-500 transition-all"
+                        onClick={() => setZoomedPhoto(slipData.photo_gross_url)}
+                        style={{height: '400px'}}
+                      >
+                        <img 
+                          src={slipData.photo_gross_url} 
+                          alt="Gross Weight"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded">
+                          🔼 Gross Weight
+                        </div>
+                        <div className="absolute bottom-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded text-xs">
+                          Click to enlarge
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-lg">{slipData.gross_weight} kg</p>
+                        <p className="text-xs text-gray-600">{formatDateTime(slipData.photo_gross_timestamp)}</p>
+                      </div>
+                    </div>
+
+                    {/* Tare Weight Photo */}
+                    <div className="space-y-2">
+                      <div 
+                        className="relative border-2 rounded-lg overflow-hidden cursor-pointer hover:border-green-500 transition-all"
+                        onClick={() => setZoomedPhoto(slipData.photo_tare_url)}
+                        style={{height: '400px'}}
+                      >
+                        <img 
+                          src={slipData.photo_tare_url} 
+                          alt="Tare Weight"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded">
+                          🔽 Tare Weight
+                        </div>
+                        <div className="absolute bottom-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded text-xs">
+                          Click to enlarge
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-bold text-lg">{slipData.tare_weight} kg</p>
+                        <p className="text-xs text-gray-600">{formatDateTime(slipData.photo_tare_timestamp)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Summary Details */}
+                  <Card className="p-4" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Vehicle</p>
+                        <p className="font-bold">{slipData.vehicle_number} ({slipData.vehicle_type})</p>
+                      </div>
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Item & Quantity</p>
+                        <p className="font-bold">{slipData.item_name} | {slipData.net_weight} kg = {slipData.act_qtl} qtl</p>
+                      </div>
+                      <div>
+                        <p className="text-sm" style={{color: '#6B5846'}}>Farmer</p>
+                        <p className="font-bold">{slipData.party_name} | {slipData.party_mobile}</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button 
+                      onClick={handleRejectPhotos}
+                      className="btn-secondary py-4 text-lg"
+                    >
+                      ❌ Reject Photos
+                    </Button>
+                    <Button 
+                      onClick={handleApprovePhotos}
+                      className="btn-primary py-4 text-lg"
+                    >
+                      ✅ Approve & Continue
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Photo Zoom Modal */}
+          <Dialog open={!!zoomedPhoto} onOpenChange={() => setZoomedPhoto(null)}>
+            <DialogContent className="max-w-6xl max-h-[95vh]">
+              <DialogHeader>
+                <DialogTitle>Weighbridge Photo (Full View)</DialogTitle>
+              </DialogHeader>
+              {zoomedPhoto && (
+                <div className="flex items-center justify-center">
+                  <img 
+                    src={zoomedPhoto} 
+                    alt="Zoomed"
+                    className="max-w-full max-h-[80vh] object-contain"
+                  />
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Rejection Reason Dialog */}
+          <Dialog open={showRejectionDialog} onOpenChange={setShowRejectionDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Rejection Reason (Optional)</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>Why are you rejecting these photos?</Label>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="e.g., Poor quality, Wrong vehicle, etc. (optional)"
+                    className="w-full mt-2 p-2 border rounded"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={() => setShowRejectionDialog(false)}
+                    className="btn-secondary flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleConfirmRejection}
+                    className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                  >
+                    Confirm Rejection
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </Layout>
     );
