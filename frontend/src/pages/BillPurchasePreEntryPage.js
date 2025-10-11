@@ -52,6 +52,7 @@ function BillPurchasePreEntryPage({ user, onLogout }) {
 
   useEffect(() => {
     fetchSuppliers();
+    fetchItems();
   }, []);
 
   const fetchSuppliers = async () => {
