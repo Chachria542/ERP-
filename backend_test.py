@@ -16,8 +16,10 @@ class OTPVerificationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
-        self.test_slip_id = None
-        self.created_payment_id = None
+        self.test_mobile = "9876543210"
+        self.test_mobile_2 = "9876543211"
+        self.sent_otp = None
+        self.test_farmer_id = None
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
