@@ -525,15 +525,18 @@ backend:
 
   - task: "Farmer Model Mobile Verification Fields"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/universal_weighbridge_models.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE: Updated Farmer model to include mobile_verified (boolean), mobile_verified_at (datetime), and otp_verified_count (integer) fields. These fields track mobile verification status and history. Needs testing to verify field updates during OTP verification process."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Farmer model correctly includes all mobile verification fields: mobile_verified (boolean), mobile_verified_at (datetime), otp_verified_count (integer). Fields are properly defined in universal_weighbridge_models.py and appear in farmer records returned by /api/farmers endpoint. Model structure is correct and ready for OTP verification integration."
 
 frontend:
   - task: "Pre-Entry Page OTP Verification Flow"
