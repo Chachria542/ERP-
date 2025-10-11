@@ -236,31 +236,77 @@ class OTPFarmerIntegrationTester:
             self.log_test("Pre-Entry Without OTP", False, f"Test failed: {str(e)}")
             return False
     
-    def test_otp_verify_invalid_otp(self):
-        """Test Case 3: Verify with invalid OTP"""
-        print("🔍 Testing OTP Verify - Invalid OTP...")
+    def test_multiple_otp_verifications_before_farmer_creation(self):
+        """
+        Test Case 3: Multiple OTP verifications before farmer creation
+        Tests edge case where mobile gets verified multiple times before pre-entry
+        """
+        print("🔍 Testing Multiple OTP Verifications Before Farmer Creation...")
+        
+        mobile = self.test_mobile_multiple
+        farmer_name = "Test Farmer Multiple OTP"
         
         try:
-            payload = {"mobile": self.test_mobile, "otp": "0000"}
-            response = requests.post(f"{self.base_url}/otp/verify", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            # First OTP verification
+            print("  First OTP verification...")
+            if not self.send_and_verify_otp(mobile):
+                self.log_test("Multiple OTP Verifications", False, "First OTP verification failed")
+                return False
             
-            if response.status_code == 400:
-                data = response.json()
-                if "Invalid OTP" in data.get("detail", ""):
-                    self.log_test("OTP Verify - Invalid OTP", True, 
-                                f"Correctly rejected invalid OTP: {data.get('detail')}")
-                else:
-                    self.log_test("OTP Verify - Invalid OTP", False, 
-                                f"Wrong error message: {data.get('detail')}")
+            # Wait a bit and do second OTP verification
+            print("  Second OTP verification...")
+            time.sleep(3)  # Wait for cooldown
+            if not self.send_and_verify_otp(mobile):
+                self.log_test("Multiple OTP Verifications", False, "Second OTP verification failed")
+                return False
+            
+            # Now create pre-entry
+            print("  Creating pre-entry after multiple verifications...")
+            pre_entry_payload = {
+                "transaction_type": "farmer_purchase",
+                "from_location": "Test Warehouse",
+                "party_type": "farmer",
+                "party_name": farmer_name,
+                "party_mobile": mobile,
+                "item_id": self.test_item_id,
+                "rate_per_qtl": 2500.0,
+                "created_by": "test_user"
+            }
+            
+            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
+                                             json=pre_entry_payload,
+                                             headers={'Content-Type': 'application/json'},
+                                             timeout=10)
+            
+            if pre_entry_response.status_code != 200:
+                self.log_test("Multiple OTP Verifications", False, 
+                            f"Pre-entry creation failed: HTTP {pre_entry_response.status_code}")
+                return False
+            
+            # Verify farmer verification status
+            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
+            
+            if farmer_response.status_code != 200:
+                self.log_test("Multiple OTP Verifications", False, 
+                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
+                return False
+            
+            farmer_data = farmer_response.json()
+            mobile_verified = farmer_data.get('mobile_verified')
+            otp_verified_count = farmer_data.get('otp_verified_count')
+            
+            if mobile_verified == True and otp_verified_count >= 1:
+                self.log_test("Multiple OTP Verifications", True, 
+                            f"✅ Farmer created with verification status preserved after multiple OTPs. Count: {otp_verified_count}")
+                return True
             else:
-                self.log_test("OTP Verify - Invalid OTP", False, 
-                            f"Expected 400, got HTTP {response.status_code}: {response.text}")
+                self.log_test("Multiple OTP Verifications", False, 
+                            f"❌ Verification status not preserved: mobile_verified={mobile_verified}, count={otp_verified_count}")
+                return False
                 
         except Exception as e:
-            self.log_test("OTP Verify - Invalid OTP", False, f"Request failed: {str(e)}")
+            self.log_test("Multiple OTP Verifications", False, f"Test failed: {str(e)}")
+            return False
     
     def get_otp_from_logs(self, mobile):
         """Extract OTP from backend logs for a specific mobile"""
