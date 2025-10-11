@@ -73,7 +73,7 @@ async def get_suppliers():
     
     return parties
 
-@router.post("/parties/extended", response_model=PartyExtended)
+@router.post("/suppliers", response_model=PartyExtended)
 async def create_extended_party(party_data: PartyExtendedCreate):
     """Create new party with extended fields"""
     party = PartyExtended(**party_data.model_dump())
