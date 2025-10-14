@@ -340,11 +340,21 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         doc['photo_upload_status'] = doc['photo_upload_status'].value
         await db.weighbridge_entries.insert_one(doc)
         
-        # Update pre-entry status
-        await db.pre_entries.update_one(
-            {"slip_id": entry_data.slip_id},
-            {"$set": {"status": PreEntryStatus.WEIGHED.value}}
-        )
+        # Update pre-entry status in correct collection
+        if is_bill_purchase:
+            await db.bill_purchase_pre_entries.update_one(
+                {"pre_entry_number": entry_data.slip_id},
+                {"$set": {
+                    "status": "pending",  # Bill purchase goes to pending after weighbridge
+                    "weighbridge_completed": True,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+        else:
+            await db.pre_entries.update_one(
+                {"slip_id": entry_data.slip_id},
+                {"$set": {"status": PreEntryStatus.WEIGHED.value}}
+            )
         
         # Log audit
         await log_audit(
