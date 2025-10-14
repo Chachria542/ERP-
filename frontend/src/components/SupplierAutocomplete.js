@@ -408,8 +408,11 @@ function SupplierAutocomplete({
 
             <div className="flex justify-end space-x-3 pt-4 border-t">
               <Button 
+                type="button"
                 variant="outline" 
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('[SupplierAutocomplete] Cancel button clicked');
                   setShowNewSupplierModal(false);
                 }}
@@ -417,7 +420,10 @@ function SupplierAutocomplete({
                 Cancel
               </Button>
               <Button 
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('[SupplierAutocomplete] Create Supplier button clicked');
                   handleCreateNewSupplier();
                 }}
