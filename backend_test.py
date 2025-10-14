@@ -398,46 +398,54 @@ class SalesPreEntryTester:
             self.log_test("Validation Invalid Customer ID", False, f"Request failed: {str(e)}")
             return False
     
-    def test_farmer_model_verification_fields(self):
+    def test_integration_customer_data_fetch(self):
         """
-        Test Case 5: Verify farmer model has all required verification fields
+        Test 7: Integration - Customer Data Fetch
+        Verify customer data is fetched correctly from parties collection
         """
-        print("🔍 Testing Farmer Model Verification Fields...")
+        print("🔍 Test 7: Integration - Customer Data Fetch...")
+        
+        if not self.customers or not self.items:
+            self.log_test("Integration Customer Data", False, "No test data available")
+            return False
+        
+        customer = self.customers[0]
+        item = self.items[0]
         
         try:
-            # Get farmers list to check model structure
-            response = requests.get(f"{self.base_url}/farmers", timeout=10)
+            payload = {
+                "date": "2025-01-14",
+                "customer_id": customer['id'],
+                "place_of_supply": "Test Place of Supply",
+                "item_id": item['id'],
+                "created_by": "admin"
+            }
+            
+            response = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
             
             if response.status_code == 200:
-                farmers = response.json()
+                data = response.json()
                 
-                if isinstance(farmers, list) and len(farmers) > 0:
-                    sample_farmer = farmers[0]
-                    
-                    # Check for mobile verification fields
-                    verification_fields = ["mobile_verified", "mobile_verified_at", "otp_verified_count"]
-                    present_fields = [field for field in verification_fields if field in sample_farmer]
-                    
-                    if len(present_fields) == len(verification_fields):
-                        self.log_test("Farmer Model Verification Fields", True, 
-                                    f"✅ All verification fields present: {present_fields}")
-                        return True
-                    else:
-                        missing = [field for field in verification_fields if field not in sample_farmer]
-                        self.log_test("Farmer Model Verification Fields", False, 
-                                    f"❌ Missing verification fields: {missing}")
-                        return False
-                else:
-                    self.log_test("Farmer Model Verification Fields", True, 
-                                "No farmers in database - cannot verify model structure (acceptable)")
+                # Verify customer data is correctly fetched and populated
+                if (data.get('customer_name') == customer['name'] and
+                    data.get('customer_id') == customer['id']):
+                    self.log_test("Integration Customer Data", True, 
+                                f"✅ Customer data correctly fetched: {customer['name']}")
                     return True
+                else:
+                    self.log_test("Integration Customer Data", False, 
+                                f"❌ Customer data mismatch. Expected: {customer['name']}, Got: {data.get('customer_name')}")
+                    return False
             else:
-                self.log_test("Farmer Model Verification Fields", False, 
-                            f"Failed to get farmers: HTTP {response.status_code}: {response.text}")
+                self.log_test("Integration Customer Data", False, 
+                            f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Farmer Model Verification Fields", False, f"Request failed: {str(e)}")
+            self.log_test("Integration Customer Data", False, f"Request failed: {str(e)}")
             return False
     
     def test_verification_status_check_endpoints(self):
