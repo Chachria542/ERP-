@@ -152,18 +152,27 @@ function BillPurchasePage({ user, onLogout }) {
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
     
+    // Find item from items list to get rate
+    const selectedItem = items.find(item => item.id === selectedPreEntry?.item_id);
+    const itemRate = selectedItem?.rate || '';
+    
+    // Calculate bags and remaining kg on initialization
+    const agreedWeight = weighbridgeData?.act_qtl || 0;
+    const packSize = 100;
+    const { bags, remainingKg } = calculateBagsAndRemaining(agreedWeight, packSize);
+    
     // Initialize bill form with weighbridge data
     const initialLineItem = {
       item_id: selectedPreEntry?.item_id || '',
       item_name: selectedPreEntry?.item_name || '',
       quality: '',
-      pack_size: 100, // Default pack size
-      bags: 0, // Will be auto-calculated
-      remaining_kg: 0, // Will be auto-calculated
+      pack_size: packSize,
+      bags: bags,
+      remaining_kg: remainingKg,
       actual_weight: weighbridgeData?.act_qtl || 0,
-      agreed_weight: weighbridgeData?.act_qtl || 0,
-      rate_per_qtl: '',
-      amount: 0,
+      agreed_weight: agreedWeight,
+      rate_per_qtl: itemRate, // Auto-filled from item master
+      amount: itemRate && agreedWeight ? Math.round(agreedWeight * itemRate * 100) / 100 : 0,
       cgst_rate: '',
       sgst_rate: '',
       igst_rate: '',
@@ -172,6 +181,9 @@ function BillPurchasePage({ user, onLogout }) {
       igst_amount: 0,
       sort_order: 1
     };
+    
+    console.log('[Bill Processing] Auto-filled rate:', itemRate, 'from item:', selectedItem?.name);
+    console.log('[Bill Processing] Calculated bags:', bags, 'remaining kg:', remainingKg);
     
     // Auto-populate broker details from pre-entry (editable)
     const hasBroker = selectedPreEntry?.has_broker || false;
