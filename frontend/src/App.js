@@ -97,6 +97,10 @@ function App() {
             path="/bill-purchase" 
             element={user ? <BillPurchasePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
+          <Route 
+            path="/sales-pre-entry" 
+            element={user ? <SalesPreEntryPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
+          />
         </Routes>
       </BrowserRouter>
     </div>
