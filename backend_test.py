@@ -269,24 +269,44 @@ class SalesPreEntryTester:
             self.log_test("Marka Memory Endpoint", False, f"Request failed: {str(e)}")
             return False
     
-    def get_otp_from_logs(self, mobile):
-        """Extract OTP from backend logs for a specific mobile"""
+    def test_marka_memory_nonexistent_item(self):
+        """
+        Test 4: Marka Memory with Non-existent Item
+        Test marka endpoint with invalid item_id
+        """
+        print("🔍 Test 4: Marka Memory with Non-existent Item...")
+        
         try:
-            import subprocess
-            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.out.log'], 
-                                  capture_output=True, text=True)
-            logs = result.stdout
+            # Test with non-existent item ID
+            fake_item_id = "non-existent-item-id"
+            response = requests.get(f"{self.base_url}/sales/marka/{fake_item_id}", timeout=10)
             
-            # Look for the OTP pattern for this mobile
-            import re
-            pattern = rf"📱 \[MOCK SMS\] Sending OTP to {mobile}: (\d+)"
-            matches = re.findall(pattern, logs)
-            
-            if matches:
-                return matches[-1]  # Return the most recent OTP
-            return None
-        except:
-            return None
+            if response.status_code == 200:
+                markas = response.json()
+                
+                # Should return empty array for non-existent item
+                if isinstance(markas, list) and len(markas) == 0:
+                    self.log_test("Marka Memory Non-existent Item", True, 
+                                f"✅ Non-existent item returns empty array correctly")
+                    return True
+                else:
+                    self.log_test("Marka Memory Non-existent Item", False, 
+                                f"❌ Expected empty array, got: {markas}")
+                    return False
+            else:
+                # 404 is also acceptable for non-existent item
+                if response.status_code == 404:
+                    self.log_test("Marka Memory Non-existent Item", True, 
+                                f"✅ Non-existent item returns 404 correctly")
+                    return True
+                else:
+                    self.log_test("Marka Memory Non-existent Item", False, 
+                                f"HTTP {response.status_code}: {response.text}")
+                    return False
+                
+        except Exception as e:
+            self.log_test("Marka Memory Non-existent Item", False, f"Request failed: {str(e)}")
+            return False
     
     def send_and_verify_otp(self, mobile):
         """Helper method to send and verify OTP for a mobile"""
