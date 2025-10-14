@@ -507,8 +507,8 @@ class SalesPreEntryTester:
             return False
     
     def run_all_tests(self):
-        """Run all OTP-Farmer Integration tests"""
-        print("🚀 Starting OTP-Farmer Integration Fix Testing")
+        """Run all Sales Pre-Entry tests"""
+        print("🚀 Starting Sales Pre-Entry Backend Testing")
         print(f"Testing against: {self.base_url}")
         print("=" * 80)
         
@@ -518,42 +518,48 @@ class SalesPreEntryTester:
             return False
         
         print("\n" + "=" * 80)
-        print("🔥 CRITICAL INTEGRATION TESTS")
+        print("🔥 SALES PRE-ENTRY CREATION TESTS")
         print("=" * 80)
         
-        # Test 1: Complete integration flow (MOST IMPORTANT)
-        self.test_complete_integration_flow()
+        # Test 1: Basic pre-entry creation
+        self.test_sales_pre_entry_creation_basic()
+        
+        # Test 2: Sequential numbering
+        self.test_sales_pre_entry_sequential_numbering()
         
         print("\n" + "=" * 80)
-        print("📋 VERIFICATION STATUS PRESERVATION TESTS")
+        print("📋 MARKA MEMORY ENDPOINT TESTS")
         print("=" * 80)
         
-        # Test 2: Pre-entry without OTP verification
-        self.test_pre_entry_without_otp_verification()
+        # Test 3: Marka memory endpoint
+        self.test_marka_memory_endpoint()
+        
+        # Test 4: Marka memory with non-existent item
+        self.test_marka_memory_nonexistent_item()
         
         print("\n" + "=" * 80)
-        print("📋 EDGE CASE TESTS")
+        print("📋 DATA VALIDATION TESTS")
         print("=" * 80)
         
-        # Test 3: Multiple OTP verifications
-        self.test_multiple_otp_verifications_before_farmer_creation()
+        # Test 5: Missing required fields
+        self.test_validation_missing_required_fields()
         
-        # Test 4: Failed pre-entry scenarios
-        self.test_otp_verification_with_failed_pre_entry()
+        # Test 6: Invalid customer ID
+        self.test_validation_invalid_customer_id()
         
         print("\n" + "=" * 80)
-        print("📋 MODEL AND ENDPOINT VALIDATION")
+        print("📋 INTEGRATION TESTS")
         print("=" * 80)
         
-        # Test 5: Farmer model verification fields
-        self.test_farmer_model_verification_fields()
+        # Test 7: Customer data integration
+        self.test_integration_customer_data_fetch()
         
-        # Test 6: Verification status endpoints
-        self.test_verification_status_check_endpoints()
+        # Test 8: Item data integration
+        self.test_integration_item_data_fetch()
         
         # Summary
         print("\n" + "=" * 80)
-        print("📊 OTP-FARMER INTEGRATION TEST SUMMARY")
+        print("📊 SALES PRE-ENTRY TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -565,6 +571,12 @@ class SalesPreEntryTester:
         print(f"Failed: {failed_tests} ❌")
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
+        # Show created pre-entries
+        if self.created_pre_entries:
+            print(f"\n📝 CREATED PRE-ENTRIES ({len(self.created_pre_entries)}):")
+            for entry in self.created_pre_entries:
+                print(f"  - {entry.get('pre_entry_number')}: {entry.get('customer_name')} - {entry.get('item_name')}")
+        
         # Detailed results
         if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
@@ -572,13 +584,17 @@ class SalesPreEntryTester:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
             
-            print("\n🚨 CRITICAL INTEGRATION ISSUES FOUND:")
-            print("The OTP-Farmer integration fix may not be working correctly.")
+            print("\n🚨 SALES PRE-ENTRY ISSUES FOUND:")
+            print("Some Sales Pre-Entry endpoints may not be working correctly.")
             print("Please review the failed tests above and check the implementation.")
         else:
-            print("\n🎉 ALL INTEGRATION TESTS PASSED!")
-            print("✅ OTP verification status is correctly preserved during farmer creation")
-            print("✅ The critical integration gap has been resolved")
+            print("\n🎉 ALL SALES PRE-ENTRY TESTS PASSED!")
+            print("✅ Sales Pre-Entry creation endpoint working correctly")
+            print("✅ Pre-entry number generation in SPRE-YY-###### format working")
+            print("✅ Sequential numbering working correctly")
+            print("✅ Marka memory endpoint working")
+            print("✅ Data validation working")
+            print("✅ Customer and item integration working")
         
         print("\n" + "=" * 80)
         return failed_tests == 0
