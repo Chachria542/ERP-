@@ -100,6 +100,7 @@ class BillPurchasePreEntry(BaseModel):
     # Item details
     item_id: Optional[str] = None  # FK to items collection
     item_name: Optional[str] = None  # Auto-filled from item
+    item_rate: Optional[float] = None  # Rate per quintal (auto-filled from item, editable)
     
     # Broker details
     has_broker: bool = False
