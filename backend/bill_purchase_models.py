@@ -291,17 +291,61 @@ def calculate_brokerage_amount(brokerage_type: BrokerageType, brokerage_rate: fl
     else:
         return 0.0
 
-def calculate_bill_totals(line_items: List[BillPurchaseLineItem], 
-                         freight: float, hamali_tulai: float, aadat: float,
-                         mandi_cess: float, bank_charges: float, rounding: float,
-                         brokerage_amount: float = 0.0) -> dict:
-    """Calculate bill totals"""
-    subtotal = sum(item.amount for item in line_items)
-    total_charges = freight + hamali_tulai + aadat + mandi_cess + bank_charges + brokerage_amount
-    grand_total = subtotal + total_charges + rounding
+def calculate_bags_and_remaining(total_weight_qtl: float, pack_size_kg: float) -> tuple:
+    """Calculate bags and remaining kg from total weight and pack size"""
+    total_weight_kg = total_weight_qtl * 100  # Convert quintals to kg
+    bags = int(total_weight_kg // pack_size_kg)
+    remaining_kg = round(total_weight_kg % pack_size_kg, 2)
+    return bags, remaining_kg
+
+def calculate_line_item_taxes(amount: float, cgst_rate: float, sgst_rate: float, igst_rate: float) -> dict:
+    """Calculate tax amounts for a line item"""
+    cgst_amount = round((amount * cgst_rate / 100), 2) if cgst_rate > 0 else 0.0
+    sgst_amount = round((amount * sgst_rate / 100), 2) if sgst_rate > 0 else 0.0
+    igst_amount = round((amount * igst_rate / 100), 2) if igst_rate > 0 else 0.0
     
     return {
-        "subtotal": round(subtotal, 2),
-        "total_charges": round(total_charges, 2),
-        "grand_total": round(grand_total, 2)
+        "cgst_amount": cgst_amount,
+        "sgst_amount": sgst_amount,
+        "igst_amount": igst_amount,
+        "total_tax": cgst_amount + sgst_amount + igst_amount
     }
+
+def calculate_bill_totals_new(line_items: List[BillPurchaseLineItem], 
+                             batav_percentage: float, claim_type: str, 
+                             claim_rate: float) -> dict:
+    """Calculate comprehensive bill totals with new structure"""
+    # Calculate line items total and taxes
+    line_items_total = sum(item.amount for item in line_items)
+    total_tax_amount = sum(item.cgst_amount + item.sgst_amount + item.igst_amount for item in line_items)
+    gross_amount = line_items_total + total_tax_amount
+    
+    # Calculate batav (cash discount) - applied to gross amount
+    batav_amount = round((gross_amount * batav_percentage / 100), 2)
+    
+    # Calculate claim amount
+    if claim_type == "percentage":
+        claim_amount = round((gross_amount * claim_rate / 100), 2)
+    else:  # flat amount
+        claim_amount = claim_rate
+    
+    # Calculate final amounts
+    total_deductions = batav_amount + claim_amount
+    net_amount = gross_amount - total_deductions
+    
+    return {
+        "line_items_total": round(line_items_total, 2),
+        "total_tax_amount": round(total_tax_amount, 2),
+        "gross_amount": round(gross_amount, 2),
+        "batav_amount": round(batav_amount, 2),
+        "claim_amount": round(claim_amount, 2),
+        "total_deductions": round(total_deductions, 2),
+        "net_amount": round(net_amount, 2)
+    }
+
+def generate_bill_number() -> str:
+    """Generate bill number in STC-BP-CY-XXXX format"""
+    import random
+    current_year = datetime.now(timezone.utc).year % 100
+    sequence = random.randint(1000, 9999)  # Simple sequence for now
+    return f"STC-BP-{current_year:02d}-{sequence:04d}"
