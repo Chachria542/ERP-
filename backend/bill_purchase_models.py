@@ -242,6 +242,13 @@ class BillPurchaseCreate(BaseModel):
     # Reference
     pre_entry_id: str
     
+    # Section 2: Broker Details (editable during bill processing)
+    has_broker: bool = False
+    broker_id: Optional[str] = None  # ID from broker master
+    broker_name: Optional[str] = None
+    brokerage_type: Optional[str] = None  # per_quintal, per_bag, percentage, none
+    brokerage_rate: Optional[float] = 0.0
+    
     # Section 3: Line Items
     line_items: List[BillPurchaseLineItem] = Field(default_factory=list)
     
