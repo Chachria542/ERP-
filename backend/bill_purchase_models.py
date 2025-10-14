@@ -277,6 +277,8 @@ class BillPurchaseQueueItem(BaseModel):
     eway_bill_no: Optional[str] = None
     expected_quantity: Optional[str] = None  # Formatted display
     weighbridge_completed: bool = False
+    weighbridge_weight: Optional[float] = None  # Weight in quintals from weighbridge
+    broker_name: Optional[str] = None  # Broker name if any
     status: str
     created_at: datetime
     weighed_at: Optional[datetime] = None
