@@ -378,7 +378,7 @@ function BillPurchasePage({ user, onLogout }) {
     );
   };
 
-  const { subtotal, totalCharges, grandTotal } = calculateTotals();
+  const { lineItemsTotal, totalTaxAmount, grossAmount, batavAmount, claimAmount, totalDeductions, netAmount } = calculateTotals();
 
   return (
     <Layout user={user} onLogout={onLogout}>
