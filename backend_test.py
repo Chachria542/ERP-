@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for OTP-Farmer Integration Fix
-Tests the complete OTP → Pre-Entry → Farmer creation flow to verify integration is working
+Backend API Testing for Sales Pre-Entry System
+Tests the new Sales Pre-Entry backend endpoints according to test_result.md
 """
 import requests
 import json
