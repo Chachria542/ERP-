@@ -14,6 +14,16 @@ import { toast } from 'sonner';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+const BILL_TYPES = [
+  { value: 'entry', label: 'Entry' },
+  { value: 'purchase', label: 'Purchase' }
+];
+
+const CLAIM_TYPES = [
+  { value: 'flat', label: 'Flat Amount' },
+  { value: 'percentage', label: 'Percentage' }
+];
+
 function BillPurchasePage({ user, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [items, setItems] = useState([]);
