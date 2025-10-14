@@ -157,16 +157,24 @@ class PreEntryCreate(BaseModel):
 
 # ============= WEIGHBRIDGE ENTRY MODELS (Operator Side - At Weighbridge) =============
 
+class WeightType(str, Enum):
+    """Weight type for sales flow (tare first, then gross)"""
+    SINGLE = "single"  # Single weighment (gross and tare together) - for purchase
+    TARE = "tare"  # Tare weight only (empty vehicle) - for sales
+    GROSS = "gross"  # Gross weight only (loaded vehicle) - for sales
+
 class WeighbridgeEntry(BaseModel):
     """
     Weighbridge Entry created by operator AFTER scanning QR and weighing truck.
     Contains actual weights and photos. Links to PreEntry.
+    For sales: creates two entries (tare + gross), for purchases: one entry (single)
     """
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     pre_entry_id: str  # FK to pre_entries
     slip_id: str  # Same as pre_entry.slip_id (for easy lookup)
     transaction_type: TransactionType  # Copied from pre_entry for routing
+    weight_type: str = "single"  # "single", "tare", or "gross"
     
     # Vehicle details
     vehicle_number: str
@@ -175,9 +183,13 @@ class WeighbridgeEntry(BaseModel):
     driver_mobile: Optional[str] = None
     
     # Actual weights (recorded at weighbridge)
-    gross_weight: float  # kg
-    tare_weight: float  # kg
-    net_weight: float  # Calculated: gross - tare
+    # For single: both gross and tare filled
+    # For tare: only tare_weight filled, gross_weight = 0
+    # For gross: only gross_weight filled, tare_weight = 0
+    gross_weight: float = 0.0  # kg
+    tare_weight: float = 0.0  # kg
+    net_weight: float = 0.0  # Calculated: gross - tare (only for single or when both exist)
+    weight: float = 0.0  # The actual measured weight (tare OR gross depending on weight_type)
     
     # Calculated quantities
     bags: int  # net_weight // 100
