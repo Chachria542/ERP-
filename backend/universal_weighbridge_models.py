@@ -227,14 +227,19 @@ class WeighbridgeEntry(BaseModel):
 class WeighbridgeEntryCreate(BaseModel):
     """Request model for creating weighbridge entry"""
     slip_id: str  # Scanned from QR or manually entered
+    weight_type: str = "single"  # "single", "tare", or "gross"
     
     vehicle_number: str
     vehicle_type: str
     driver_name: Optional[str] = None
     driver_mobile: Optional[str] = None
     
-    gross_weight: float
-    tare_weight: float
+    # For single: both required
+    # For tare: only weight (measured tare)
+    # For gross: only weight (measured gross)
+    gross_weight: float = 0.0
+    tare_weight: float = 0.0
+    weight: float = 0.0  # The measured weight (for tare or gross type)
     
     operator_id: str
     operator_name: str
