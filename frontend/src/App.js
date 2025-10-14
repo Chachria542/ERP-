@@ -14,7 +14,6 @@ import ProductionPage from "./pages/ProductionPage";
 import LedgerPage from "./pages/LedgerPage";
 import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
-import BillPurchasePreEntryPage from "./pages/BillPurchasePreEntryPage";
 import BillPurchasePage from "./pages/BillPurchasePage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
