@@ -147,10 +147,27 @@ class BillPurchaseLineItem(BaseModel):
     """Individual line item in bill purchase"""
     item_id: str
     item_name: str
-    bags: int
-    kgs: float
+    quality: Optional[str] = None
+    
+    # Weight calculations
+    pack_size: float  # Pack size in kg (e.g., 100, 50)
+    bags: int  # Auto-calculated from total weight / pack_size
+    remaining_kg: float  # Auto-calculated remainder
+    actual_weight: float  # Exact weight from weighbridge (in quintals)
+    agreed_weight: float  # Editable weight (defaults to actual_weight)
+    
+    # Pricing
     rate_per_qtl: float
-    amount: float  # (kgs / 100) × rate_per_qtl
+    amount: float  # agreed_weight × rate_per_qtl
+    
+    # Taxes (mutually exclusive: CGST+SGST OR IGST)
+    cgst_rate: float = 0.0
+    sgst_rate: float = 0.0
+    igst_rate: float = 0.0
+    cgst_amount: float = 0.0
+    sgst_amount: float = 0.0
+    igst_amount: float = 0.0
+    
     sort_order: int = 0
 
 class BillPurchase(BaseModel):
