@@ -286,12 +286,31 @@ function BillPurchasePage({ user, onLogout }) {
   };
 
   const calculateTotals = () => {
-    const subtotal = billData.line_items.reduce((sum, item) => sum + (item.amount || 0), 0);
-    const totalCharges = billData.freight + billData.hamali_tulai + billData.aadat + 
-                        billData.mandi_cess + billData.bank_charges;
-    const grandTotal = subtotal + totalCharges + billData.rounding;
+    const lineItemsTotal = billData.line_items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalTaxAmount = billData.line_items.reduce((sum, item) => 
+      sum + (item.cgst_amount || 0) + (item.sgst_amount || 0) + (item.igst_amount || 0), 0);
+    const grossAmount = lineItemsTotal + totalTaxAmount;
     
-    return { subtotal, totalCharges, grandTotal };
+    // Calculate batav (cash discount)
+    const batavAmount = Math.round((grossAmount * billData.batav_percentage / 100) * 100) / 100;
+    
+    // Calculate claim amount
+    const claimAmount = billData.claim_type === 'percentage' 
+      ? Math.round((grossAmount * billData.claim_rate / 100) * 100) / 100
+      : billData.claim_rate;
+    
+    const totalDeductions = batavAmount + claimAmount;
+    const netAmount = grossAmount - totalDeductions;
+    
+    return { 
+      lineItemsTotal, 
+      totalTaxAmount, 
+      grossAmount, 
+      batavAmount, 
+      claimAmount, 
+      totalDeductions, 
+      netAmount 
+    };
   };
 
   const handleCreateBill = async () => {
