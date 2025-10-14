@@ -58,6 +58,133 @@ async def check_duplicate_supplier_eway(supplier_id: str, eway_bill_no: str) -> 
 
 # ============= PARTY MANAGEMENT ENDPOINTS =============
 
+@router.get("/suppliers/search")
+async def search_suppliers(q: str):
+    """Real-time supplier search with fuzzy matching"""
+    if len(q) < 2:  # Minimum 2 characters to search
+        return []
+    
+    # Search by name (case insensitive) and GSTIN
+    query = {
+        "$and": [
+            {"roles": "supplier"},
+            {
+                "$or": [
+                    {"name": {"$regex": q, "$options": "i"}},
+                    {"gstin": {"$regex": q, "$options": "i"}}
+                ]
+            }
+        ]
+    }
+    
+    suppliers = await db.parties.find(query, {
+        "_id": 0,
+        "id": 1,
+        "name": 1,
+        "gstin": 1,
+        "place_of_supply": 1,
+        "state": 1,
+        "contact": 1
+    }).limit(10).to_list(10)
+    
+    # Calculate similarity score for better sorting
+    results = []
+    for supplier in suppliers:
+        name_similarity = calculate_similarity(q.lower(), supplier['name'].lower())
+        gstin_match = 1.0 if q.upper() in (supplier.get('gstin') or '') else 0.0
+        
+        results.append({
+            **supplier,
+            "similarity_score": max(name_similarity, gstin_match)
+        })
+    
+    # Sort by similarity score (highest first)
+    results.sort(key=lambda x: x['similarity_score'], reverse=True)
+    
+    return results[:5]  # Return top 5 matches
+
+def calculate_similarity(str1: str, str2: str) -> float:
+    """Calculate similarity between two strings (0.0 to 1.0)"""
+    if not str1 or not str2:
+        return 0.0
+    
+    # Simple similarity based on common substrings
+    if str1 in str2 or str2 in str1:
+        return 0.9
+    
+    # Check for common words
+    words1 = set(str1.split())
+    words2 = set(str2.split())
+    common_words = words1.intersection(words2)
+    
+    if common_words:
+        return len(common_words) / max(len(words1), len(words2))
+    
+    return 0.0
+
+@router.post("/suppliers/quick-create", response_model=PartyExtended)
+async def quick_create_supplier(supplier_data: dict):
+    """Quick supplier creation from pre-entry context"""
+    # Validate required fields
+    required_fields = ['name', 'place_of_supply', 'gstin', 'contact']
+    for field in required_fields:
+        if not supplier_data.get(field):
+            raise HTTPException(status_code=400, detail=f"{field} is required")
+    
+    # Check for duplicate GSTIN
+    if supplier_data.get('gstin'):
+        existing = await db.parties.find_one({
+            "gstin": supplier_data['gstin'],
+            "roles": "supplier"
+        })
+        if existing:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Supplier with GSTIN {supplier_data['gstin']} already exists: {existing['name']}"
+            )
+    
+    # Create new supplier
+    supplier = PartyExtended(
+        name=supplier_data['name'],
+        roles=["supplier"],
+        contact=supplier_data['contact'],
+        gstin=supplier_data['gstin'],
+        place_of_supply=supplier_data['place_of_supply'],
+        state=supplier_data.get('state'),
+        address=supplier_data.get('address'),
+        pan=supplier_data.get('pan'),
+        bank_name=supplier_data.get('bank_name'),
+        account_number=supplier_data.get('account_number'),
+        ifsc_code=supplier_data.get('ifsc_code')
+    )
+    
+    doc = supplier.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    if doc.get('updated_at'):
+        doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    await db.parties.insert_one(doc)
+    return supplier
+
+@router.put("/suppliers/{supplier_id}/name")
+async def update_supplier_name(supplier_id: str, new_name: str):
+    """Update supplier name"""
+    # Check if supplier exists
+    supplier = await db.parties.find_one({"id": supplier_id, "roles": "supplier"})
+    if not supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+    
+    # Update name
+    await db.parties.update_one(
+        {"id": supplier_id},
+        {"$set": {
+            "name": new_name,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"message": f"Supplier name updated to: {new_name}"}
+
 @router.get("/suppliers", response_model=List[PartyExtended])
 async def get_suppliers():
     """Get all parties with supplier role"""
