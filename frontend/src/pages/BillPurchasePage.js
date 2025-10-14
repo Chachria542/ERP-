@@ -505,26 +505,24 @@ function BillPurchasePage({ user, onLogout }) {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b">
+                      <th className="text-left p-3">Supplier Name</th>
                       <th className="text-left p-3">Pre-Entry No.</th>
                       <th className="text-left p-3">Date</th>
-                      <th className="text-left p-3">Supplier</th>
-                      <th className="text-left p-3">Item</th>
-                      <th className="text-left p-3">E-Way Bill</th>
-                      <th className="text-left p-3">Expected Qty</th>
+                      <th className="text-left p-3">Weight (Qtls)</th>
                       <th className="text-left p-3">Status</th>
+                      <th className="text-left p-3">Broker</th>
                       <th className="text-left p-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {queue.map((item) => (
                       <tr key={item.pre_entry_id} className="border-b hover:bg-gray-50">
+                        <td className="p-3 font-medium">{item.supplier_name}</td>
                         <td className="p-3 font-mono text-sm">{item.pre_entry_number}</td>
-                        <td className="p-3">{item.date}</td>
-                        <td className="p-3">{item.supplier_name}</td>
-                        <td className="p-3 text-sm">-</td>
-                        <td className="p-3 text-sm">{item.eway_bill_no || '-'}</td>
-                        <td className="p-3 text-sm">{item.expected_quantity || '-'}</td>
+                        <td className="p-3 text-sm">{item.date}</td>
+                        <td className="p-3 text-sm">{item.weighbridge_weight || '-'}</td>
                         <td className="p-3">{getStatusBadge(item.status)}</td>
+                        <td className="p-3 text-sm">{item.broker_name || '-'}</td>
                         <td className="p-3">
                           {item.status === 'pending' ? (
                             <Button
