@@ -554,7 +554,7 @@ backend:
         comment: "✅ CRITICAL INTEGRATION FIX VERIFIED: Complete OTP-Farmer integration testing completed with 100% success rate (7/7 tests passed). CONFIRMED: OTP verification status is now correctly preserved during farmer creation. Complete flow tested: Send OTP → Verify OTP → Create Pre-Entry → Farmer created with mobile_verified=true, mobile_verified_at timestamp, and otp_verified_count=1. Edge cases tested: multiple OTP verifications, failed pre-entry attempts, farmers without OTP verification (mobile_verified=false). The critical integration gap has been resolved - farmers created after successful OTP verification now retain their verification status."
 
 frontend:
-  - task: "Pre-Entry Page OTP Verification Flow"
+  - task: "Universal Pre-Entry Page with Bill Purchase Integration"
     implemented: true
     working: "NA"
     file: "frontend/src/pages/PreEntryPage.js"
@@ -564,7 +564,7 @@ frontend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "NEW FEATURE: Integrated OTP verification flow in Pre-Entry page. Added 'Verify Mobile' button, OTP input dialog with countdown timer, verification status badge, and form validation. OTP is required for new farmers before pre-entry can be saved. Includes proper state management (otpSent, otpVerified, otpTimer) and error handling. Needs testing to verify end-to-end OTP flow integration."
+        comment: "INTEGRATION FEATURE: Bill Purchase functionality has been integrated into the universal Pre-Entry page. The page now supports 6 transaction types including Bill Purchase with dynamic form sections. Bill Purchase shows supplier selection, broker details, expected quantities, and place of supply fields. Needs comprehensive testing to verify the integration works correctly and that there's no separate Bill Pre-Entry navigation."
 
   - task: "Bill Purchase Pre-Entry Page"
     implemented: true
