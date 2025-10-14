@@ -16,14 +16,10 @@ class SalesPreEntryTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
-        # Use realistic mobile numbers for testing
-        self.test_mobile_new = "9876543210"  # New mobile for complete flow test
-        self.test_mobile_no_otp = "9876543211"  # Mobile without OTP verification
-        self.test_mobile_multiple = "9876543212"  # Mobile for multiple OTP tests
-        self.test_mobile_edge = "9876543213"  # Mobile for edge case tests
-        self.sent_otp = None
-        self.test_farmer_id = None
-        self.test_item_id = None
+        # Test data
+        self.customers = []
+        self.items = []
+        self.created_pre_entries = []
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
