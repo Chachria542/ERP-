@@ -259,6 +259,14 @@ function SupplierAutocomplete({
     setInputValue(value || '');
   }, [value]);
 
+  // Debug: Log modal state changes
+  useEffect(() => {
+    console.log('[SupplierAutocomplete] Modal state changed - showNewSupplierModal:', showNewSupplierModal);
+    if (showNewSupplierModal) {
+      console.log('[SupplierAutocomplete] Modal is now OPEN. Current form data:', newSupplierData);
+    }
+  }, [showNewSupplierModal, newSupplierData]);
+
   return (
     <div className="relative">
       <Input
