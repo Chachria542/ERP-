@@ -986,9 +986,15 @@ function BillPurchasePage({ user, onLogout }) {
                     <Label>Claim Rate {billData.claim_type === 'percentage' ? '(%)' : '(₹)'}</Label>
                     <Input
                       type="number"
-                      step="0.01"
+                      className="no-spinner"
                       value={billData.claim_rate}
-                      onChange={(e) => setBillData(prev => ({ ...prev, claim_rate: parseFloat(e.target.value) || 0 }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                          setBillData(prev => ({ ...prev, claim_rate: value }));
+                        }
+                      }}
+                      placeholder="0.00"
                     />
                   </div>
                 </div>
