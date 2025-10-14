@@ -131,6 +131,7 @@ class BillPurchasePreEntryCreate(BaseModel):
     supplier_gstin: Optional[str] = None
     place_of_supply: str
     item_id: Optional[str] = None
+    item_rate: Optional[float] = None
     has_broker: bool = False
     broker_name: Optional[str] = None
     brokerage_type: Optional[BrokerageType] = None
