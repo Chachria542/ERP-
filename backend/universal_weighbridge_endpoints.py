@@ -269,64 +269,102 @@ async def get_pre_entries(status: Optional[str] = None, transaction_type: Option
 async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
     """
     Create weighbridge entry after scanning QR and weighing truck.
-    Links to existing pre-entry.
+    Supports:
+    - Single weighment (gross + tare together) for purchases
+    - Tare → Gross flow (two separate entries) for sales
     """
     try:
         # Universal pre-entry lookup
         slip_id = entry_data.slip_id
         pre_entry = None
+        collection_name = None
         is_bill_purchase = slip_id.startswith("BPRE-")
+        is_sales = slip_id.startswith("SPRE-")
         
         if is_bill_purchase:
-            # Look in bill purchase pre-entries
             pre_entry = await db.bill_purchase_pre_entries.find_one({"pre_entry_number": slip_id})
-            if not pre_entry:
-                raise HTTPException(status_code=404, detail="Bill purchase pre-entry not found. Invalid slip ID.")
+            collection_name = "bill_purchase_pre_entries"
+            transaction_type = TransactionType.BILL_PURCHASE
+        elif is_sales:
+            pre_entry = await db.sales_pre_entries.find_one({"pre_entry_number": slip_id})
+            collection_name = "sales_pre_entries"
+            transaction_type = TransactionType.SALE
         else:
-            # Look in regular pre-entries
             pre_entry = await db.pre_entries.find_one({"slip_id": slip_id})
-            if not pre_entry:
-                raise HTTPException(status_code=404, detail="Pre-entry not found. Invalid slip ID.")
+            collection_name = "pre_entries"
+            transaction_type = TransactionType(pre_entry['transaction_type']) if pre_entry else None
         
-        # Check if already weighed
-        existing = await db.weighbridge_entries.find_one({"slip_id": entry_data.slip_id})
-        if existing:
-            raise HTTPException(status_code=400, detail="Slip already weighed")
+        if not pre_entry:
+            raise HTTPException(status_code=404, detail="Pre-entry not found. Invalid slip ID.")
         
-        # Calculate net weight and quantities
-        net_weight = entry_data.gross_weight - entry_data.tare_weight
+        # For single type (purchases): Check if already weighed
+        if entry_data.weight_type == "single":
+            existing = await db.weighbridge_entries.find_one({"slip_id": entry_data.slip_id})
+            if existing:
+                raise HTTPException(status_code=400, detail="Slip already weighed")
         
-        if net_weight <= 0:
-            raise HTTPException(status_code=400, detail="Gross weight must be greater than tare weight")
+        # For tare/gross type (sales): Check for duplicates of same type
+        if entry_data.weight_type in ["tare", "gross"]:
+            existing_same_type = await db.weighbridge_entries.find_one({
+                "slip_id": entry_data.slip_id,
+                "weight_type": entry_data.weight_type
+            })
+            if existing_same_type:
+                raise HTTPException(status_code=400, detail=f"{entry_data.weight_type.capitalize()} weight already captured for this slip")
         
-        quantities = calculate_quantities(net_weight)
+        # Calculate weights based on type
+        if entry_data.weight_type == "single":
+            # Single weighment: both provided
+            net_weight = entry_data.gross_weight - entry_data.tare_weight
+            if net_weight <= 0:
+                raise HTTPException(status_code=400, detail="Gross weight must be greater than tare weight")
+            measured_weight = entry_data.gross_weight  # For logging
+        elif entry_data.weight_type == "tare":
+            # Tare only
+            measured_weight = entry_data.weight
+            net_weight = 0  # Will be calculated when gross is captured
+        else:  # gross
+            # Gross only
+            measured_weight = entry_data.weight
+            # Check if tare exists to calculate net
+            tare_entry = await db.weighbridge_entries.find_one({
+                "slip_id": entry_data.slip_id,
+                "weight_type": "tare"
+            })
+            if tare_entry:
+                net_weight = measured_weight - tare_entry['weight']
+            else:
+                net_weight = 0  # Tare not yet captured
         
-        # Mock photo URLs (will be replaced with real S3 URLs)
-        mock_photos = [
-            "https://via.placeholder.com/800x600.png?text=Gross+Weight",
-            "https://via.placeholder.com/800x600.png?text=Tare+Weight"
-        ]
+        # Calculate quantities
+        quantities = calculate_quantities(net_weight) if net_weight > 0 else {"bags": 0, "rem_kg": 0, "act_qtl": 0.0}
         
-        # Determine transaction type based on slip format
-        transaction_type = TransactionType.BILL_PURCHASE if is_bill_purchase else TransactionType(pre_entry['transaction_type'])
+        # Mock photo URL
+        mock_photo = f"https://via.placeholder.com/800x600.png?text={entry_data.weight_type.capitalize()}+Weight"
         
-        # Create weighbridge entry
+        # Build weighbridge entry
         wb_entry = WeighbridgeEntry(
             pre_entry_id=pre_entry['id'],
             slip_id=entry_data.slip_id,
             transaction_type=transaction_type,
+            weight_type=entry_data.weight_type,
             vehicle_number=entry_data.vehicle_number,
             vehicle_type=entry_data.vehicle_type,
             driver_name=entry_data.driver_name,
             driver_mobile=entry_data.driver_mobile,
-            gross_weight=entry_data.gross_weight,
-            tare_weight=entry_data.tare_weight,
+            gross_weight=entry_data.gross_weight if entry_data.weight_type == "single" else (measured_weight if entry_data.weight_type == "gross" else 0),
+            tare_weight=entry_data.tare_weight if entry_data.weight_type == "single" else (measured_weight if entry_data.weight_type == "tare" else 0),
             net_weight=net_weight,
+            weight=measured_weight,
             bags=quantities['bags'],
             rem_kg=quantities['rem_kg'],
             act_qtl=quantities['act_qtl'],
-            photo_gross_url=mock_photos[0],
-            photo_tare_url=mock_photos[1],
+            photo_url=mock_photo if entry_data.weight_type != "single" else None,
+            photo_timestamp=datetime.now(timezone.utc) if entry_data.weight_type != "single" else None,
+            photo_gross_url=mock_photo if entry_data.weight_type == "single" else None,
+            photo_tare_url=mock_photo if entry_data.weight_type == "single" else None,
+            photo_gross_timestamp=datetime.now(timezone.utc) if entry_data.weight_type == "single" else None,
+            photo_tare_timestamp=datetime.now(timezone.utc) if entry_data.weight_type == "single" else None,
             operator_id=entry_data.operator_id,
             operator_name=entry_data.operator_name,
             shift=entry_data.shift
@@ -336,27 +374,41 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         doc = wb_entry.model_dump()
         doc['created_at'] = doc['created_at'].isoformat()
         doc['weighed_at'] = doc['weighed_at'].isoformat()
-        doc['photo_gross_timestamp'] = doc['photo_gross_timestamp'].isoformat()
-        doc['photo_tare_timestamp'] = doc['photo_tare_timestamp'].isoformat()
+        if doc.get('photo_timestamp'):
+            doc['photo_timestamp'] = doc['photo_timestamp'].isoformat()
+        if doc.get('photo_gross_timestamp'):
+            doc['photo_gross_timestamp'] = doc['photo_gross_timestamp'].isoformat()
+        if doc.get('photo_tare_timestamp'):
+            doc['photo_tare_timestamp'] = doc['photo_tare_timestamp'].isoformat()
         doc['transaction_type'] = doc['transaction_type'].value
         doc['status'] = doc['status'].value
         doc['photo_upload_status'] = doc['photo_upload_status'].value
         await db.weighbridge_entries.insert_one(doc)
         
-        # Update pre-entry status in correct collection
-        if is_bill_purchase:
-            await db.bill_purchase_pre_entries.update_one(
-                {"pre_entry_number": entry_data.slip_id},
-                {"$set": {
-                    "status": "pending",  # Bill purchase goes to pending after weighbridge
-                    "weighbridge_completed": True,
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                }}
-            )
-        else:
-            await db.pre_entries.update_one(
-                {"slip_id": entry_data.slip_id},
-                {"$set": {"status": PreEntryStatus.WEIGHED.value}}
+        print(f"[BACKEND] Created {entry_data.weight_type} weighbridge entry for {slip_id}, weight: {measured_weight} kg")
+        
+        # Update pre-entry status based on type
+        if entry_data.weight_type == "single" or (entry_data.weight_type == "gross" and net_weight > 0):
+            # Mark as completed (both weights captured)
+            update_data = {
+                "weighbridge_completed": True,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            if is_sales:
+                # Update sales pre-entry with weights
+                update_data["tare_weight"] = tare_entry['weight'] if entry_data.weight_type == "gross" else measured_weight
+                update_data["gross_weight"] = measured_weight if entry_data.weight_type == "gross" else 0
+                update_data["net_weight"] = net_weight
+                update_data["status"] = "pending"
+            elif is_bill_purchase:
+                update_data["status"] = "pending"
+            else:
+                update_data["status"] = PreEntryStatus.WEIGHED.value
+            
+            await getattr(db, collection_name).update_one(
+                {"id": pre_entry['id']},
+                {"$set": update_data}
             )
         
         # Log audit
