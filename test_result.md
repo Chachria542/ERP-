@@ -833,8 +833,7 @@ metadata:
   test_sequence: 5
 
 test_plan:
-  current_focus:
-    - "Sales Pre-Entry Frontend Page"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
