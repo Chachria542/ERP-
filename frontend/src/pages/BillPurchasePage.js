@@ -848,9 +848,15 @@ function BillPurchasePage({ user, onLogout }) {
                         <Label>Rate per Qtl</Label>
                         <Input
                           type="number"
-                          step="0.01"
+                          className="no-spinner"
                           value={item.rate_per_qtl}
-                          onChange={(e) => handleLineItemChange(index, 'rate_per_qtl', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              handleLineItemChange(index, 'rate_per_qtl', value === '' ? '' : parseFloat(value) || 0);
+                            }
+                          }}
+                          placeholder="0.00"
                         />
                       </div>
                     </div>
