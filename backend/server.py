@@ -930,6 +930,14 @@ async def startup_db():
         await db.brokers.create_index("name", unique=True)
         await db.brokers.create_index("active")
         
+        # Create indexes for sales collections
+        await db.sales_pre_entries.create_index("pre_entry_number", unique=True)
+        await db.sales_pre_entries.create_index("status")
+        await db.sales_pre_entries.create_index("weighbridge_completed")
+        await db.sales_invoices.create_index("invoice_number", unique=True)
+        await db.sales_invoices.create_index("status")
+        await db.marka_memory.create_index([("item_id", 1), ("marka", 1)], unique=True)
+        
         logger.info("Database indexes created successfully")
     except Exception as e:
         logger.error(f"Error creating database indexes: {e}")
