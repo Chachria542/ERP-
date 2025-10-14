@@ -93,10 +93,6 @@ function App() {
             element={user ? <ReportsPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
           <Route 
-            path="/bill-purchase-pre-entry" 
-            element={user ? <BillPurchasePreEntryPage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
-          />
-          <Route 
             path="/bill-purchase" 
             element={user ? <BillPurchasePage user={user} onLogout={handleLogout} /> : <Navigate to="/login" />} 
           />
