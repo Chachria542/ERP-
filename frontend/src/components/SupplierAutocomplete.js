@@ -133,6 +133,7 @@ function SupplierAutocomplete({
 
   // Handle no match found
   const handleNoMatchFound = () => {
+    console.log('[SupplierAutocomplete] handleNoMatchFound called with inputValue:', inputValue);
     if (!inputValue.trim()) return;
     
     // Check if there are similar suppliers
@@ -141,13 +142,17 @@ function SupplierAutocomplete({
       s.name.toLowerCase().includes(inputValue.toLowerCase())
     );
     
+    console.log('[SupplierAutocomplete] Found similar suppliers:', similar.length);
+    
     if (similar.length > 0) {
       setSimilarSuppliers(similar);
       setShowReplaceModal(true);
+      console.log('[SupplierAutocomplete] Opening replace modal');
     } else {
       // No similar suppliers, offer to create new
       setNewSupplierData(prev => ({ ...prev, name: inputValue.trim() }));
       setShowNewSupplierModal(true);
+      console.log('[SupplierAutocomplete] Opening new supplier modal with name:', inputValue.trim());
     }
   };
 
