@@ -167,8 +167,12 @@ async def quick_create_supplier(supplier_data: dict):
     return supplier
 
 @router.put("/suppliers/{supplier_id}/name")
-async def update_supplier_name(supplier_id: str, new_name: str):
+async def update_supplier_name(supplier_id: str, name_update: dict):
     """Update supplier name"""
+    new_name = name_update.get('new_name')
+    if not new_name:
+        raise HTTPException(status_code=400, detail="new_name is required")
+    
     # Check if supplier exists
     supplier = await db.parties.find_one({"id": supplier_id, "roles": "supplier"})
     if not supplier:
