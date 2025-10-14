@@ -346,6 +346,18 @@ function SupplierAutocomplete({
             <p className="text-sm text-gray-500 mt-1">* indicates required field</p>
           </DialogHeader>
           
+          {/* Test Button - Remove after debugging */}
+          <div className="bg-yellow-50 border border-yellow-300 p-2 rounded text-xs">
+            <strong>Debug Test:</strong>
+            <button 
+              onClick={() => alert('Button clicks work!')} 
+              className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
+            >
+              Test Click
+            </button>
+            {showNewSupplierModal && <span className="ml-2 text-green-600">✓ Modal is open</span>}
+          </div>
+          
           <div className="space-y-4">
             <div>
               <Label htmlFor="supplier_name" className="text-red-600">Supplier Name *</Label>
