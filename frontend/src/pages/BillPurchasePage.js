@@ -162,9 +162,22 @@ function BillPurchasePage({ user, onLogout }) {
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
     
-    // Find item from items list to get rate
-    const selectedItem = items.find(item => item.id === selectedPreEntry?.item_id);
-    const itemRate = selectedItem?.rate || '';
+    console.log('[Bill Processing] Selected Pre-Entry:', selectedPreEntry);
+    console.log('[Bill Processing] Weighbridge Data:', weighbridgeData);
+    
+    // Try to get rate from pre-entry first, then fall back to item master
+    let itemRate = '';
+    
+    // Check if rate exists in pre-entry
+    if (selectedPreEntry?.rate || selectedPreEntry?.item_rate || selectedPreEntry?.rate_per_qtl) {
+      itemRate = selectedPreEntry.rate || selectedPreEntry.item_rate || selectedPreEntry.rate_per_qtl;
+      console.log('[Bill Processing] Rate from pre-entry:', itemRate);
+    } else {
+      // Fall back to item master
+      const selectedItem = items.find(item => item.id === selectedPreEntry?.item_id);
+      itemRate = selectedItem?.rate || '';
+      console.log('[Bill Processing] Rate from item master:', itemRate, 'Item:', selectedItem?.name);
+    }
     
     // Calculate bags and remaining kg on initialization
     const agreedWeight = weighbridgeData?.act_qtl || 0;
@@ -181,7 +194,7 @@ function BillPurchasePage({ user, onLogout }) {
       remaining_kg: remainingKg,
       actual_weight: weighbridgeData?.act_qtl || 0,
       agreed_weight: agreedWeight,
-      rate_per_qtl: itemRate, // Auto-filled from item master
+      rate_per_qtl: itemRate,
       amount: itemRate && agreedWeight ? Math.round(agreedWeight * itemRate * 100) / 100 : 0,
       cgst_rate: '',
       sgst_rate: '',
@@ -192,7 +205,7 @@ function BillPurchasePage({ user, onLogout }) {
       sort_order: 1
     };
     
-    console.log('[Bill Processing] Auto-filled rate:', itemRate, 'from item:', selectedItem?.name);
+    console.log('[Bill Processing] Initial line item:', initialLineItem);
     console.log('[Bill Processing] Calculated bags:', bags, 'remaining kg:', remainingKg);
     
     // Auto-populate broker details from pre-entry (editable)
