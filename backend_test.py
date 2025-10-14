@@ -39,23 +39,33 @@ class SalesPreEntryTester:
         })
     
     def setup_test_data(self):
-        """Setup test data - get available item for pre-entry creation"""
+        """Setup test data - get available customers and items"""
         print("🔧 Setting up test data...")
         
         try:
-            # Get available items for pre-entry creation
-            response = requests.get(f"{self.base_url}/items", timeout=10)
+            # Get customers with customer role
+            parties_response = requests.get(f"{self.base_url}/parties", timeout=10)
+            if parties_response.status_code == 200:
+                parties = parties_response.json()
+                self.customers = [p for p in parties if "customer" in p.get("roles", [])]
+                if len(self.customers) < 1:
+                    self.log_test("Test Data Setup", False, "No customers found with 'customer' role")
+                    return False
+                self.log_test("Test Data Setup", True, f"Found {len(self.customers)} customers")
+            else:
+                self.log_test("Test Data Setup", False, f"Failed to get parties: HTTP {parties_response.status_code}")
+                return False
             
-            if response.status_code == 200:
-                items = response.json()
-                if items and len(items) > 0:
-                    self.test_item_id = items[0]['id']
-                    self.log_test("Test Data Setup", True, f"Using item: {items[0]['name']} (ID: {self.test_item_id})")
-                else:
+            # Get available items
+            items_response = requests.get(f"{self.base_url}/items", timeout=10)
+            if items_response.status_code == 200:
+                self.items = items_response.json()
+                if len(self.items) < 1:
                     self.log_test("Test Data Setup", False, "No items available for testing")
                     return False
+                self.log_test("Test Data Setup", True, f"Found {len(self.items)} items")
             else:
-                self.log_test("Test Data Setup", False, f"Failed to get items: HTTP {response.status_code}")
+                self.log_test("Test Data Setup", False, f"Failed to get items: HTTP {items_response.status_code}")
                 return False
                 
         except Exception as e:
