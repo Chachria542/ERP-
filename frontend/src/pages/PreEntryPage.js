@@ -248,46 +248,86 @@ function PreEntryPage({ user, onLogout }) {
     e.preventDefault();
     
     // Validation
-    if (!partyName || !itemId) {
-      toast.error('Please fill required fields');
-      return;
-    }
+    if (transactionType === 'bill_purchase') {
+      // Bill purchase validation
+      if (!supplierId || !placeOfSupply || !itemId) {
+        toast.error('Please fill required fields: Supplier, Place of Supply, and Item');
+        return;
+      }
+      
+      if (hasBroker && !brokerName) {
+        toast.error('Please enter broker name');
+        return;
+      }
+    } else {
+      // Farmer purchase validation
+      if (!partyName || !itemId) {
+        toast.error('Please fill required fields');
+        return;
+      }
 
-    if (transactionType === 'farmer_purchase' && (!partyMobile || partyMobile.length !== 10)) {
-      toast.error('Please enter valid 10-digit mobile number');
-      return;
-    }
+      if (transactionType === 'farmer_purchase' && (!partyMobile || partyMobile.length !== 10)) {
+        toast.error('Please enter valid 10-digit mobile number');
+        return;
+      }
 
-    // OTP Verification Check (only for farmer_purchase with NEW farmers)
-    if (transactionType === 'farmer_purchase' && partyMobile && !otpVerified) {
-      toast.error('Please verify mobile number first');
-      return;
+      // OTP Verification Check (only for farmer_purchase with NEW farmers)
+      if (transactionType === 'farmer_purchase' && partyMobile && !otpVerified) {
+        toast.error('Please verify mobile number first');
+        return;
+      }
     }
 
     try {
-      const payload = {
-        transaction_type: transactionType,
-        from_location: fromLocation,
-        to_location: toLocation || null,
-        party_type: partyType,
-        party_name: partyName,
-        party_mobile: partyMobile || null,
-        party_gstin: partyGstin || null,
-        item_id: itemId,
-        quality: quality || null,
-        expected_bags: expectedBags ? parseInt(expectedBags) : null,
-        rate_per_qtl: ratePerQtl ? parseFloat(ratePerQtl) : null,
-        po_number: poNumber || null,
-        order_number: orderNumber || null,
-        challan_number: challanNumber || null,
-        pledge_rate: pledgeRate ? parseFloat(pledgeRate) : null,
-        remarks: remarks || null,
-        created_by: user.id
-      };
+      let payload, endpoint;
+      
+      if (transactionType === 'bill_purchase') {
+        // Bill Purchase payload
+        payload = {
+          date: new Date().toISOString().split('T')[0],
+          supplier_id: supplierId,
+          supplier_gstin: partyGstin,
+          place_of_supply: placeOfSupply,
+          item_id: itemId,
+          has_broker: hasBroker,
+          broker_name: brokerName || null,
+          brokerage_type: brokerageType !== 'none' ? brokerageType : null,
+          brokerage_rate: brokerageRate ? parseFloat(brokerageRate) : null,
+          eway_bill_no: ewayBillNo || null,
+          expected_quantity_bags: expectedQuantityBags ? parseInt(expectedQuantityBags) : null,
+          expected_quantity_kgs: expectedQuantityKgs ? parseFloat(expectedQuantityKgs) : null,
+          expected_quantity_qtls: expectedQuantityQtls ? parseFloat(expectedQuantityQtls) : null,
+          remarks: remarks || null,
+          created_by: user.username
+        };
+        
+        endpoint = `${API}/bill-purchase/pre-entry`;
+      } else {
+        // Farmer Purchase payload (existing logic)
+        payload = {
+          transaction_type: transactionType,
+          from_location: fromLocation,
+          to_location: toLocation || null,
+          party_type: partyType,
+          party_name: partyName,
+          party_mobile: partyMobile || null,
+          party_gstin: partyGstin || null,
+          item_id: itemId,
+          quality: quality || null,
+          expected_bags: expectedBags ? parseInt(expectedBags) : null,
+          rate_per_qtl: ratePerQtl ? parseFloat(ratePerQtl) : null,
+          po_number: poNumber || null,
+          order_number: orderNumber || null,
+          challan_number: challanNumber || null,
+          pledge_rate: pledgeRate ? parseFloat(pledgeRate) : null,
+          remarks: remarks || null,
+          created_by: user.id
+        };
 
-      const endpoint = confirmFarmerUpdate 
-        ? `${API}/pre-entry/confirm-farmer-update?confirm_update=true`
-        : `${API}/pre-entry`;
+        endpoint = confirmFarmerUpdate 
+          ? `${API}/pre-entry/confirm-farmer-update?confirm_update=true`
+          : `${API}/pre-entry`;
+      }
       
       const response = await axios.post(endpoint, payload);
       
