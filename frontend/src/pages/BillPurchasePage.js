@@ -165,19 +165,9 @@ function BillPurchasePage({ user, onLogout }) {
     console.log('[Bill Processing] Selected Pre-Entry:', selectedPreEntry);
     console.log('[Bill Processing] Weighbridge Data:', weighbridgeData);
     
-    // Try to get rate from pre-entry first, then fall back to item master
-    let itemRate = '';
-    
-    // Check if rate exists in pre-entry
-    if (selectedPreEntry?.rate || selectedPreEntry?.item_rate || selectedPreEntry?.rate_per_qtl) {
-      itemRate = selectedPreEntry.rate || selectedPreEntry.item_rate || selectedPreEntry.rate_per_qtl;
-      console.log('[Bill Processing] Rate from pre-entry:', itemRate);
-    } else {
-      // Fall back to item master
-      const selectedItem = items.find(item => item.id === selectedPreEntry?.item_id);
-      itemRate = selectedItem?.rate || '';
-      console.log('[Bill Processing] Rate from item master:', itemRate, 'Item:', selectedItem?.name);
-    }
+    // Get rate from pre-entry (item_rate field)
+    const itemRate = selectedPreEntry?.item_rate || '';
+    console.log('[Bill Processing] Rate from pre-entry:', itemRate);
     
     // Calculate bags and remaining kg on initialization
     const agreedWeight = weighbridgeData?.act_qtl || 0;
