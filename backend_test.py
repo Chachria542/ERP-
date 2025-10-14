@@ -365,79 +365,37 @@ class SalesPreEntryTester:
             self.log_test("Validation Missing Required Fields", False, f"Request failed: {str(e)}")
             return False
     
-    def test_otp_verification_with_failed_pre_entry(self):
+    def test_validation_invalid_customer_id(self):
         """
-        Test Case 4: OTP verification followed by failed pre-entry creation
-        Tests edge case where OTP is verified but pre-entry creation fails
+        Test 6: Data Validation - Invalid Customer ID
+        Test with non-existent customer_id
         """
-        print("🔍 Testing OTP Verification with Failed Pre-Entry...")
-        
-        mobile = self.test_mobile_edge
+        print("🔍 Test 6: Data Validation - Invalid Customer ID...")
         
         try:
-            # First verify OTP
-            if not self.send_and_verify_otp(mobile):
-                self.log_test("OTP with Failed Pre-Entry", False, "OTP verification failed")
-                return False
-            
-            # Try to create pre-entry with invalid item_id (should fail)
-            pre_entry_payload = {
-                "transaction_type": "farmer_purchase",
-                "from_location": "Test Warehouse",
-                "party_type": "farmer",
-                "party_name": "Test Farmer Edge Case",
-                "party_mobile": mobile,
-                "item_id": "invalid-item-id",  # This should cause failure
-                "rate_per_qtl": 2500.0,
-                "created_by": "test_user"
+            payload = {
+                "date": "2025-01-14",
+                "customer_id": "invalid-customer-id",
+                "place_of_supply": "Mumbai, Maharashtra",
+                "created_by": "admin"
             }
             
-            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
-                                             json=pre_entry_payload,
-                                             headers={'Content-Type': 'application/json'},
-                                             timeout=10)
+            response = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
             
-            # Pre-entry should fail
-            if pre_entry_response.status_code == 200:
-                self.log_test("OTP with Failed Pre-Entry", False, 
-                            "Pre-entry should have failed with invalid item_id")
-                return False
-            
-            # Now try with valid item_id - farmer should still be created with verification status
-            pre_entry_payload["item_id"] = self.test_item_id
-            
-            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
-                                             json=pre_entry_payload,
-                                             headers={'Content-Type': 'application/json'},
-                                             timeout=10)
-            
-            if pre_entry_response.status_code != 200:
-                self.log_test("OTP with Failed Pre-Entry", False, 
-                            f"Second pre-entry creation failed: HTTP {pre_entry_response.status_code}")
-                return False
-            
-            # Verify farmer was created with verification status preserved
-            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
-            
-            if farmer_response.status_code != 200:
-                self.log_test("OTP with Failed Pre-Entry", False, 
-                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
-                return False
-            
-            farmer_data = farmer_response.json()
-            mobile_verified = farmer_data.get('mobile_verified')
-            
-            if mobile_verified == True:
-                self.log_test("OTP with Failed Pre-Entry", True, 
-                            f"✅ OTP verification status preserved even after failed pre-entry attempt")
+            if response.status_code == 404:
+                self.log_test("Validation Invalid Customer ID", True, 
+                            "✅ Invalid customer_id correctly rejected with 404")
                 return True
             else:
-                self.log_test("OTP with Failed Pre-Entry", False, 
-                            f"❌ Verification status lost: mobile_verified={mobile_verified}")
+                self.log_test("Validation Invalid Customer ID", False, 
+                            f"❌ Expected 404, got {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("OTP with Failed Pre-Entry", False, f"Test failed: {str(e)}")
+            self.log_test("Validation Invalid Customer ID", False, f"Request failed: {str(e)}")
             return False
     
     def test_farmer_model_verification_fields(self):
