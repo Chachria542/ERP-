@@ -826,11 +826,62 @@ function BillPurchasePage({ user, onLogout }) {
                       </div>
                       <div>
                         <Label>Pack Size (kg)</Label>
-                        <Input
-                          type="number"
-                          value={item.pack_size}
-                          onChange={(e) => handleLineItemChange(index, 'pack_size', parseFloat(e.target.value) || 0)}
-                        />
+                        {customPackSizes[index] !== undefined ? (
+                          <div className="flex gap-2">
+                            <Input
+                              type="number"
+                              className="no-spinner"
+                              value={customPackSizes[index]}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                                  setCustomPackSizes(prev => ({ ...prev, [index]: value }));
+                                  if (value && parseFloat(value) > 0) {
+                                    handleLineItemChange(index, 'pack_size', parseFloat(value));
+                                  }
+                                }
+                              }}
+                              placeholder="Enter custom size"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setCustomPackSizes(prev => {
+                                  const newSizes = { ...prev };
+                                  delete newSizes[index];
+                                  return newSizes;
+                                });
+                                handleLineItemChange(index, 'pack_size', 100);
+                              }}
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={item.pack_size.toString()}
+                            onValueChange={(value) => {
+                              if (value === 'custom') {
+                                setCustomPackSizes(prev => ({ ...prev, [index]: '' }));
+                              } else {
+                                handleLineItemChange(index, 'pack_size', parseFloat(value));
+                              }
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PACK_SIZE_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value.toString()}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                     </div>
 
