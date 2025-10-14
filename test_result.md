@@ -1320,3 +1320,52 @@ agent_communication:
       - Comprehensive bill creation with photo approval workflow ✅
       
       **PRODUCTION READY:** Complete Bill Purchase flow integration tested end-to-end with 100% success rate. The system seamlessly handles Bill Purchase pre-entries through the weighbridge system into the bill purchase processing queue, exactly like farmer purchase pre-entries flow into the farmer payment queue. All requested functionality verified and working correctly.
+  - agent: "testing"
+    message: |
+      🎉 **SALES PRE-ENTRY BACKEND TESTING COMPLETED - 100% SUCCESS RATE**
+      
+      **COMPREHENSIVE TEST RESULTS (11/11 TESTS PASSED):**
+      
+      **✅ SALES PRE-ENTRY CREATION ENDPOINT (POST /api/sales/pre-entry):**
+      - **Basic Creation:** Successfully creates sales pre-entries with all required fields (customer_id, place_of_supply, item_id, bharti=50kg, broker details, location settings, expected quantities, order_number, marka, remarks)
+      - **Pre-Entry Number Generation:** Correct SPRE-YY-###### format working (SPRE-25-000008, SPRE-25-000009, SPRE-25-000010)
+      - **Sequential Numbering:** Incremental sequence verified - multiple pre-entries get consecutive numbers
+      - **Response Structure:** All required fields present (pre_entry_number, slip_id, qr_code, customer_name, item_name, created_at, etc.)
+      
+      **✅ MARKA MEMORY ENDPOINT (GET /api/sales/marka/{item_id}):**
+      - **Valid Item ID:** Returns array of marka options with usage count for existing items
+      - **Non-existent Item ID:** Returns empty array correctly (proper edge case handling)
+      - **Response Format:** Correct array structure returned in all cases
+      
+      **✅ DATA VALIDATION TESTS:**
+      - **Missing Required Fields:** customer_id and place_of_supply validation working - properly rejected with 422 validation errors
+      - **Invalid Customer ID:** Non-existent customer_id correctly rejected with 404 error
+      - **Field Validation:** All required field validation working as expected
+      
+      **✅ INTEGRATION POINTS VERIFICATION:**
+      - **Customer Data Fetch:** Customer details (name, GSTIN, place_of_supply) correctly populated from parties collection with 'customer' role
+      - **Item Data Fetch:** Item name and rate auto-fill from items collection working correctly (rate=0.0 when not set in item master)
+      - **Database Integration:** All data persists correctly in MongoDB sales_pre_entries collection
+      
+      **✅ TEST DATA VERIFICATION:**
+      - **Available Customers:** 5 customers with 'customer' role found and tested
+      - **Available Items:** 4 items available (Wheat गेहूं, Soybean सोयाबीन, Chana चना, Corn मक्का)
+      - **Realistic Data:** Used proper GSTIN formats, place_of_supply values, and realistic test scenarios
+      
+      **✅ CREATED TEST PRE-ENTRIES:**
+      Successfully created 3 test pre-entries with complete data validation:
+      - SPRE-25-000008: Rajesh Traders - Wheat (गेहूं)
+      - SPRE-25-000009: Rajesh Traders - Wheat (गेहूं) 
+      - SPRE-25-000010: Rajesh Traders - Wheat (गेहूं)
+      
+      **KEY SUCCESS CRITERIA VERIFIED:**
+      ✅ All endpoints return correct status codes (200 for success, 422 for validation, 404 for not found)
+      ✅ Pre-entry numbers generate in SPRE-YY-###### format correctly
+      ✅ Sequential numbering works perfectly
+      ✅ Required field validation prevents invalid submissions
+      ✅ Response data structure matches SalesPreEntry model exactly
+      ✅ Customer and item integration working seamlessly
+      ✅ Data persists correctly in MongoDB
+      ✅ Marka memory system functional for dropdown population
+      
+      **PRODUCTION READY:** All Sales Pre-Entry backend endpoints tested comprehensively and working excellently. The system handles sales pre-entry creation, validation, sequential numbering, and data integration flawlessly. Ready for frontend integration and production deployment.
