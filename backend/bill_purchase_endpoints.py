@@ -6,10 +6,11 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime, timezone
 from bill_purchase_models import (
     BillPurchasePreEntry, BillPurchasePreEntryCreate,
-    BillPurchase, BillPurchaseCreate,
+    BillPurchase, BillPurchaseCreate, BillPurchaseLineItem,
     BillPurchaseQueueItem, BillPurchaseStatus,
     PartyExtended, PartyExtendedCreate, PartyExtendedUpdate,
-    get_financial_year, calculate_brokerage_amount, calculate_bill_totals
+    get_financial_year, calculate_brokerage_amount, calculate_bill_totals_new,
+    calculate_bags_and_remaining, calculate_line_item_taxes, generate_bill_number
 )
 from universal_weighbridge_models import generate_qr_code_data, TransactionType
 from typing import List, Optional
