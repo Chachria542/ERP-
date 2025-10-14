@@ -804,11 +804,14 @@ backend:
     file: "backend/sales_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE: Sales Pre-Entry backend endpoint created (POST /api/sales/pre-entry). Includes order auto-fetch, customer details, item/marka, bharti (pack size), expected quantities, broker details, location (godown/mandi), and pre-entry number generation (SPRE-YY-######). Backend models complete in sales_models.py. Needs testing to verify pre-entry creation, sequential numbering, and data validation."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE SALES PRE-ENTRY TESTING COMPLETED - 100% SUCCESS RATE (11/11 tests passed): **Sales Pre-Entry Creation Tests:** 1) Basic pre-entry creation working perfectly with all required fields (customer_id, place_of_supply, item_id, bharti=50kg, broker details, location settings, expected quantities, order_number, marka, remarks), 2) Pre-entry number generation in correct SPRE-YY-###### format (SPRE-25-000008, SPRE-25-000009, SPRE-25-000010), 3) Sequential numbering working correctly (incremental sequence verified). **Marka Memory Endpoint Tests:** 4) GET /api/sales/marka/{item_id} working correctly - returns array of marka options with usage count for existing items, 5) Non-existent item_id returns empty array correctly (proper edge case handling). **Data Validation Tests:** 6) Missing required fields properly rejected with 422 validation errors (customer_id and place_of_supply validation working), 7) Invalid customer_id correctly rejected with 404 error. **Integration Tests:** 8) Customer data fetch working perfectly - customer details (name, GSTIN, place_of_supply) correctly populated from parties collection, 9) Item data fetch working correctly - item name and rate auto-fill from items collection (rate=0.0 when not set in item master). **Response Structure Verification:** All endpoints return correct response structure with required fields (pre_entry_number, slip_id, qr_code, customer_name, item_name, created_at, etc.). **Test Data Used:** 5 customers with 'customer' role available, 4 items available (Wheat, Soybean, Chana, Corn), realistic test data with proper GSTIN and place_of_supply values. **Created Test Pre-Entries:** Successfully created 3 test pre-entries (SPRE-25-000008, SPRE-25-000009, SPRE-25-000010) with complete data validation. All success criteria from review request verified and working excellently."
 
 frontend:
   - task: "Sales Pre-Entry Frontend Page"
