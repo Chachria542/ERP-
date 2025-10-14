@@ -24,6 +24,13 @@ const CLAIM_TYPES = [
   { value: 'percentage', label: 'Percentage' }
 ];
 
+const BROKERAGE_TYPES = [
+  { value: 'per_quintal', label: 'Per Quintal' },
+  { value: 'per_bag', label: 'Per Bag' },
+  { value: 'percentage', label: 'Percentage' },
+  { value: 'none', label: 'None' }
+];
+
 function BillPurchasePage({ user, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [items, setItems] = useState([]);
