@@ -1,32 +1,35 @@
 <analysis>
-The previous AI engineer successfully initiated an ERP for Grain Trading, focusing on core modules like Farmer Payment and Universal Weighbridge. Key achievements include the implementation and subsequent fix of an **OTP verification flow** for new farmers in the Pre-Entry module, ensuring mobile numbers are verified and status is preserved upon farmer creation.
+The previous AI engineer successfully initiated an ERP for Grain Trading, focusing on core modules like Farmer Payment and Universal Weighbridge. Recent work concentrated on enhancing the **Bill Purchase Workflow**. This involved extensive debugging and fixes for a **Smart Supplier Selection** feature, including addressing a  for supplier creation and later  errors during bill creation and posting by refining frontend data submission and backend endpoint parameter handling.
 
-The project then shifted to developing a comprehensive **Bill Purchase Workflow**. This involved creating dedicated backend models and endpoints for Bill Purchase Pre-Entry and Bill Purchase, extending the  model to include supplier roles, and setting up database collections with appropriate indexing. Several backend integration issues were resolved, including  enum usage, MongoDB query logic for suppliers, and a routing conflict.
+The engineer then implemented significant improvements to the Bill Purchase module, such as **editable broker details** during bill processing, proper **brokerage accounting ledger entries**, and critical **UX fixes** for numeric input fields (removing default zeros, spinner arrows, and improving input behavior). The bill queue display was also customized to user requirements.
 
-On the frontend, pages for Bill Purchase Pre-Entry and Bill Purchase were implemented. A major refactor integrated the Bill Purchase Pre-Entry functionality directly into the existing  for a unified user experience. The Universal Weighbridge system was updated to seamlessly handle Bill Purchase Pre-Entries, addressing multiple issues related to transaction type handling and database collection lookups. An  serialization error in the Bill Purchase processing endpoint was also fixed, making the bill processing workflow fully functional.
-
-Most recently, the engineer implemented a **Smart Supplier Selection** system in the Pre-Entry module, replacing a dropdown with an autocomplete text field. This involved new backend search endpoints and frontend logic for suggesting existing suppliers, creating new ones, or replacing existing names with fuzzy matching. The user reported an inability to create new suppliers, despite automated tests passing, and the engineer is currently investigating this discrepancy by adding debug logs.
+Most recently, a comprehensive **Sales Module** was initiated, mirroring the workflow of existing modules. The engineer successfully completed the backend foundation (models and endpoints), developed the Sales Pre-Entry frontend page, integrated the Tare/Gross weighbridge flow for sales, and completed the backend endpoints for Sales Invoice/Return. The current challenge is accessing the Sales Pre-Entry page, which redirects to login due to authentication requirements.
 </analysis>
 
 <product_requirements>
-The goal is to build an AI-assisted Custom ERP for Sudarshan Trading Company, supporting Grain Trading, Custody, and Funding with a React frontend, FastAPI backend, and MongoDB. Initial focus was on the Farmer Payment module, evolving into a universal weighbridge system supporting six transaction types with distinct pre-entry (office) and weighbridge (operator) flows, QR-based auto-fill, dynamic fields,  slip IDs, farmer master data, and photo approval. A Farmer Payment Queue dashboard, editable item rates, print vouchers, and an OTP verification flow for new farmers were also implemented.
+The overarching goal is to develop an AI-assisted Custom ERP for Sudarshan Trading Company, focusing on Grain Trading, Custody, and Funding. The system currently features a universal weighbridge supporting six transaction types, QR-based auto-fill, dynamic fields,  slip IDs, farmer master data, photo approval, and an OTP verification flow for new farmers.
 
-The current major feature request is a **Bill Purchase Workflow**. This workflow consists of:
-1.  **Bill Purchase Pre-Entry:** Office staff register trucks (Date, Supplier, GSTIN, Place of Supply, Broker details, E-Way Bill No., Expected Quantity, Remarks). Auto-generate , block duplicate Supplier+E-Way Bill, status weigh pending, print QR slip.
-2.  **Bill Purchase (from Pre-Entry):** Admin sees pending weighbridge slips in a queue, or opens by Pre-Entry ID. Fetches weighbridge details, presents a photo-approval modal (Approve/Reject). Upon approval, auto-fills pre-entry data, allows entry of Supplier Invoice No./Date, Items (single line item with auto-calc bags/kgs based on pack size, actual/agreed weight, rate, amount), Taxes (CGST+SGST or IGST mutually exclusive), Additional charges, Adjustments (Batav as % on post-tax gross, Claim as flat or % deduction), and Net Amount calculation. Actions include Save Draft and Post Bill. Bill Number format: .
-3.  **Status Logic:**  ->  ->  / .
-4.  **Smart Supplier Selection:** In the Pre-Entry module, replace supplier dropdown with a text field offering real-time suggestions from the master list (name, GSTIN). If the typed name doesn't exist, provide options to Add as New Supplier (requiring Name, Place of Supply, GSTIN, Mobile Number) or Replace Existing similar names. Duplicate suppliers should be prevented by checking GSTIN.
+The **Bill Purchase Workflow** was a key focus, requiring:
+1.  **Bill Purchase Pre-Entry:** Recording truck details (Supplier, GSTIN, Broker, E-Way Bill, Expected Quantity), generating  slips with QR codes, and a weigh pending status.
+2.  **Bill Purchase (from Pre-Entry):** Admin queue for pending slips, photo approval, auto-filling pre-entry data, entering Supplier Invoice No./Date, Item details (with auto-calc bags/kgs, rate, amount), Taxes (CGST+SGST or IGST), Additional charges, Adjustments (Batav, Claim), and Net Amount calculation. Bill numbers are . Status flow:  ->  ->  / .
+3.  **Smart Supplier Selection:** An autocomplete text field replacing a dropdown in Pre-Entry for existing suppliers or Add as New Supplier (Name, Place of Supply, GSTIN, Mobile), preventing duplicate GSTINs.
+4.  **Broker Details & Field UX Improvements:** Editable broker details during bill processing, brokerage calculated and credited to Brokerage Payable and debited from Trade Expenses ledger upon posting. Rate and cash discount fields should allow easy clearing (no default '0'), remove spinner arrows, and use placeholders.
+5.  **Bill Purchase Queue Customization:** Display Supplier Name, Pre-Entry Number, Date, Weight from Weighbridge, Status, and Broker (removing E-Way Bill Number).
+
+A new **Sales Module** is now requested, comprising Sales Pre-Entry, Photo Approval (Tare → Loading → Gross), Sales Invoice/Sales Return (with toggle for negative amounts), Prints, and Posting with voucher generation. Key elements include order auto-fetch, customer select/add (using existing  collection), item/marka (per-item memory), pack size dropdown (default 50kg, custom option), global freight, configurable TCS per invoice, and rounding to ₹1.
 </product_requirements>
 
 <key_technical_concepts>
--   **Backend:** FastAPI, Python, MongoDB.
+
+-   **Backend:** FastAPI, Python, MongoDB (UUIDs for IDs, UTC ISO timestamps).
 -   **Frontend:** React (, Shadcn/UI, Tailwind CSS).
--   **Data Handling:** UUIDs for IDs,  for UTC timestamps.
--   **API Design:**  prefix for all backend routes.
--   **State Management:** React's , .
--   **Concurrency:** Discussed for weighbridge.
--   **Mock Services:** Mock OTP (console).
--   **Fuzzy Matching:** Used for supplier search autocomplete.
+-   **API Design:**  prefix for backend routes, Pydantic for data validation.
+-   **State Management:** React , .
+-   **UI Components:** Reusable Autocomplete (for Supplier and Broker).
+-   **Data Validation:** Frontend and Backend (Pydantic).
+-   **Accounting Logic:** Ledger entries, brokerage calculation.
+-   **Fuzzy Matching:** Used for supplier and broker search.
+
 </key_technical_concepts>
 
 <code_architecture>
@@ -35,53 +38,77 @@ The application uses a full-stack architecture with React (frontend), FastAPI (b
 
 
 -   : Main FastAPI entry point.
-    -   *Changes:* Updated  model definition with , , , , , , ,  fields. Registered . Added  to initialize  and  collections. Resolved routing conflict by changing  to .
+    -   *Summary:* Registers all routers and initializes MongoDB collections.
+    -   *Changes:* Registered  and . Initialized , , ,  collections.
 -   : Defines models for , , .
-    -   *Changes:*  model updated to require .
+    -   *Summary:* Core models for weighbridge operations.
+    -   *Changes:*  and  updated to include  (TARE/GROSS), , , , ,  to support the Sales module's two-step weighment.
 -   : FastAPI routes for universal weighbridge.
-    -   *Changes:* Modified  to preserve OTP verification status. Added  function for a unified pre-entry lookup across  and  collections. Updated  and  to use this universal lookup and handle  correctly for bill purchase entries. Added a  endpoint for autocomplete functionality.
--   : **New file.** Defines  and  models with comprehensive fields for pre-entry and final bill, including item details, taxes, adjustments, and calculation helpers.
--   : **New file.** Contains FastAPI routes for Bill Purchase, including pre-entry creation, queue management, and bill creation.
-    -   *Changes:*  updated to store  and .  handles the new comprehensive bill structure. The  endpoint was fixed to prevent MongoDB  serialization errors.
+    -   *Summary:* Handles weighbridge entry creation and lookups.
+    -   *Changes:*  refactored to handle  (Tare/Gross) and update  status and weights.
+-   : Defines  and  models.
+    -   *Summary:* Data models for the Bill Purchase workflow.
+    -   *Changes:*  now includes .  includes broker details.  includes  and .
+-   : FastAPI routes for Bill Purchase.
+    -   *Summary:* Manages Bill Purchase pre-entry, queue, and bill creation/posting.
+    -   *Changes:*  now auto-fills .  accepts broker details, handles brokerage calculation, and sanitizes numeric inputs.  function added.  endpoint modified to create ledger entries and correctly handle  as a query parameter. The queue endpoint now returns  and .
+-    (New): Defines  and  models.
+    -   *Summary:* Models for managing broker master data.
+-    (New): FastAPI routes for broker master.
+    -   *Summary:* Provides endpoints for creating and searching brokers.
+-    (New): Defines , , , , and related models.
+    -   *Summary:* Core data models for the new Sales module, including detailed fields for pre-entry, invoice, customer, item, broker, and weighbridge integration.
+-    (New): FastAPI routes for Sales module.
+    -   *Summary:* Manages Sales Pre-Entry creation, Sales Invoice/Return creation, and related operations (backend foundation is complete).
 -   : React router setup.
-    -   *Changes:* Added routes for  and . ( route was later removed to integrate into ).
+    -   *Summary:* Configures all application routes.
+    -   *Changes:* Added a route for .
 -   : Application layout and navigation.
-    -   *Changes:* Added Bill Purchase and Bill Pre-Entry navigation links. (Bill Pre-Entry was later removed).
--   : **New file.** Reusable React component for smart supplier selection with autocomplete, search, and options to create or replace suppliers.
--   : The office-side form for creating weighbridge pre-entries.
-    -   *Changes:* Extensively modified to dynamically render fields for  transaction type, including supplier selection (using ), broker details, and item selection. The logic for fetching suppliers, handling form submission, and displaying dynamic fields was updated.
--   : **New file, later deleted.** Initially created as a separate page for bill purchase pre-entries.
--   : **New file.** The admin-side form for approving photos and completing the bill, featuring a queue and detailed 4-section bill structure with auto-calculations.
+    -   *Summary:* Provides the main navigation sidebar.
+    -   *Changes:* Added Sales Pre-Entry link to the navigation.
+-   : Reusable React component for smart supplier selection.
+    -   *Summary:* Handles supplier search, selection, and creation in Pre-Entry.
+    -   *Changes:* Debugging logs,  and  added for submit button to prevent accidental form submission.
+-    (New): Reusable React component for smart broker selection.
+    -   *Summary:* Allows users to search for existing brokers or add new ones, similar to SupplierAutocomplete.
+-   : Office-side form for creating weighbridge pre-entries.
+    -   *Summary:* Main form for initial weighbridge entry.
+    -   *Changes:*  state and input field added for Bill Purchase type, with auto-fill logic from item selection.
+-   : Admin-side form for approving photos and completing the bill.
+    -   *Summary:* Handles the detailed bill purchase process.
+    -   *Changes:* State for broker details and  integration added.  function introduced. Numeric input fields for rate, tax, adjustments, and brokerage now use placeholders instead of default 0s, have spinner arrows removed via CSS, and include sanitization logic to convert empty strings to 0 or null before sending to the backend. The bill queue now displays , , , , , and . Pack size input was replaced with a dropdown supporting custom values. Item rate now auto-fills from pre-entry. Bags and Remaining KG auto-calculate on initial load.
+-    (New): The office-side form for creating sales pre-entries.
+    -   *Summary:* Placeholder page for the new Sales Pre-Entry functionality (frontend content yet to be detailed).
+-   : Global CSS file.
+    -   *Summary:* Contains global styling.
+    -   *Changes:* Added  CSS class to remove number input arrows.
+
 </code_architecture>
 
 <pending_tasks>
 -   Integrate real S3-compatible storage for weighbridge photos.
--   Implement full backend logic for Purchase and Payment Voucher generation and ledger entries (currently placeholder/mock logic).
--   Refine the Book Number sequence (financial year, incrementing logic, SAN-YY-###### format).
+-   Implement full backend logic for Purchase and Payment Voucher generation and ledger entries (general voucher generation).
+-   Refine the Book Number sequence (financial year, incrementing logic).
 -   Implement print-friendly HTML view for vouchers/invoices.
 -   Implement remaining bilingual labels (Hindi translations) in the frontend.
--   Build the next module (Sales or Custody).
--   Refine existing features like rounding, audit logging.
+-   Refine existing features like audit logging.
 -   Implement role-based permissions.
 -   Address concurrency and locking for weighbridge entries.
--   Implement tax calculation rules and brokerage calculation for Bill Purchase.
--   Address the user's reported issue with not being able to create new suppliers in the Smart Supplier Selection feature.
+-   Address GSTIN validation error in new supplier creation (explicitly deferred by user).
+-   Complete Sales Invoice with Returns Toggle frontend (Phase 4).
+-   Complete Sales module Prints & Vouchers (Phase 5).
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently debugging an issue reported by the user where they are not able to create new supplier within the Smart Supplier Selection feature of the Bill Purchase Pre-Entry module. This is despite automated frontend tests () and direct backend API tests () confirming that the new supplier creation functionality is working correctly.
+The AI engineer is currently in the process of implementing the new **Sales Module**, which is a comprehensive multi-phase feature. The following backend and basic frontend components have been completed:
+-   **Phase 1: Backend Foundation:** New models (, , , ) were created in , along with their corresponding FastAPI endpoints in . These were integrated into  by registering the router and initializing MongoDB collections.
+-   **Phase 2: Sales Pre-Entry Frontend:** A new React page, , was created. Its route () was added to , and a navigation link was included in .
+-   **Phase 3: Weighbridge Integration for Sales (Tare → Gross Flow):** The backend models and endpoints for the universal weighbridge (, ) were updated to support the two-step Tare/Gross weighment process required for sales, including handling separate photo uploads and updating sales pre-entries.
+-   **Phase 4 (partial): Sales Invoice with Returns Toggle - Backend Endpoints:** The backend logic for Sales Invoice/Return creation and posting was completed in .
 
-The **Smart Supplier Selection** feature was recently implemented, which involved:
-1.  **Backend:**
-    *   Modifying  to include a  endpoint for real-time fuzzy matching and a  endpoint for creating new suppliers.
-2.  **Frontend:**
-    *   Creating a new reusable  component ().
-    *   Integrating this  component into  (specifically within the Bill Purchase section) to replace the previous supplier dropdown. This component handles displaying suggestions, selecting existing suppliers, and providing options to Add as New Supplier or Replace Existing with modals.
-    *   Minor adjustments were made to ensure correct data flow and button options in the replacement modal.
-
-The immediate next step in the trajectory is to add console logging to  to further investigate the discrepancy between the user's experience and the successful test results for new supplier creation.
+The immediate preceding interaction involved the user reporting that they were not able to see the Sales Pre-Entry page in the preview. The engineer investigated this by checking frontend status and console logs, and by taking screenshots. It was determined that the page itself is functional and its link appears in the navigation, but direct access to  results in a redirect to the login page, indicating an authentication requirement. The engineer's last action was to verify the page's functionality post-login, starting by checking for existing customer data in the database, to ensure the Sales Pre-Entry form can be populated.
 </current_work>
 
 <optional_next_step>
-Add console logging to  to debug why new supplier creation isn't working for the user.
+Verify the Sales Pre-Entry page's functionality after a user logs in, starting by checking for existing customer data in the database.
 </optional_next_step>

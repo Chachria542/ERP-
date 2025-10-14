@@ -605,7 +605,7 @@ EMERGENT_LLM_KEY=xxx
 CORS_ORIGINS=http://localhost:3000
 
 # Frontend (.env) 
-REACT_APP_BACKEND_URL=https://erpsupply-chain.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://trade-flow-17.preview.emergentagent.com
 ```
 
 #### **Technology Stack**

@@ -9,7 +9,7 @@ import time
 import subprocess
 import re
 
-BASE_URL = "https://erpsupply-chain.preview.emergentagent.com/api"
+BASE_URL = "https://trade-flow-17.preview.emergentagent.com/api"
 
 def get_otp_from_logs(mobile):
     """Extract OTP from backend logs for a specific mobile"""
