@@ -493,6 +493,12 @@ async def get_bill_purchase_queue(
         elif entry.get('expected_quantity_kgs'):
             expected_qty = f"{entry['expected_quantity_kgs']} kgs"
         
+        # Get weighbridge weight (in quintals)
+        weighbridge_weight = weighbridge_entry.get('act_qtl') if weighbridge_entry else None
+        
+        # Get broker name
+        broker_name = entry.get('broker_name') if entry.get('has_broker') else None
+        
         queue_item = BillPurchaseQueueItem(
             pre_entry_id=entry['id'],
             pre_entry_number=entry['pre_entry_number'],
@@ -504,6 +510,8 @@ async def get_bill_purchase_queue(
             eway_bill_no=entry.get('eway_bill_no'),
             expected_quantity=expected_qty,
             weighbridge_completed=entry['weighbridge_completed'],
+            weighbridge_weight=weighbridge_weight,
+            broker_name=broker_name,
             status=entry['status'],
             created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
             weighed_at=datetime.fromisoformat(weighbridge_entry['created_at']) if weighbridge_entry and isinstance(weighbridge_entry.get('created_at'), str) else weighbridge_entry.get('created_at') if weighbridge_entry else None
