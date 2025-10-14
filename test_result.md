@@ -556,15 +556,18 @@ backend:
 frontend:
   - task: "Universal Pre-Entry Page with Bill Purchase Integration"
     implemented: true
-    working: "NA"
+    working: true
     file: "frontend/src/pages/PreEntryPage.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "INTEGRATION FEATURE: Bill Purchase functionality has been integrated into the universal Pre-Entry page. The page now supports 6 transaction types including Bill Purchase with dynamic form sections. Bill Purchase shows supplier selection, broker details, expected quantities, and place of supply fields. Needs comprehensive testing to verify the integration works correctly and that there's no separate Bill Pre-Entry navigation."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE INTEGRATION TESTING COMPLETED - 100% SUCCESS RATE: **Phase 1 - Navigation Integration:** ✅ Universal Pre-Entry page exists at /pre-entry, ✅ Bill Purchase navigation exists for queue/processing, ✅ NO separate 'Bill Pre-Entry' navigation found - integration confirmed. **Phase 2 - Transaction Type Selection:** ✅ All 6 transaction types found with correct emojis: Farmer Purchase 🚜, Bill Purchase 📦, Sale 🚚, Custody Deposit 🏦, Custody Withdrawal 💰, Internal Transfer 🔄. **Phase 3 - Bill Purchase Form Integration:** ✅ Supplier Details section working: supplier dropdown with 13+ suppliers, auto-filled GSTIN field, Place of Supply field (required), E-Way Bill No. field (optional). ✅ Broker Section working: 'Has Broker' checkbox, conditional broker fields (name, type, rate). ✅ Expected Quantity section working: Bags, Kgs, Quintals input fields (all optional). ✅ Item Details section working: item selection dropdown with available items. **Phase 4 - Form Validation:** ✅ Form validation working for required fields (supplier, place of supply, item selection). **Phase 5 - Farmer Purchase Comparison:** ✅ Farmer Purchase shows different form: Name field, Mobile field with OTP verification, GSTIN field. ✅ NO supplier dropdown or broker sections for Farmer Purchase (correct). ✅ Dynamic form changes based on transaction type selection confirmed. **Key Integration Points Verified:** Single unified Pre-Entry page handles both farmer and bill purchase flows, form dynamically changes based on transaction type, bill purchase uses supplier selection instead of manual name entry, broker functionality only appears for bill purchase, form validation appropriate for each transaction type, both flows create pre-entries for their respective queues."
 
   - task: "Bill Purchase Pre-Entry Page"
     implemented: true
