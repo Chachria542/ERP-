@@ -103,7 +103,7 @@
 #====================================================================================================
 
 user_problem_statement: |
-  Test the newly implemented OTP verification flow for new farmers in the Pre-Entry module to ensure mobile number verification works correctly before pre-entry creation.
+  Test the integrated Pre-Entry page to verify that Bill Purchase functionality is now properly integrated into the universal Pre-Entry system instead of being a separate page.
 
 backend:
   - task: "Mock Data Setup - Items and Weighbridge Pre-Entries"
