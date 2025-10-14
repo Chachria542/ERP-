@@ -15,6 +15,7 @@ import LedgerPage from "./pages/LedgerPage";
 import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
 import BillPurchasePage from "./pages/BillPurchasePage";
+import SalesPreEntryPage from "./pages/SalesPreEntryPage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
