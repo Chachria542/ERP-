@@ -27,6 +27,7 @@ const CLAIM_TYPES = [
 function BillPurchasePage({ user, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [items, setItems] = useState([]);
+  const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('pending');
@@ -43,13 +44,20 @@ function BillPurchasePage({ user, onLogout }) {
     bill_date: new Date().toISOString().split('T')[0],
     bill_type: 'purchase',
     
+    // Section 2: Broker Details (editable)
+    has_broker: false,
+    broker_id: '',
+    broker_name: '',
+    brokerage_type: 'per_quintal',
+    brokerage_rate: '',
+    
     // Section 3: Line Items
     line_items: [],
     
     // Section 4: Adjustments
-    batav_percentage: 0,
+    batav_percentage: '',
     claim_type: 'flat',
-    claim_rate: 0,
+    claim_rate: '',
     
     remarks: ''
   });
