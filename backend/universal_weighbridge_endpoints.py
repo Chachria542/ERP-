@@ -272,10 +272,21 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
     Links to existing pre-entry.
     """
     try:
-        # Fetch pre-entry
-        pre_entry = await db.pre_entries.find_one({"slip_id": entry_data.slip_id})
-        if not pre_entry:
-            raise HTTPException(status_code=404, detail="Pre-entry not found. Invalid slip ID.")
+        # Universal pre-entry lookup
+        slip_id = entry_data.slip_id
+        pre_entry = None
+        is_bill_purchase = slip_id.startswith("BPRE-")
+        
+        if is_bill_purchase:
+            # Look in bill purchase pre-entries
+            pre_entry = await db.bill_purchase_pre_entries.find_one({"pre_entry_number": slip_id})
+            if not pre_entry:
+                raise HTTPException(status_code=404, detail="Bill purchase pre-entry not found. Invalid slip ID.")
+        else:
+            # Look in regular pre-entries
+            pre_entry = await db.pre_entries.find_one({"slip_id": slip_id})
+            if not pre_entry:
+                raise HTTPException(status_code=404, detail="Pre-entry not found. Invalid slip ID.")
         
         # Check if already weighed
         existing = await db.weighbridge_entries.find_one({"slip_id": entry_data.slip_id})
