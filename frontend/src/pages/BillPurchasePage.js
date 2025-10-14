@@ -383,10 +383,21 @@ function BillPurchasePage({ user, onLogout }) {
       
     } catch (error) {
       console.error('Error creating bill:', error);
-      if (error.response?.data?.detail) {
+      console.error('Error response:', error.response?.data);
+      
+      if (error.response?.status === 422) {
+        // Validation error
+        const validationErrors = error.response?.data?.detail;
+        if (Array.isArray(validationErrors)) {
+          const errorMessages = validationErrors.map(err => `${err.loc?.join('.')}: ${err.msg}`).join(', ');
+          toast.error(`Validation Error: ${errorMessages}`);
+        } else {
+          toast.error('Validation Error: Please check all fields');
+        }
+      } else if (error.response?.data?.detail) {
         toast.error(error.response.data.detail);
       } else {
-        toast.error('Failed to create bill');
+        toast.error('Failed to create bill. Check console for details.');
       }
     } finally {
       setSubmitting(false);
