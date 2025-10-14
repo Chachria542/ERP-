@@ -875,27 +875,45 @@ function BillPurchasePage({ user, onLogout }) {
                         <Label>CGST %</Label>
                         <Input
                           type="number"
-                          step="0.01"
+                          className="no-spinner"
                           value={item.cgst_rate}
-                          onChange={(e) => handleLineItemChange(index, 'cgst_rate', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              handleLineItemChange(index, 'cgst_rate', value === '' ? '' : parseFloat(value) || 0);
+                            }
+                          }}
+                          placeholder="0.00"
                         />
                       </div>
                       <div>
                         <Label>SGST %</Label>
                         <Input
                           type="number"
-                          step="0.01"
+                          className="no-spinner"
                           value={item.sgst_rate}
-                          onChange={(e) => handleLineItemChange(index, 'sgst_rate', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              handleLineItemChange(index, 'sgst_rate', value === '' ? '' : parseFloat(value) || 0);
+                            }
+                          }}
+                          placeholder="0.00"
                         />
                       </div>
                       <div>
                         <Label>IGST %</Label>
                         <Input
                           type="number"
-                          step="0.01"
+                          className="no-spinner"
                           value={item.igst_rate}
-                          onChange={(e) => handleLineItemChange(index, 'igst_rate', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              handleLineItemChange(index, 'igst_rate', value === '' ? '' : parseFloat(value) || 0);
+                            }
+                          }}
+                          placeholder="0.00"
                         />
                       </div>
                       <div>
