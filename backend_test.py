@@ -125,7 +125,7 @@ class SalesPreEntryTester:
                 if not missing_fields:
                     # Check pre-entry number format (SPRE-YY-######)
                     pre_entry_no = data.get("pre_entry_number")
-                    if pre_entry_no and pre_entry_no.startswith("SPRE-") and len(pre_entry_no) == 13:
+                    if pre_entry_no and pre_entry_no.startswith("SPRE-") and len(pre_entry_no) == 14:
                         self.created_pre_entries.append(data)
                         self.log_test("Sales Pre-Entry Creation Basic", True, 
                                     f"✅ Created pre-entry: {pre_entry_no}, Customer: {data.get('customer_name')}, Item: {data.get('item_name')}")
