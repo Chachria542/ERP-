@@ -919,6 +919,10 @@ async def startup_db():
         await db.parties.create_index("roles")
         await db.parties.create_index("gstin")
         
+        # Create indexes for brokers collection
+        await db.brokers.create_index("name", unique=True)
+        await db.brokers.create_index("active")
+        
         logger.info("Database indexes created successfully")
     except Exception as e:
         logger.error(f"Error creating database indexes: {e}")
