@@ -313,15 +313,15 @@ function BillPurchasePage({ user, onLogout }) {
     };
   };
 
-  const handleCreateBill = async () => {
+  const handleCreateBill = async (saveAsDraft = false) => {
     try {
       if (billData.line_items.length === 0) {
         toast.error('At least one line item is required');
         return;
       }
       
-      if (billData.line_items.some(item => !item.item_id || !item.rate_per_qtl)) {
-        toast.error('All line items must have item and rate selected');
+      if (billData.line_items.some(item => !item.item_id || !item.rate_per_qtl || !item.agreed_weight)) {
+        toast.error('All line items must have item, rate, and agreed weight filled');
         return;
       }
       
@@ -335,12 +335,19 @@ function BillPurchasePage({ user, onLogout }) {
       
       const response = await axios.post(`${API}/bill-purchase`, submitData);
       
+      if (!saveAsDraft) {
+        // Post the bill immediately if not saving as draft
+        await axios.post(`${API}/bill-purchase/${response.data.id}/post`, {
+          user_id: user.username
+        });
+      }
+      
       setShowBillModal(false);
       setSelectedPreEntry(null);
       setWeighbridgeData(null);
       fetchQueue();
       
-      toast.success('Bill created successfully!');
+      toast.success(`Bill ${saveAsDraft ? 'saved as draft' : 'created and posted'} successfully!`);
       
     } catch (error) {
       console.error('Error creating bill:', error);
