@@ -327,56 +327,66 @@ function SupplierAutocomplete({
 
       {/* New Supplier Modal */}
       <Dialog open={showNewSupplierModal} onOpenChange={setShowNewSupplierModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Supplier</DialogTitle>
+            <p className="text-sm text-gray-500 mt-1">* indicates required field</p>
           </DialogHeader>
           
           <div className="space-y-4">
             <div>
-              <Label htmlFor="supplier_name">Supplier Name *</Label>
+              <Label htmlFor="supplier_name" className="text-red-600">Supplier Name *</Label>
               <Input
                 id="supplier_name"
                 value={newSupplierData.name}
                 onChange={(e) => setNewSupplierData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Supplier name"
+                placeholder="Enter supplier name"
+                className={!newSupplierData.name?.trim() ? 'border-red-300' : ''}
               />
             </div>
 
             <div>
-              <Label htmlFor="supplier_gstin">GSTIN *</Label>
+              <Label htmlFor="supplier_gstin" className="text-red-600">GSTIN *</Label>
               <Input
                 id="supplier_gstin"
                 value={newSupplierData.gstin}
                 onChange={(e) => setNewSupplierData(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
                 placeholder="27AAAAA0000A1Z5"
                 maxLength={15}
+                className={!newSupplierData.gstin?.trim() ? 'border-red-300' : ''}
               />
+              <p className="text-xs text-gray-500 mt-1">15-character GST identification number</p>
             </div>
 
             <div>
-              <Label htmlFor="supplier_place">Place of Supply *</Label>
+              <Label htmlFor="supplier_place" className="text-red-600">Place of Supply *</Label>
               <Input
                 id="supplier_place"
                 value={newSupplierData.place_of_supply}
                 onChange={(e) => setNewSupplierData(prev => ({ ...prev, place_of_supply: e.target.value }))}
                 placeholder="e.g., Mumbai, Maharashtra"
+                className={!newSupplierData.place_of_supply?.trim() ? 'border-red-300' : ''}
               />
             </div>
 
             <div>
-              <Label htmlFor="supplier_mobile">Mobile Number *</Label>
+              <Label htmlFor="supplier_mobile" className="text-red-600">Mobile Number *</Label>
               <Input
                 id="supplier_mobile"
                 value={newSupplierData.contact}
-                onChange={(e) => setNewSupplierData(prev => ({ ...prev, contact: e.target.value }))}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  setNewSupplierData(prev => ({ ...prev, contact: value }));
+                }}
                 placeholder="10-digit mobile number"
                 maxLength={10}
+                className={!newSupplierData.contact?.trim() ? 'border-red-300' : ''}
               />
+              <p className="text-xs text-gray-500 mt-1">Numbers only, no spaces or special characters</p>
             </div>
 
             <div>
-              <Label htmlFor="supplier_state">State</Label>
+              <Label htmlFor="supplier_state">State (Optional)</Label>
               <Input
                 id="supplier_state"
                 value={newSupplierData.state}
@@ -386,7 +396,7 @@ function SupplierAutocomplete({
             </div>
 
             <div>
-              <Label htmlFor="supplier_address">Address</Label>
+              <Label htmlFor="supplier_address">Address (Optional)</Label>
               <Textarea
                 id="supplier_address"
                 value={newSupplierData.address}
@@ -396,15 +406,21 @@ function SupplierAutocomplete({
               />
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex justify-end space-x-3 pt-4 border-t">
               <Button 
                 variant="outline" 
-                onClick={() => setShowNewSupplierModal(false)}
+                onClick={() => {
+                  console.log('[SupplierAutocomplete] Cancel button clicked');
+                  setShowNewSupplierModal(false);
+                }}
               >
                 Cancel
               </Button>
               <Button 
-                onClick={handleCreateNewSupplier}
+                onClick={() => {
+                  console.log('[SupplierAutocomplete] Create Supplier button clicked');
+                  handleCreateNewSupplier();
+                }}
                 className="bg-green-600 hover:bg-green-700"
               >
                 Create Supplier
