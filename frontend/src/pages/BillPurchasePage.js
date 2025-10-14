@@ -289,6 +289,29 @@ function BillPurchasePage({ user, onLogout }) {
     });
   };
 
+  const calculateBrokerageAmount = () => {
+    if (!billData.has_broker || !billData.brokerage_rate || billData.brokerage_rate <= 0) {
+      return 0;
+    }
+    
+    const rate = parseFloat(billData.brokerage_rate) || 0;
+    const totalBags = billData.line_items.reduce((sum, item) => sum + (item.bags || 0), 0);
+    const totalQtls = billData.line_items.reduce((sum, item) => sum + (parseFloat(item.agreed_weight) || 0), 0);
+    const lineItemsTotal = billData.line_items.reduce((sum, item) => sum + (item.amount || 0), 0);
+    
+    switch (billData.brokerage_type) {
+      case 'per_quintal':
+        return Math.round(rate * totalQtls * 100) / 100;
+      case 'per_bag':
+        return Math.round(rate * totalBags * 100) / 100;
+      case 'percentage':
+        return Math.round((lineItemsTotal * rate / 100) * 100) / 100;
+      case 'none':
+      default:
+        return 0;
+    }
+  };
+
   const calculateTotals = () => {
     const lineItemsTotal = billData.line_items.reduce((sum, item) => sum + (item.amount || 0), 0);
     const totalTaxAmount = billData.line_items.reduce((sum, item) => 
@@ -296,12 +319,12 @@ function BillPurchasePage({ user, onLogout }) {
     const grossAmount = lineItemsTotal + totalTaxAmount;
     
     // Calculate batav (cash discount)
-    const batavAmount = Math.round((grossAmount * billData.batav_percentage / 100) * 100) / 100;
+    const batavAmount = Math.round((grossAmount * (parseFloat(billData.batav_percentage) || 0) / 100) * 100) / 100;
     
     // Calculate claim amount
     const claimAmount = billData.claim_type === 'percentage' 
-      ? Math.round((grossAmount * billData.claim_rate / 100) * 100) / 100
-      : billData.claim_rate;
+      ? Math.round((grossAmount * (parseFloat(billData.claim_rate) || 0) / 100) * 100) / 100
+      : (parseFloat(billData.claim_rate) || 0);
     
     const totalDeductions = batavAmount + claimAmount;
     const netAmount = grossAmount - totalDeductions;
