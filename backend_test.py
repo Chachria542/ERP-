@@ -147,62 +147,87 @@ class SalesPreEntryTester:
             self.log_test("Sales Pre-Entry Creation Basic", False, f"Request failed: {str(e)}")
             return False
     
-    def test_pre_entry_without_otp_verification(self):
+    def test_sales_pre_entry_sequential_numbering(self):
         """
-        Test Case 2: Create pre-entry without OTP verification
-        Farmer should be created with mobile_verified=false (default behavior)
+        Test 2: Sequential Pre-Entry Number Generation
+        Test that multiple pre-entries get sequential numbers
         """
-        print("🔍 Testing Pre-Entry Without OTP Verification...")
+        print("🔍 Test 2: Sequential Pre-Entry Number Generation...")
         
-        mobile = self.test_mobile_no_otp
-        farmer_name = "Test Farmer No OTP"
+        if not self.customers or not self.items:
+            self.log_test("Sequential Numbering", False, "No test data available")
+            return False
+        
+        customer = self.customers[0]
+        item = self.items[0]
         
         try:
-            # Create Pre-Entry directly without OTP verification
-            pre_entry_payload = {
-                "transaction_type": "farmer_purchase",
-                "from_location": "Test Warehouse",
-                "party_type": "farmer",
-                "party_name": farmer_name,
-                "party_mobile": mobile,
-                "item_id": self.test_item_id,
-                "rate_per_qtl": 2500.0,
-                "created_by": "test_user"
+            # Create first pre-entry
+            payload1 = {
+                "date": "2025-01-14",
+                "customer_id": customer['id'],
+                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
+                "item_id": item['id'],
+                "created_by": "admin"
             }
             
-            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
-                                             json=pre_entry_payload,
-                                             headers={'Content-Type': 'application/json'},
-                                             timeout=10)
+            response1 = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                    json=payload1,
+                                    headers={'Content-Type': 'application/json'},
+                                    timeout=10)
             
-            if pre_entry_response.status_code != 200:
-                self.log_test("Pre-Entry Without OTP", False, 
-                            f"Pre-entry creation failed: HTTP {pre_entry_response.status_code}: {pre_entry_response.text}")
+            if response1.status_code != 200:
+                self.log_test("Sequential Numbering", False, 
+                            f"First pre-entry creation failed: HTTP {response1.status_code}")
                 return False
             
-            # Verify farmer was created with mobile_verified=false
-            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
+            data1 = response1.json()
+            pre_entry_no1 = data1.get("pre_entry_number")
             
-            if farmer_response.status_code != 200:
-                self.log_test("Pre-Entry Without OTP", False, 
-                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
+            # Create second pre-entry
+            payload2 = {
+                "date": "2025-01-14",
+                "customer_id": customer['id'],
+                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
+                "item_id": item['id'],
+                "created_by": "admin"
+            }
+            
+            response2 = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                    json=payload2,
+                                    headers={'Content-Type': 'application/json'},
+                                    timeout=10)
+            
+            if response2.status_code != 200:
+                self.log_test("Sequential Numbering", False, 
+                            f"Second pre-entry creation failed: HTTP {response2.status_code}")
                 return False
             
-            farmer_data = farmer_response.json()
-            mobile_verified = farmer_data.get('mobile_verified')
-            otp_verified_count = farmer_data.get('otp_verified_count')
+            data2 = response2.json()
+            pre_entry_no2 = data2.get("pre_entry_number")
             
-            if mobile_verified == False and otp_verified_count == 0:
-                self.log_test("Pre-Entry Without OTP", True, 
-                            f"✅ Farmer {farmer_name} created with mobile_verified=False (default behavior)")
-                return True
+            # Verify sequential numbering
+            if pre_entry_no1 and pre_entry_no2:
+                # Extract numbers from SPRE-YY-###### format
+                num1 = int(pre_entry_no1.split('-')[-1])
+                num2 = int(pre_entry_no2.split('-')[-1])
+                
+                if num2 == num1 + 1:
+                    self.created_pre_entries.extend([data1, data2])
+                    self.log_test("Sequential Numbering", True, 
+                                f"✅ Sequential numbering working: {pre_entry_no1} → {pre_entry_no2}")
+                    return True
+                else:
+                    self.log_test("Sequential Numbering", False, 
+                                f"❌ Non-sequential numbers: {pre_entry_no1} → {pre_entry_no2}")
+                    return False
             else:
-                self.log_test("Pre-Entry Without OTP", False, 
-                            f"❌ Unexpected verification status: mobile_verified={mobile_verified}, count={otp_verified_count}")
+                self.log_test("Sequential Numbering", False, 
+                            "❌ Missing pre-entry numbers in response")
                 return False
                 
         except Exception as e:
-            self.log_test("Pre-Entry Without OTP", False, f"Test failed: {str(e)}")
+            self.log_test("Sequential Numbering", False, f"Request failed: {str(e)}")
             return False
     
     def test_multiple_otp_verifications_before_farmer_creation(self):
