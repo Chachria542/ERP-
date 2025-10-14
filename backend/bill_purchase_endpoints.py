@@ -655,10 +655,12 @@ async def create_bill_purchase(bill_data: BillPurchaseCreate):
             supplier_name=pre_entry['supplier_name'],
             supplier_gstin=pre_entry.get('supplier_gstin'),
             place_of_supply=pre_entry['place_of_supply'],
-            has_broker=pre_entry['has_broker'],
-            broker_name=pre_entry.get('broker_name'),
-            brokerage_type=pre_entry.get('brokerage_type'),
-            brokerage_rate=pre_entry.get('brokerage_rate'),
+            
+            # Broker details (editable during bill processing)
+            has_broker=has_broker,
+            broker_name=broker_name,
+            brokerage_type=brokerage_type,
+            brokerage_rate=brokerage_rate,
             brokerage_amount=brokerage_amount,
             
             # Section 3: Line Items
