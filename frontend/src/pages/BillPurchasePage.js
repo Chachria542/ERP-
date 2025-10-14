@@ -344,11 +344,26 @@ function BillPurchasePage({ user, onLogout }) {
       
       setSubmitting(true);
       
+      // Sanitize data: convert empty strings to numbers
+      const sanitizedLineItems = billData.line_items.map(item => ({
+        ...item,
+        rate_per_qtl: parseFloat(item.rate_per_qtl) || 0,
+        cgst_rate: parseFloat(item.cgst_rate) || 0,
+        sgst_rate: parseFloat(item.sgst_rate) || 0,
+        igst_rate: parseFloat(item.igst_rate) || 0
+      }));
+      
       const submitData = {
         ...billData,
+        line_items: sanitizedLineItems,
+        batav_percentage: parseFloat(billData.batav_percentage) || 0,
+        claim_rate: parseFloat(billData.claim_rate) || 0,
+        brokerage_rate: parseFloat(billData.brokerage_rate) || 0,
         pre_entry_id: selectedPreEntry.id,
         created_by: user.username
       };
+      
+      console.log('Submitting bill data:', submitData);
       
       const response = await axios.post(`${API}/bill-purchase`, submitData);
       
