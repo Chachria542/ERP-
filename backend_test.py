@@ -74,114 +74,77 @@ class SalesPreEntryTester:
         
         return True
     
-    def test_complete_integration_flow(self):
+    def test_sales_pre_entry_creation_basic(self):
         """
-        CRITICAL TEST: Complete OTP → Verify → Pre-Entry → Farmer Creation Flow
-        This tests the main fix: OTP verification status preservation during farmer creation
+        Test 1: Basic Sales Pre-Entry Creation
+        Test creating a sales pre-entry with all required fields
         """
-        print("🔍 CRITICAL TEST: Complete OTP-Farmer Integration Flow...")
+        print("🔍 Test 1: Basic Sales Pre-Entry Creation...")
         
-        mobile = self.test_mobile_new
-        farmer_name = "Test Farmer Integration"
+        if not self.customers or not self.items:
+            self.log_test("Sales Pre-Entry Creation Basic", False, "No test data available")
+            return False
+        
+        customer = self.customers[0]
+        item = self.items[0]
         
         try:
-            # Step 1: Send OTP to new mobile
-            print("  Step 1: Sending OTP...")
-            send_payload = {"mobile": mobile}
-            send_response = requests.post(f"{self.base_url}/otp/send", 
-                                        json=send_payload,
-                                        headers={'Content-Type': 'application/json'},
-                                        timeout=10)
-            
-            if send_response.status_code != 200:
-                self.log_test("Complete Integration Flow - Step 1", False, 
-                            f"Failed to send OTP: HTTP {send_response.status_code}")
-                return False
-            
-            # Step 2: Extract OTP from logs and verify
-            print("  Step 2: Extracting and verifying OTP...")
-            time.sleep(1)  # Wait for logs
-            actual_otp = self.get_otp_from_logs(mobile)
-            
-            if not actual_otp:
-                self.log_test("Complete Integration Flow - Step 2", False, 
-                            "Could not extract OTP from backend logs")
-                return False
-            
-            verify_payload = {"mobile": mobile, "otp": actual_otp}
-            verify_response = requests.post(f"{self.base_url}/otp/verify", 
-                                          json=verify_payload,
-                                          headers={'Content-Type': 'application/json'},
-                                          timeout=10)
-            
-            if verify_response.status_code != 200:
-                self.log_test("Complete Integration Flow - Step 2", False, 
-                            f"OTP verification failed: HTTP {verify_response.status_code}")
-                return False
-            
-            verify_data = verify_response.json()
-            if not verify_data.get("verified"):
-                self.log_test("Complete Integration Flow - Step 2", False, 
-                            f"OTP not verified: {verify_data}")
-                return False
-            
-            print(f"    ✅ OTP {actual_otp} verified successfully")
-            
-            # Step 3: Create Pre-Entry (this should create farmer with mobile_verified=true)
-            print("  Step 3: Creating Pre-Entry (triggers farmer creation)...")
-            pre_entry_payload = {
-                "transaction_type": "farmer_purchase",
-                "from_location": "Test Warehouse",
-                "party_type": "farmer",
-                "party_name": farmer_name,
-                "party_mobile": mobile,
-                "item_id": self.test_item_id,
-                "rate_per_qtl": 2500.0,
-                "created_by": "test_user"
+            payload = {
+                "date": "2025-01-14",
+                "customer_id": customer['id'],
+                "customer_gstin": customer.get('gstin'),
+                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
+                "item_id": item['id'],
+                "bharti": 50,
+                "has_broker": True,
+                "broker_name": "Test Broker",
+                "brokerage_type": "per_quintal",
+                "brokerage_rate": 10.0,
+                "is_mandi": False,
+                "location_name": "Main Godown",
+                "expected_bags": 100,
+                "expected_kgs": 5000.0,
+                "order_number": "ORD-001",
+                "marka": "Premium Quality",
+                "remarks": "Test sales pre-entry creation",
+                "created_by": "admin"
             }
             
-            pre_entry_response = requests.post(f"{self.base_url}/pre-entry", 
-                                             json=pre_entry_payload,
-                                             headers={'Content-Type': 'application/json'},
-                                             timeout=10)
+            response = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
             
-            if pre_entry_response.status_code != 200:
-                self.log_test("Complete Integration Flow - Step 3", False, 
-                            f"Pre-entry creation failed: HTTP {pre_entry_response.status_code}: {pre_entry_response.text}")
-                return False
-            
-            pre_entry_data = pre_entry_response.json()
-            print(f"    ✅ Pre-entry created: {pre_entry_data.get('slip_id')}")
-            
-            # Step 4: Verify farmer was created with mobile_verified=true
-            print("  Step 4: Verifying farmer verification status...")
-            farmer_response = requests.get(f"{self.base_url}/farmer/{mobile}", timeout=10)
-            
-            if farmer_response.status_code != 200:
-                self.log_test("Complete Integration Flow - Step 4", False, 
-                            f"Failed to get farmer: HTTP {farmer_response.status_code}")
-                return False
-            
-            farmer_data = farmer_response.json()
-            
-            # Check critical verification fields
-            mobile_verified = farmer_data.get('mobile_verified')
-            mobile_verified_at = farmer_data.get('mobile_verified_at')
-            otp_verified_count = farmer_data.get('otp_verified_count')
-            
-            if mobile_verified == True and mobile_verified_at and otp_verified_count >= 1:
-                self.log_test("Complete Integration Flow", True, 
-                            f"✅ INTEGRATION WORKING: Farmer {farmer_name} created with mobile_verified=True, "
-                            f"verified_at={mobile_verified_at}, count={otp_verified_count}")
-                return True
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify response structure
+                required_fields = ["pre_entry_number", "slip_id", "qr_code", "customer_name", "item_name"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if not missing_fields:
+                    # Check pre-entry number format (SPRE-YY-######)
+                    pre_entry_no = data.get("pre_entry_number")
+                    if pre_entry_no and pre_entry_no.startswith("SPRE-") and len(pre_entry_no) == 13:
+                        self.created_pre_entries.append(data)
+                        self.log_test("Sales Pre-Entry Creation Basic", True, 
+                                    f"✅ Created pre-entry: {pre_entry_no}, Customer: {data.get('customer_name')}, Item: {data.get('item_name')}")
+                        return True
+                    else:
+                        self.log_test("Sales Pre-Entry Creation Basic", False, 
+                                    f"Invalid pre-entry number format: {pre_entry_no}")
+                        return False
+                else:
+                    self.log_test("Sales Pre-Entry Creation Basic", False, 
+                                f"Missing required fields: {missing_fields}")
+                    return False
             else:
-                self.log_test("Complete Integration Flow", False, 
-                            f"❌ INTEGRATION FAILED: Farmer created but verification status not preserved. "
-                            f"mobile_verified={mobile_verified}, verified_at={mobile_verified_at}, count={otp_verified_count}")
+                self.log_test("Sales Pre-Entry Creation Basic", False, 
+                            f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Complete Integration Flow", False, f"Integration test failed: {str(e)}")
+            self.log_test("Sales Pre-Entry Creation Basic", False, f"Request failed: {str(e)}")
             return False
     
     def test_pre_entry_without_otp_verification(self):
