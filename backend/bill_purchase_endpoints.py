@@ -256,7 +256,8 @@ async def get_pre_entry_by_number(pre_entry_number: str):
     
     # Check if already has weighbridge entry
     weighbridge_entry = await db.weighbridge_entries.find_one(
-        {"slip_id": pre_entry_number}
+        {"slip_id": pre_entry_number}, 
+        {"_id": 0}
     )
     
     if weighbridge_entry:
