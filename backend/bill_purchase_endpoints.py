@@ -570,21 +570,29 @@ async def create_bill_purchase(bill_data: BillPurchaseCreate):
         # Generate bill number
         bill_number = generate_bill_number()
         
+        # Use broker details from bill_data (editable during processing)
+        # If not provided in bill_data, fall back to pre_entry values
+        has_broker = bill_data.has_broker if bill_data.has_broker is not None else pre_entry.get('has_broker', False)
+        broker_name = bill_data.broker_name or pre_entry.get('broker_name')
+        brokerage_type = bill_data.brokerage_type or pre_entry.get('brokerage_type')
+        brokerage_rate = bill_data.brokerage_rate if bill_data.brokerage_rate is not None else pre_entry.get('brokerage_rate', 0.0)
+        
         # Calculate brokerage if applicable
         brokerage_amount = 0.0
-        if pre_entry['has_broker'] and pre_entry.get('brokerage_rate'):
-            # Calculate based on line items total
+        if has_broker and broker_name and brokerage_rate and brokerage_rate > 0:
+            # Calculate based on line items
             line_items_total = sum(item.amount for item in bill_data.line_items)
             total_bags = sum(item.bags for item in bill_data.line_items)
             total_qtls = sum(item.agreed_weight for item in bill_data.line_items)
             
             brokerage_amount = calculate_brokerage_amount(
-                pre_entry['brokerage_type'],
-                pre_entry['brokerage_rate'],
+                brokerage_type,
+                brokerage_rate,
                 total_bags,
                 total_qtls,
                 line_items_total
             )
+            print(f"[BACKEND] Calculated brokerage: {brokerage_amount} for broker {broker_name}")
         
         # Process line items to ensure all calculations are correct
         processed_line_items = []
