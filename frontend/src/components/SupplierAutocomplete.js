@@ -154,12 +154,21 @@ function SupplierAutocomplete({
   // Handle new supplier creation
   const handleCreateNewSupplier = async () => {
     try {
+      console.log('Creating new supplier with data:', newSupplierData);
+      
       if (!newSupplierData.name || !newSupplierData.gstin || 
           !newSupplierData.place_of_supply || !newSupplierData.contact) {
-        toast.error('Please fill all required fields');
+        toast.error('Please fill all required fields: Name, GSTIN, Place of Supply, and Mobile Number');
+        console.error('Validation failed - missing required fields:', {
+          name: !!newSupplierData.name,
+          gstin: !!newSupplierData.gstin,
+          place_of_supply: !!newSupplierData.place_of_supply,
+          contact: !!newSupplierData.contact
+        });
         return;
       }
 
+      console.log('Sending API request to create supplier...');
       const response = await axios.post(`${API}/suppliers/quick-create`, newSupplierData);
       
       toast.success('New supplier created successfully!');
