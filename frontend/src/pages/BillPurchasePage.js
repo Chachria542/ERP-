@@ -122,25 +122,32 @@ function BillPurchasePage({ user, onLogout }) {
     
     // Initialize bill form with weighbridge data
     const initialLineItem = {
-      item_id: '',
-      item_name: '',
-      bags: weighbridgeData?.bags || 0,
-      kgs: weighbridgeData?.net_weight || 0,
+      item_id: selectedPreEntry?.item_id || '',
+      item_name: selectedPreEntry?.item_name || '',
+      quality: '',
+      pack_size: 100, // Default pack size
+      bags: 0, // Will be auto-calculated
+      remaining_kg: 0, // Will be auto-calculated
+      actual_weight: weighbridgeData?.act_qtl || 0,
+      agreed_weight: weighbridgeData?.act_qtl || 0,
       rate_per_qtl: 0,
       amount: 0,
+      cgst_rate: 0,
+      sgst_rate: 0,
+      igst_rate: 0,
+      cgst_amount: 0,
+      sgst_amount: 0,
+      igst_amount: 0,
       sort_order: 1
     };
     
     setBillData({
-      supplier_invoice_no: '',
-      supplier_invoice_date: new Date().toISOString().split('T')[0],
+      bill_date: new Date().toISOString().split('T')[0],
+      bill_type: 'purchase',
       line_items: [initialLineItem],
-      freight: 0,
-      hamali_tulai: 0,
-      aadat: 0,
-      mandi_cess: 0,
-      bank_charges: 0,
-      rounding: 0,
+      batav_percentage: 0,
+      claim_type: 'flat',
+      claim_rate: 0,
       remarks: ''
     });
     
