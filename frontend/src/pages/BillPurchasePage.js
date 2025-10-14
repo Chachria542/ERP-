@@ -645,26 +645,119 @@ function BillPurchasePage({ user, onLogout }) {
                 </div>
               </Card>
 
-              {/* Section 2: Supplier Details */}
+              {/* Section 2: Supplier & Broker Details */}
               <Card className="p-6">
-                <h3 className="text-xl font-semibold mb-4">Section 2: Supplier Details</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <Label>Supplier Name</Label>
-                    <Input value={selectedPreEntry?.supplier_name || ''} disabled className="bg-gray-100" />
+                <h3 className="text-xl font-semibold mb-4">Section 2: Supplier & Broker Details</h3>
+                
+                {/* Supplier Info (Read-only) */}
+                <div className="mb-4">
+                  <Label className="text-sm font-semibold text-gray-700">Supplier Information</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                    <div>
+                      <Label className="text-xs">Supplier Name</Label>
+                      <Input value={selectedPreEntry?.supplier_name || ''} disabled className="bg-gray-100 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">GSTIN</Label>
+                      <Input value={selectedPreEntry?.supplier_gstin || 'N/A'} disabled className="bg-gray-100 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Place of Supply</Label>
+                      <Input value={selectedPreEntry?.place_of_supply || ''} disabled className="bg-gray-100 text-sm" />
+                    </div>
                   </div>
-                  <div>
-                    <Label>Broker Name</Label>
-                    <Input value={selectedPreEntry?.broker_name || 'N/A'} disabled className="bg-gray-100" />
+                </div>
+
+                {/* Broker Details (Editable) */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <input
+                      type="checkbox"
+                      id="has_broker"
+                      checked={billData.has_broker}
+                      onChange={(e) => setBillData({...billData, has_broker: e.target.checked})}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="has_broker" className="text-sm font-semibold cursor-pointer">
+                      Has Broker
+                    </Label>
                   </div>
-                  <div>
-                    <Label>Brokerage Type</Label>
-                    <Input value={selectedPreEntry?.brokerage_type || 'N/A'} disabled className="bg-gray-100" />
-                  </div>
-                  <div>
-                    <Label>Brokerage Rate</Label>
-                    <Input value={selectedPreEntry?.brokerage_rate || 'N/A'} disabled className="bg-gray-100" />
-                  </div>
+
+                  {billData.has_broker && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label>Broker Name *</Label>
+                        <Select
+                          value={billData.broker_name}
+                          onValueChange={(value) => {
+                            const selectedBroker = brokers.find(b => b.name === value);
+                            setBillData({
+                              ...billData,
+                              broker_name: value,
+                              broker_id: selectedBroker?.id || '',
+                              brokerage_type: selectedBroker?.default_brokerage_type || billData.brokerage_type,
+                              brokerage_rate: selectedBroker?.default_brokerage_rate || billData.brokerage_rate
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select broker" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brokers.map((broker) => (
+                              <SelectItem key={broker.id} value={broker.name}>
+                                {broker.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label>Brokerage Type *</Label>
+                        <Select
+                          value={billData.brokerage_type}
+                          onValueChange={(value) => setBillData({...billData, brokerage_type: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BROKERAGE_TYPES.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label>Brokerage Rate *</Label>
+                        <Input
+                          type="number"
+                          className="no-spinner"
+                          value={billData.brokerage_rate}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                              setBillData({...billData, brokerage_rate: value});
+                            }
+                          }}
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>Brokerage Amount</Label>
+                        <Input
+                          value={`₹${calculateBrokerageAmount().toFixed(2)}`}
+                          disabled
+                          className="bg-gray-100 font-semibold"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Card>
 
