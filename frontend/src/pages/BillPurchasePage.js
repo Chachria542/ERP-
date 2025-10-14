@@ -369,9 +369,7 @@ function BillPurchasePage({ user, onLogout }) {
       
       if (!saveAsDraft) {
         // Post the bill immediately if not saving as draft
-        await axios.post(`${API}/bill-purchase/${response.data.id}/post`, {
-          user_id: user.username
-        });
+        await axios.post(`${API}/bill-purchase/${response.data.id}/post?user_id=${user.username}`);
       }
       
       setShowBillModal(false);
