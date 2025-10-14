@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://trade-flow-17.preview.emergentagent.com/api"
 
-class OTPFarmerIntegrationTester:
+class SalesPreEntryTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
