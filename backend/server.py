@@ -42,6 +42,10 @@ init_bill_purchase_db(db)
 from broker_endpoints import router as broker_router, init_db as init_broker_db
 init_broker_db(db)
 
+# Import sales endpoints and initialize with db
+from sales_endpoints import router as sales_router, init_db as init_sales_db
+init_sales_db(db)
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
