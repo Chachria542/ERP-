@@ -397,15 +397,29 @@ function SupplierAutocomplete({
             
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {similarSuppliers.map((supplier) => (
-                <div 
-                  key={supplier.id}
-                  className="p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSelectSupplier(supplier)}
-                >
+                <div key={supplier.id} className="p-3 border rounded-lg">
                   <div className="font-medium">{supplier.name}</div>
                   {supplier.gstin && (
                     <div className="text-sm text-gray-600">GSTIN: {supplier.gstin}</div>
                   )}
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSelectSupplier(supplier)}
+                      className="flex-1"
+                    >
+                      Use This
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleReplaceSupplier(supplier)}
+                      className="flex-1 text-orange-600 border-orange-200"
+                    >
+                      Update to "{inputValue.trim()}"
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
