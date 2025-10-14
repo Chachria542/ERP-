@@ -688,30 +688,21 @@ function BillPurchasePage({ user, onLogout }) {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
                         <Label>Broker Name *</Label>
-                        <Select
+                        <BrokerAutocomplete
                           value={billData.broker_name}
-                          onValueChange={(value) => {
-                            const selectedBroker = brokers.find(b => b.name === value);
+                          onSelect={(broker) => {
+                            console.log('Broker selected:', broker);
                             setBillData({
                               ...billData,
-                              broker_name: value,
-                              broker_id: selectedBroker?.id || '',
-                              brokerage_type: selectedBroker?.default_brokerage_type || billData.brokerage_type,
-                              brokerage_rate: selectedBroker?.default_brokerage_rate || billData.brokerage_rate
+                              broker_name: broker.name,
+                              broker_id: broker.id || '',
+                              brokerage_type: broker.default_brokerage_type || billData.brokerage_type,
+                              brokerage_rate: broker.default_brokerage_rate || billData.brokerage_rate
                             });
                           }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select broker" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {brokers.map((broker) => (
-                              <SelectItem key={broker.id} value={broker.name}>
-                                {broker.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          placeholder="Type broker name..."
+                          className="mt-1"
+                        />
                       </div>
 
                       <div>
