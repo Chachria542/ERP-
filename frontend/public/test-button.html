@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .modal {
+            border: 2px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .button-primary {
+            background: #22c55e;
+            color: white;
+        }
+        .button-primary:hover {
+            background: #16a34a;
+        }
+        .button-outline {
+            background: white;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px;
+            border-bottom: 1px solid #ddd;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supplier Creation Button Test</h1>
+    <p>This page tests if the button click events work correctly.</p>
+    
+    <div class="modal">
+        <h2>Create New Supplier</h2>
+        <p style="color: #666; font-size: 14px;">* indicates required field</p>
+        
+        <form id="supplierForm" onsubmit="return false;">
+            <label>Supplier Name *</label>
+            <input type="text" id="name" placeholder="Enter supplier name" required>
+            
+            <label>GSTIN *</label>
+            <input type="text" id="gstin" placeholder="27AAAAA0000A1Z5" maxlength="15" required>
+            
+            <label>Place of Supply *</label>
+            <input type="text" id="place" placeholder="Mumbai, Maharashtra" required>
+            
+            <label>Mobile Number *</label>
+            <input type="text" id="mobile" placeholder="10-digit number" maxlength="10" required>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" class="button button-outline" onclick="handleCancel()">
+                    Cancel
+                </button>
+                <button type="button" class="button button-primary" onclick="handleCreate()">
+                    Create Supplier
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="log">
+        <h3>Console Log:</h3>
+        <div id="logContainer"></div>
+    </div>
+    
+    <script>
+        const logContainer = document.getElementById('logContainer');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(message);
+        }
+        
+        function handleCancel() {
+            log('❌ Cancel button clicked');
+            log('Modal should close now (in real app)');
+        }
+        
+        function handleCreate() {
+            log('✅ Create Supplier button clicked!');
+            
+            const name = document.getElementById('name').value;
+            const gstin = document.getElementById('gstin').value;
+            const place = document.getElementById('place').value;
+            const mobile = document.getElementById('mobile').value;
+            
+            log(`Collected data: Name="${name}", GSTIN="${gstin}", Place="${place}", Mobile="${mobile}"`);
+            
+            // Validation
+            const missingFields = [];
+            if (!name.trim()) missingFields.push('Name');
+            if (!gstin.trim()) missingFields.push('GSTIN');
+            if (!place.trim()) missingFields.push('Place of Supply');
+            if (!mobile.trim()) missingFields.push('Mobile Number');
+            
+            if (missingFields.length > 0) {
+                log(`⚠️ Validation failed. Missing: ${missingFields.join(', ')}`);
+                alert(`Please fill all required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+            
+            log('✅ Validation passed!');
+            log('🚀 Would call API now: POST /api/suppliers/quick-create');
+            log('✅ Modal should close after successful API call');
+            
+            alert('Success! In the real app, this would create the supplier and close the modal.');
+        }
+        
+        // Log page load
+        log('📄 Test page loaded successfully');
+        log('👉 Try filling the form and clicking "Create Supplier"');
+    </script>
+</body>
+</html>
