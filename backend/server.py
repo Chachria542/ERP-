@@ -880,6 +880,9 @@ api_router.include_router(otp_router, tags=["otp-verification"])
 # Include bill purchase router
 api_router.include_router(bill_purchase_router, tags=["bill-purchase"])
 
+# Include broker router
+api_router.include_router(broker_router, tags=["brokers"])
+
 # Include routers in app
 app.include_router(api_router)
 
