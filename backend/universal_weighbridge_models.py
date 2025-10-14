@@ -196,11 +196,13 @@ class WeighbridgeEntry(BaseModel):
     rem_kg: int  # net_weight % 100
     act_qtl: float  # net_weight / 100
     
-    # Photos (two weighment photos)
-    photo_gross_url: str
-    photo_gross_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    photo_tare_url: str
-    photo_tare_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Photos (two weighment photos for single, one photo for tare/gross)
+    photo_gross_url: Optional[str] = None
+    photo_gross_timestamp: Optional[datetime] = None
+    photo_tare_url: Optional[str] = None
+    photo_tare_timestamp: Optional[datetime] = None
+    photo_url: Optional[str] = None  # Single photo URL (for tare or gross type)
+    photo_timestamp: Optional[datetime] = None  # Single photo timestamp
     photo_upload_status: PhotoUploadStatus = PhotoUploadStatus.PENDING
     
     # Operator details
