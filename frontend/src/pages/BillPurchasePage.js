@@ -117,6 +117,23 @@ function BillPurchasePage({ user, onLogout }) {
     }
   };
 
+  // Helper function to calculate bags and remaining kg
+  const calculateBagsAndRemaining = (totalWeightQtl, packSizeKg) => {
+    const totalWeightKg = totalWeightQtl * 100;
+    const bags = Math.floor(totalWeightKg / packSizeKg);
+    const remainingKg = Math.round((totalWeightKg % packSizeKg) * 100) / 100;
+    return { bags, remainingKg };
+  };
+
+  // Helper function to calculate tax amounts
+  const calculateTaxAmounts = (amount, cgstRate, sgstRate, igstRate) => {
+    const cgstAmount = cgstRate > 0 ? Math.round((amount * cgstRate / 100) * 100) / 100 : 0;
+    const sgstAmount = sgstRate > 0 ? Math.round((amount * sgstRate / 100) * 100) / 100 : 0;
+    const igstAmount = igstRate > 0 ? Math.round((amount * igstRate / 100) * 100) / 100 : 0;
+    
+    return { cgstAmount, sgstAmount, igstAmount };
+  };
+
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
     
@@ -171,23 +188,6 @@ function BillPurchasePage({ user, onLogout }) {
       console.error('Error rejecting photos:', error);
       toast.error('Failed to cancel pre-entry');
     }
-  };
-
-  // Helper function to calculate bags and remaining kg
-  const calculateBagsAndRemaining = (totalWeightQtl, packSizeKg) => {
-    const totalWeightKg = totalWeightQtl * 100;
-    const bags = Math.floor(totalWeightKg / packSizeKg);
-    const remainingKg = Math.round((totalWeightKg % packSizeKg) * 100) / 100;
-    return { bags, remainingKg };
-  };
-
-  // Helper function to calculate tax amounts
-  const calculateTaxAmounts = (amount, cgstRate, sgstRate, igstRate) => {
-    const cgstAmount = cgstRate > 0 ? Math.round((amount * cgstRate / 100) * 100) / 100 : 0;
-    const sgstAmount = sgstRate > 0 ? Math.round((amount * sgstRate / 100) * 100) / 100 : 0;
-    const igstAmount = igstRate > 0 ? Math.round((amount * igstRate / 100) * 100) / 100 : 0;
-    
-    return { cgstAmount, sgstAmount, igstAmount };
   };
 
   const handleLineItemChange = (index, field, value) => {
@@ -248,41 +248,6 @@ function BillPurchasePage({ user, onLogout }) {
         line_items: newLineItems
       };
     });
-  };
-
-  const addLineItem = () => {
-    setBillData(prev => ({
-      ...prev,
-      line_items: [
-        ...prev.line_items,
-        {
-          item_id: '',
-          item_name: '',
-          quality: '',
-          pack_size: 100,
-          bags: 0,
-          remaining_kg: 0,
-          actual_weight: 0,
-          agreed_weight: 0,
-          rate_per_qtl: 0,
-          amount: 0,
-          cgst_rate: 0,
-          sgst_rate: 0,
-          igst_rate: 0,
-          cgst_amount: 0,
-          sgst_amount: 0,
-          igst_amount: 0,
-          sort_order: prev.line_items.length + 1
-        }
-      ]
-    }));
-  };
-
-  const removeLineItem = (index) => {
-    setBillData(prev => ({
-      ...prev,
-      line_items: prev.line_items.filter((_, i) => i !== index)
-    }));
   };
 
   const calculateTotals = () => {
@@ -442,7 +407,7 @@ function BillPurchasePage({ user, onLogout }) {
                       <th className="text-left p-3">Pre-Entry No.</th>
                       <th className="text-left p-3">Date</th>
                       <th className="text-left p-3">Supplier</th>
-                      <th className="text-left p-3">GSTIN</th>
+                      <th className="text-left p-3">Item</th>
                       <th className="text-left p-3">E-Way Bill</th>
                       <th className="text-left p-3">Expected Qty</th>
                       <th className="text-left p-3">Status</th>
@@ -455,7 +420,7 @@ function BillPurchasePage({ user, onLogout }) {
                         <td className="p-3 font-mono text-sm">{item.pre_entry_number}</td>
                         <td className="p-3">{item.date}</td>
                         <td className="p-3">{item.supplier_name}</td>
-                        <td className="p-3 text-sm">{item.supplier_gstin || '-'}</td>
+                        <td className="p-3 text-sm">-</td>
                         <td className="p-3 text-sm">{item.eway_bill_no || '-'}</td>
                         <td className="p-3 text-sm">{item.expected_quantity || '-'}</td>
                         <td className="p-3">{getStatusBadge(item.status)}</td>
@@ -558,209 +523,326 @@ function BillPurchasePage({ user, onLogout }) {
           </DialogContent>
         </Dialog>
 
-        {/* Bill Creation Modal */}
+        {/* Comprehensive Bill Creation Modal */}
         <Dialog open={showBillModal} onOpenChange={setShowBillModal}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create Bill - {selectedPreEntry?.pre_entry_number}</DialogTitle>
+              <DialogTitle className="text-2xl">Create Bill - {selectedPreEntry?.pre_entry_number}</DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-6">
-              {/* Supplier Info (Read-only) */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p><strong>Supplier:</strong> {selectedPreEntry?.supplier_name}</p>
-                  <p><strong>GSTIN:</strong> {selectedPreEntry?.supplier_gstin || 'N/A'}</p>
+            <div className="space-y-8">
+              {/* Section 1: Bill Details */}
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Section 1: Bill Details</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label htmlFor="bill_date">Bill Date</Label>
+                    <Input
+                      id="bill_date"
+                      type="date"
+                      value={billData.bill_date}
+                      onChange={(e) => setBillData(prev => ({ ...prev, bill_date: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="bill_number">Bill Number</Label>
+                    <Input
+                      id="bill_number"
+                      value="Auto-generated"
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="bill_type">Type</Label>
+                    <Select 
+                      value={billData.bill_type} 
+                      onValueChange={(value) => setBillData(prev => ({ ...prev, bill_type: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BILL_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="vehicle_number">Vehicle Number</Label>
+                    <Input
+                      id="vehicle_number"
+                      value={weighbridgeData?.vehicle_number || ''}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <p><strong>Place of Supply:</strong> {selectedPreEntry?.place_of_supply}</p>
-                  <p><strong>Net Weight:</strong> {weighbridgeData?.net_weight} kg</p>
-                </div>
-              </div>
+              </Card>
 
-              {/* Invoice Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="supplier_invoice_no">Supplier Invoice No.</Label>
-                  <Input
-                    id="supplier_invoice_no"
-                    value={billData.supplier_invoice_no}
-                    onChange={(e) => setBillData(prev => ({ ...prev, supplier_invoice_no: e.target.value }))}
-                  />
+              {/* Section 2: Supplier Details */}
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Section 2: Supplier Details</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label>Supplier Name</Label>
+                    <Input value={selectedPreEntry?.supplier_name || ''} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label>Broker Name</Label>
+                    <Input value={selectedPreEntry?.broker_name || 'N/A'} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label>Brokerage Type</Label>
+                    <Input value={selectedPreEntry?.brokerage_type || 'N/A'} disabled className="bg-gray-100" />
+                  </div>
+                  <div>
+                    <Label>Brokerage Rate</Label>
+                    <Input value={selectedPreEntry?.brokerage_rate || 'N/A'} disabled className="bg-gray-100" />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="supplier_invoice_date">Supplier Invoice Date</Label>
-                  <Input
-                    id="supplier_invoice_date"
-                    type="date"
-                    value={billData.supplier_invoice_date}
-                    onChange={(e) => setBillData(prev => ({ ...prev, supplier_invoice_date: e.target.value }))}
-                  />
-                </div>
-              </div>
+              </Card>
 
-              {/* Line Items */}
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-semibold">Line Items</h3>
-                  <Button onClick={addLineItem} size="sm">+ Add Item</Button>
-                </div>
+              {/* Section 3: Line Items with Auto Calculations */}
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Section 3: Line Items</h3>
                 
-                <div className="overflow-x-auto">
-                  <table className="w-full border border-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="border p-2 text-left">Item</th>
-                        <th className="border p-2 text-left">Bags</th>
-                        <th className="border p-2 text-left">Kgs</th>
-                        <th className="border p-2 text-left">Rate/Qtl</th>
-                        <th className="border p-2 text-left">Amount</th>
-                        <th className="border p-2 text-left">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {billData.line_items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="border p-2">
-                            <Select 
-                              value={item.item_id} 
-                              onValueChange={(value) => handleLineItemChange(index, 'item_id', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select item" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {items.map((itm) => (
-                                  <SelectItem key={itm.id} value={itm.id}>
-                                    {itm.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="border p-2">
-                            <Input
-                              type="number"
-                              value={item.bags}
-                              onChange={(e) => handleLineItemChange(index, 'bags', parseInt(e.target.value) || 0)}
-                            />
-                          </td>
-                          <td className="border p-2">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={item.kgs}
-                              onChange={(e) => handleLineItemChange(index, 'kgs', parseFloat(e.target.value) || 0)}
-                            />
-                          </td>
-                          <td className="border p-2">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={item.rate_per_qtl}
-                              onChange={(e) => handleLineItemChange(index, 'rate_per_qtl', parseFloat(e.target.value) || 0)}
-                            />
-                          </td>
-                          <td className="border p-2">
-                            <span className="font-semibold">₹{item.amount.toFixed(2)}</span>
-                          </td>
-                          <td className="border p-2">
-                            {billData.line_items.length > 1 && (
-                              <Button 
-                                size="sm" 
-                                variant="destructive"
-                                onClick={() => removeLineItem(index)}
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                {billData.line_items.map((item, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-lg mb-4">
+                    <h4 className="font-semibold">Item #{index + 1}</h4>
+                    
+                    {/* Row 1: Basic Item Details */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <Label>Item Name</Label>
+                        <Select 
+                          value={item.item_id} 
+                          onValueChange={(value) => handleLineItemChange(index, 'item_id', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select item" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {items.map((itm) => (
+                              <SelectItem key={itm.id} value={itm.id}>
+                                {itm.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Quality</Label>
+                        <Input
+                          value={item.quality}
+                          onChange={(e) => handleLineItemChange(index, 'quality', e.target.value)}
+                          placeholder="Quality type"
+                        />
+                      </div>
+                      <div>
+                        <Label>Pack Size (kg)</Label>
+                        <Input
+                          type="number"
+                          value={item.pack_size}
+                          onChange={(e) => handleLineItemChange(index, 'pack_size', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                    </div>
 
-              {/* Additional Charges */}
-              <div>
-                <h3 className="font-semibold mb-4">Additional Charges</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="freight">Freight</Label>
-                    <Input
-                      id="freight"
-                      type="number"
-                      step="0.01"
-                      value={billData.freight}
-                      onChange={(e) => setBillData(prev => ({ ...prev, freight: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="hamali_tulai">Hamali/Tulai</Label>
-                    <Input
-                      id="hamali_tulai"
-                      type="number"
-                      step="0.01"
-                      value={billData.hamali_tulai}
-                      onChange={(e) => setBillData(prev => ({ ...prev, hamali_tulai: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="aadat">Aadat</Label>
-                    <Input
-                      id="aadat"
-                      type="number"
-                      step="0.01"
-                      value={billData.aadat}
-                      onChange={(e) => setBillData(prev => ({ ...prev, aadat: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="mandi_cess">Mandi Cess</Label>
-                    <Input
-                      id="mandi_cess"
-                      type="number"
-                      step="0.01"
-                      value={billData.mandi_cess}
-                      onChange={(e) => setBillData(prev => ({ ...prev, mandi_cess: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="bank_charges">Bank Charges</Label>
-                    <Input
-                      id="bank_charges"
-                      type="number"
-                      step="0.01"
-                      value={billData.bank_charges}
-                      onChange={(e) => setBillData(prev => ({ ...prev, bank_charges: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="rounding">Rounding</Label>
-                    <Input
-                      id="rounding"
-                      type="number"
-                      step="0.01"
-                      value={billData.rounding}
-                      onChange={(e) => setBillData(prev => ({ ...prev, rounding: parseFloat(e.target.value) || 0 }))}
-                    />
-                  </div>
-                </div>
-              </div>
+                    {/* Row 2: Weight Calculations */}
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div>
+                        <Label>Bags (Auto)</Label>
+                        <Input
+                          value={item.bags}
+                          disabled
+                          className="bg-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label>Remaining Kg (Auto)</Label>
+                        <Input
+                          value={item.remaining_kg}
+                          disabled
+                          className="bg-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label>Actual Weight (Qtls)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.actual_weight}
+                          disabled
+                          className="bg-gray-100"
+                        />
+                      </div>
+                      <div>
+                        <Label>Agreed Weight (Qtls)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.agreed_weight}
+                          onChange={(e) => handleLineItemChange(index, 'agreed_weight', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Rate per Qtl</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.rate_per_qtl}
+                          onChange={(e) => handleLineItemChange(index, 'rate_per_qtl', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                    </div>
 
-              {/* Totals */}
-              <div className="border-t pt-4">
-                <div className="grid grid-cols-3 gap-4 text-right">
-                  <div></div>
-                  <div>
-                    <p>Subtotal: <span className="font-semibold">₹{subtotal.toFixed(2)}</span></p>
-                    <p>Total Charges: <span className="font-semibold">₹{totalCharges.toFixed(2)}</span></p>
-                    <p className="text-lg font-bold">Grand Total: <span className="text-green-600">₹{grandTotal.toFixed(2)}</span></p>
+                    {/* Row 3: Amount and Taxes */}
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                      <div>
+                        <Label>Amount (Auto)</Label>
+                        <Input
+                          value={`₹${item.amount.toFixed(2)}`}
+                          disabled
+                          className="bg-gray-100 font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <Label>CGST %</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.cgst_rate}
+                          onChange={(e) => handleLineItemChange(index, 'cgst_rate', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div>
+                        <Label>SGST %</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.sgst_rate}
+                          onChange={(e) => handleLineItemChange(index, 'sgst_rate', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div>
+                        <Label>IGST %</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.igst_rate}
+                          onChange={(e) => handleLineItemChange(index, 'igst_rate', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Tax Amount (Auto)</Label>
+                        <Input
+                          value={`₹${(item.cgst_amount + item.sgst_amount + item.igst_amount).toFixed(2)}`}
+                          disabled
+                          className="bg-gray-100 font-semibold"
+                        />
+                      </div>
+                      <div>
+                        <Label>Line Total (Auto)</Label>
+                        <Input
+                          value={`₹${(item.amount + item.cgst_amount + item.sgst_amount + item.igst_amount).toFixed(2)}`}
+                          disabled
+                          className="bg-green-100 font-bold text-green-800"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div></div>
+                ))}
+              </Card>
+
+              {/* Section 4: Adjustments */}
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Section 4: Adjustments</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label>Batav (Cash Discount %)</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={billData.batav_percentage}
+                      onChange={(e) => setBillData(prev => ({ ...prev, batav_percentage: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div>
+                    <Label>Batav Amount (Auto)</Label>
+                    <Input
+                      value={`₹${batavAmount.toFixed(2)}`}
+                      disabled
+                      className="bg-gray-100 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <Label>Claim Type</Label>
+                    <Select 
+                      value={billData.claim_type} 
+                      onValueChange={(value) => setBillData(prev => ({ ...prev, claim_type: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CLAIM_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Claim Rate {billData.claim_type === 'percentage' ? '(%)' : '(₹)'}</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={billData.claim_rate}
+                      onChange={(e) => setBillData(prev => ({ ...prev, claim_rate: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="mt-4">
+                  <Label>Claim Amount (Auto)</Label>
+                  <Input
+                    value={`₹${claimAmount.toFixed(2)}`}
+                    disabled
+                    className="bg-gray-100 font-semibold w-48"
+                  />
+                </div>
+              </Card>
+
+              {/* Totals Summary */}
+              <Card className="p-6 bg-blue-50">
+                <h3 className="text-xl font-semibold mb-4">Bill Summary</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <p className="text-sm text-gray-600">Line Items Total</p>
+                    <p className="text-lg font-semibold">₹{lineItemsTotal.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Tax</p>
+                    <p className="text-lg font-semibold">₹{totalTaxAmount.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Gross Amount</p>
+                    <p className="text-lg font-semibold">₹{grossAmount.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Total Deductions</p>
+                    <p className="text-lg font-semibold text-red-600">-₹{totalDeductions.toFixed(2)}</p>
+                  </div>
+                </div>
+                <div className="mt-4 text-center border-t pt-4">
+                  <p className="text-sm text-gray-600">Net Amount</p>
+                  <p className="text-3xl font-bold text-green-600">₹{netAmount.toFixed(2)}</p>
+                </div>
+              </Card>
 
               {/* Remarks */}
               <div>
@@ -774,7 +856,7 @@ function BillPurchasePage({ user, onLogout }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end space-x-4 pt-4 border-t">
                 <Button 
                   variant="outline" 
                   onClick={() => setShowBillModal(false)}
@@ -783,11 +865,19 @@ function BillPurchasePage({ user, onLogout }) {
                   Cancel
                 </Button>
                 <Button 
-                  onClick={handleCreateBill}
+                  variant="outline"
+                  onClick={() => handleCreateBill(true)}
+                  disabled={submitting}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                >
+                  {submitting ? 'Saving...' : 'Save Draft'}
+                </Button>
+                <Button 
+                  onClick={() => handleCreateBill(false)}
                   className="bg-green-600 hover:bg-green-700"
                   disabled={submitting}
                 >
-                  {submitting ? 'Creating...' : 'Create Bill'}
+                  {submitting ? 'Processing...' : 'Create & Post Bill'}
                 </Button>
               </div>
             </div>
