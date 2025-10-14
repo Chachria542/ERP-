@@ -326,8 +326,11 @@ function SupplierAutocomplete({
       )}
 
       {/* New Supplier Modal */}
-      <Dialog open={showNewSupplierModal} onOpenChange={setShowNewSupplierModal}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <Dialog open={showNewSupplierModal} onOpenChange={(open) => {
+        console.log('[SupplierAutocomplete] Modal state changing to:', open);
+        setShowNewSupplierModal(open);
+      }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" onPointerDownOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Create New Supplier</DialogTitle>
             <p className="text-sm text-gray-500 mt-1">* indicates required field</p>
