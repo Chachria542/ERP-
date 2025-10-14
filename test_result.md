@@ -831,7 +831,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Sales Pre-Entry Backend Endpoints"
     - "Sales Pre-Entry Frontend Page"
   stuck_tasks: []
   test_all: false
