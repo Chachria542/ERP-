@@ -426,22 +426,21 @@ function PreEntryPage({ user, onLogout }) {
             {transactionType === 'bill_purchase' ? (
               // Bill Purchase specific fields
               <div className="space-y-4">
-                {/* Supplier Selection */}
+                {/* Smart Supplier Selection */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-semibold">Supplier *</Label>
-                    <Select value={supplierId} onValueChange={handleSupplierChange}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Select supplier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {suppliers.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id}>
-                            {supplier.name} {supplier.gstin ? `(${supplier.gstin})` : ''}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <SupplierAutocomplete
+                      value={partyName}
+                      onSelect={(supplier) => {
+                        setSupplierId(supplier.id);
+                        setPartyName(supplier.name);
+                        setPartyGstin(supplier.gstin || '');
+                        setPlaceOfSupply(supplier.place_of_supply || '');
+                      }}
+                      placeholder="Type supplier name..."
+                      className="mt-1"
+                    />
                   </div>
                   <div>
                     <Label className="text-sm font-semibold">Supplier GSTIN</Label>
