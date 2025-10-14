@@ -307,11 +307,14 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
             "https://via.placeholder.com/800x600.png?text=Tare+Weight"
         ]
         
+        # Determine transaction type based on slip format
+        transaction_type = TransactionType.BILL_PURCHASE if is_bill_purchase else TransactionType(pre_entry['transaction_type'])
+        
         # Create weighbridge entry
         wb_entry = WeighbridgeEntry(
             pre_entry_id=pre_entry['id'],
             slip_id=entry_data.slip_id,
-            transaction_type=TransactionType(pre_entry['transaction_type']),
+            transaction_type=transaction_type,
             vehicle_number=entry_data.vehicle_number,
             vehicle_type=entry_data.vehicle_type,
             driver_name=entry_data.driver_name,
