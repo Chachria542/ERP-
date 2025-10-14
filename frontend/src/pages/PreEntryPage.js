@@ -421,49 +421,202 @@ function PreEntryPage({ user, onLogout }) {
             <h4 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
               {partyType === 'farmer' ? 'Farmer' : partyType === 'trader' ? 'Supplier' : 'Buyer'} Details
             </h4>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label className="text-sm font-semibold">Name *</Label>
-                <Input
-                  value={partyName}
-                  onChange={(e) => setPartyName(e.target.value)}
-                  placeholder="Party name"
-                  className="mt-1"
-                  required
-                />
-              </div>
-              {(partyType === 'farmer' || transactionType === 'sale') && (
-                <div>
-                  <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      value={partyMobile}
-                      onChange={(e) => {
-                        setPartyMobile(e.target.value);
-                        setOtpVerified(false); // Reset verification on mobile change
-                      }}
-                      placeholder="10-digit mobile"
-                      maxLength={10}
-                      className="flex-1"
-                      required={partyType === 'farmer'}
-                    />
-                    {partyType === 'farmer' && partyMobile.length === 10 && (
-                      <Button
-                        type="button"
-                        onClick={handleCheckAndSendOTP}
-                        disabled={otpVerified || otpLoading}
-                        className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
-                      >
-                        {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
-                      </Button>
-                    )}
+            
+            {transactionType === 'bill_purchase' ? (
+              // Bill Purchase specific fields
+              <div className="space-y-4">
+                {/* Supplier Selection */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-semibold">Supplier *</Label>
+                    <Select value={supplierId} onValueChange={handleSupplierChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {suppliers.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.name} {supplier.gstin ? `(${supplier.gstin})` : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  {otpVerified && (
-                    <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
+                  <div>
+                    <Label className="text-sm font-semibold">Supplier GSTIN</Label>
+                    <Input
+                      value={partyGstin}
+                      onChange={(e) => setPartyGstin(e.target.value)}
+                      placeholder="Auto-filled from supplier"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-semibold">Place of Supply *</Label>
+                    <Input
+                      value={placeOfSupply}
+                      onChange={(e) => setPlaceOfSupply(e.target.value)}
+                      placeholder="e.g., Mumbai, Maharashtra"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold">E-Way Bill No.</Label>
+                    <Input
+                      value={ewayBillNo}
+                      onChange={(e) => setEwayBillNo(e.target.value)}
+                      placeholder="Optional"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Broker Section */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="has_broker"
+                      checked={hasBroker}
+                      onCheckedChange={setHasBroker}
+                    />
+                    <Label htmlFor="has_broker">Has Broker</Label>
+                  </div>
+
+                  {hasBroker && (
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold">Broker Name *</Label>
+                        <Input
+                          value={brokerName}
+                          onChange={(e) => setBrokerName(e.target.value)}
+                          className="mt-1"
+                          required={hasBroker}
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-semibold">Brokerage Type</Label>
+                        <Select value={brokerageType} onValueChange={setBrokerageType}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BROKERAGE_TYPES.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {brokerageType !== 'none' && (
+                        <div>
+                          <Label className="text-sm font-semibold">
+                            Brokerage Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
+                          </Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={brokerageRate}
+                            onChange={(e) => setBrokerageRate(e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-              {transactionType === 'bill_purchase' && (
+
+                {/* Expected Quantity */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h5 className="font-medium">Expected Quantity (Optional)</h5>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Bags</Label>
+                      <Input
+                        type="number"
+                        value={expectedQuantityBags}
+                        onChange={(e) => setExpectedQuantityBags(e.target.value)}
+                        placeholder="e.g., 100"
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-semibold">Kgs</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={expectedQuantityKgs}
+                        onChange={(e) => setExpectedQuantityKgs(e.target.value)}
+                        placeholder="e.g., 10000"
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-semibold">Quintals</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={expectedQuantityQtls}
+                        onChange={(e) => setExpectedQuantityQtls(e.target.value)}
+                        placeholder="e.g., 100"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Farmer Purchase fields (existing logic)
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold">Name *</Label>
+                  <Input
+                    value={partyName}
+                    onChange={(e) => setPartyName(e.target.value)}
+                    placeholder="Party name"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                {(partyType === 'farmer' || transactionType === 'sale') && (
+                  <div>
+                    <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        value={partyMobile}
+                        onChange={(e) => {
+                          setPartyMobile(e.target.value);
+                          setOtpVerified(false); // Reset verification on mobile change
+                        }}
+                        placeholder="10-digit mobile"
+                        maxLength={10}
+                        className="flex-1"
+                        required={partyType === 'farmer'}
+                      />
+                      {partyType === 'farmer' && partyMobile.length === 10 && (
+                        <Button
+                          type="button"
+                          onClick={handleCheckAndSendOTP}
+                          disabled={otpVerified || otpLoading}
+                          className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
+                        >
+                          {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
+                        </Button>
+                      )}
+                    </div>
+                    {otpVerified && (
+                      <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <Label className="text-sm font-semibold">GSTIN</Label>
                   <Input
@@ -473,8 +626,8 @@ function PreEntryPage({ user, onLogout }) {
                     className="mt-1"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
