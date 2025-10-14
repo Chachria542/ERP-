@@ -172,24 +172,38 @@ function BillPurchasePage({ user, onLogout }) {
       remaining_kg: 0, // Will be auto-calculated
       actual_weight: weighbridgeData?.act_qtl || 0,
       agreed_weight: weighbridgeData?.act_qtl || 0,
-      rate_per_qtl: 0,
+      rate_per_qtl: '',
       amount: 0,
-      cgst_rate: 0,
-      sgst_rate: 0,
-      igst_rate: 0,
+      cgst_rate: '',
+      sgst_rate: '',
+      igst_rate: '',
       cgst_amount: 0,
       sgst_amount: 0,
       igst_amount: 0,
       sort_order: 1
     };
     
+    // Auto-populate broker details from pre-entry (editable)
+    const hasBroker = selectedPreEntry?.has_broker || false;
+    const brokerName = selectedPreEntry?.broker_name || '';
+    const brokerageType = selectedPreEntry?.brokerage_type || 'per_quintal';
+    const brokerageRate = selectedPreEntry?.brokerage_rate || '';
+    
     setBillData({
       bill_date: new Date().toISOString().split('T')[0],
       bill_type: 'purchase',
+      
+      // Broker details (editable)
+      has_broker: hasBroker,
+      broker_id: '',
+      broker_name: brokerName,
+      brokerage_type: brokerageType,
+      brokerage_rate: brokerageRate,
+      
       line_items: [initialLineItem],
-      batav_percentage: 0,
+      batav_percentage: '',
       claim_type: 'flat',
-      claim_rate: 0,
+      claim_rate: '',
       remarks: ''
     });
     
