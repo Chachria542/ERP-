@@ -235,16 +235,22 @@ class BillPurchase(BaseModel):
     updated_at: Optional[datetime] = None
 
 class BillPurchaseCreate(BaseModel):
+    # Section 1: Bill Details
+    bill_date: str
+    bill_type: str  # "entry" or "purchase"
+    
+    # Reference
     pre_entry_id: str
-    supplier_invoice_no: Optional[str] = None
-    supplier_invoice_date: Optional[str] = None
+    
+    # Section 3: Line Items
     line_items: List[BillPurchaseLineItem] = Field(default_factory=list)
-    freight: float = 0.0
-    hamali_tulai: float = 0.0
-    aadat: float = 0.0
-    mandi_cess: float = 0.0
-    bank_charges: float = 0.0
-    rounding: float = 0.0
+    
+    # Section 4: Adjustments
+    batav_percentage: float = 0.0
+    claim_type: str = "flat"  # "flat" or "percentage"
+    claim_rate: float = 0.0
+    
+    # Additional
     remarks: Optional[str] = None
     created_by: str
 
