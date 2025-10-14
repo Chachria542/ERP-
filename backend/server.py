@@ -38,6 +38,10 @@ init_otp_db(db)
 from bill_purchase_endpoints import router as bill_purchase_router, init_db as init_bill_purchase_db
 init_bill_purchase_db(db)
 
+# Import broker endpoints and initialize with db
+from broker_endpoints import router as broker_router, init_db as init_broker_db
+init_broker_db(db)
+
 # Create the main app
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
