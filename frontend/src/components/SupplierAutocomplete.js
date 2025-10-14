@@ -17,6 +17,8 @@ function SupplierAutocomplete({
   className = "",
   disabled = false 
 }) {
+  console.log('[SupplierAutocomplete] Component mounted/rendered');
+  
   const [inputValue, setInputValue] = useState(value || '');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
