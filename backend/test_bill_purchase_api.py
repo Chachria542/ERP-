@@ -7,7 +7,7 @@ import json
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://grain-erp-trading.preview.emergentagent.com/api"
+BASE_URL = "https://erpsupply-chain.preview.emergentagent.com/api"
 
 def test_create_supplier():
     """Test creating a supplier party"""

@@ -10,7 +10,7 @@ import time
 from datetime import datetime, timezone, timedelta
 
 # Backend URL from frontend/.env
-BASE_URL = "https://grain-erp-trading.preview.emergentagent.com/api"
+BASE_URL = "https://erpsupply-chain.preview.emergentagent.com/api"
 
 class OTPFarmerIntegrationTester:
     def __init__(self):
