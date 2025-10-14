@@ -136,6 +136,31 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  const fetchSuppliers = async () => {
+    try {
+      const response = await axios.get(`${API}/suppliers`);
+      setSuppliers(response.data);
+    } catch (error) {
+      toast.error('Failed to load suppliers');
+    }
+  };
+
+  useEffect(() => {
+    if (transactionType === 'bill_purchase') {
+      fetchSuppliers();
+    }
+  }, [transactionType]);
+
+  const handleSupplierChange = (selectedSupplierId) => {
+    setSupplierId(selectedSupplierId);
+    const supplier = suppliers.find(s => s.id === selectedSupplierId);
+    if (supplier) {
+      setPartyName(supplier.name);
+      setPartyGstin(supplier.gstin || '');
+      setPlaceOfSupply(supplier.place_of_supply || '');
+    }
+  };
+
   // OTP Verification Functions
   const handleCheckAndSendOTP = async () => {
     if (!partyMobile || partyMobile.length !== 10) {
