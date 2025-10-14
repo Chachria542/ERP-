@@ -179,6 +179,9 @@ function SupplierAutocomplete({
       }
 
       console.log('[SupplierAutocomplete] Validation passed. Sending API request...');
+      console.log('[SupplierAutocomplete] Request URL:', `${API}/suppliers/quick-create`);
+      console.log('[SupplierAutocomplete] Request payload:', JSON.stringify(newSupplierData, null, 2));
+      
       const response = await axios.post(`${API}/suppliers/quick-create`, newSupplierData);
       console.log('[SupplierAutocomplete] API response received:', response.data);
       
