@@ -200,19 +200,51 @@ async def create_pre_entry_with_farmer_update(entry_data: PreEntryCreate, confir
     # Create pre-entry (will not return conflict now)
     return await create_pre_entry(entry_data)
 
-@router.get("/pre-entry/{slip_id}", response_model=PreEntry)
-async def get_pre_entry(slip_id: str):
-    """Fetch pre-entry by slip ID"""
-    entry = await db.pre_entries.find_one({"slip_id": slip_id}, {"_id": 0})
-    
-    if not entry:
-        raise HTTPException(status_code=404, detail="Pre-entry not found")
-    
-    # Convert datetime strings back
-    if isinstance(entry.get('created_at'), str):
-        entry['created_at'] = datetime.fromisoformat(entry['created_at'])
-    
-    return entry
+@router.get("/pre-entry/{slip_id}")
+async def get_pre_entry_universal(slip_id: str):
+    """
+    Universal pre-entry lookup by slip ID.
+    Handles both farmer purchase (WB-XX-XXXXXX) and bill purchase (BPRE-XX-XXXXXX) pre-entries.
+    """
+    # Check if it's a bill purchase pre-entry (starts with BPRE)
+    if slip_id.startswith("BPRE-"):
+        entry = await db.bill_purchase_pre_entries.find_one({"pre_entry_number": slip_id}, {"_id": 0})
+        
+        if not entry:
+            raise HTTPException(status_code=404, detail="Bill purchase pre-entry not found")
+        
+        # Convert to universal format for weighbridge
+        return {
+            "id": entry['id'],
+            "slip_id": entry['slip_id'],  # Same as pre_entry_number for bill purchase
+            "transaction_type": "bill_purchase",
+            "party_name": entry['supplier_name'],
+            "party_mobile": None,  # Suppliers don't have mobile in bill purchase
+            "party_gstin": entry.get('supplier_gstin'),
+            "item_id": entry.get('item_id'),
+            "item_name": entry.get('item_name'),
+            "from_location": "Warehouse",  # Default for bill purchase
+            "to_location": None,
+            "status": entry['status'],
+            "created_at": entry['created_at'],
+            "created_by": entry['created_by'],
+            "eway_bill_no": entry.get('eway_bill_no'),
+            "place_of_supply": entry['place_of_supply'],
+            "has_broker": entry['has_broker'],
+            "broker_name": entry.get('broker_name')
+        }
+    else:
+        # Regular farmer purchase pre-entry
+        entry = await db.pre_entries.find_one({"slip_id": slip_id}, {"_id": 0})
+        
+        if not entry:
+            raise HTTPException(status_code=404, detail="Pre-entry not found")
+        
+        # Convert datetime strings back
+        if isinstance(entry.get('created_at'), str):
+            entry['created_at'] = datetime.fromisoformat(entry['created_at'])
+        
+        return entry
 
 @router.get("/pre-entries", response_model=List[PreEntry])
 async def get_pre_entries(status: Optional[str] = None, transaction_type: Optional[str] = None):
