@@ -212,14 +212,22 @@ function SupplierAutocomplete({
       console.error('[SupplierAutocomplete] Error details:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        statusText: error.response?.statusText
       });
       
+      // Show detailed error message
+      let errorMessage = 'Failed to create supplier';
       if (error.response?.data?.detail) {
-        toast.error(error.response.data.detail);
-      } else {
-        toast.error('Failed to create supplier. Check console for details.');
+        errorMessage = error.response.data.detail;
+        console.error('[SupplierAutocomplete] Backend error message:', error.response.data.detail);
+      } else if (error.response?.status === 400) {
+        errorMessage = 'Invalid data format. Check console for details.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
+      
+      toast.error(errorMessage);
     }
   };
 
