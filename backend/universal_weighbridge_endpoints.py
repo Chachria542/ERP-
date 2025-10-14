@@ -383,8 +383,22 @@ async def get_weighbridge_entry(slip_id: str):
     if not wb_entry:
         raise HTTPException(status_code=404, detail="Weighbridge entry not found")
     
-    # Fetch linked pre-entry
-    pre_entry = await db.pre_entries.find_one({"slip_id": slip_id}, {"_id": 0})
+    # Fetch linked pre-entry (check both collections)
+    pre_entry = None
+    if slip_id.startswith("BPRE-"):
+        pre_entry = await db.bill_purchase_pre_entries.find_one({"pre_entry_number": slip_id}, {"_id": 0})
+        if pre_entry:
+            # Convert to universal format
+            pre_entry = {
+                "party_name": pre_entry['supplier_name'],
+                "party_mobile": None,
+                "party_gstin": pre_entry.get('supplier_gstin'),
+                "transaction_type": "bill_purchase",
+                "eway_bill_no": pre_entry.get('eway_bill_no'),
+                "place_of_supply": pre_entry['place_of_supply']
+            }
+    else:
+        pre_entry = await db.pre_entries.find_one({"slip_id": slip_id}, {"_id": 0})
     
     # Combine data for auto-fill
     combined = {
