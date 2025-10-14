@@ -374,7 +374,7 @@ async def get_bill_purchase_queue(
 
 @router.post("/bill-purchase", response_model=BillPurchase)
 async def create_bill_purchase(bill_data: BillPurchaseCreate):
-    """Create bill purchase after photo approval"""
+    """Create bill purchase after photo approval with new comprehensive structure"""
     try:
         # Get pre-entry
         pre_entry = await db.bill_purchase_pre_entries.find_one({"id": bill_data.pre_entry_id})
@@ -395,40 +395,82 @@ async def create_bill_purchase(bill_data: BillPurchaseCreate):
         if not weighbridge_entry:
             raise HTTPException(status_code=404, detail="Weighbridge entry not found")
         
-        # Calculate brokerage if applicable
-        total_bags = sum(item.bags for item in bill_data.line_items)
-        total_qtls = sum(item.kgs / 100 for item in bill_data.line_items)
-        subtotal = sum(item.amount for item in bill_data.line_items)
+        # Generate bill number
+        bill_number = generate_bill_number()
         
+        # Calculate brokerage if applicable
         brokerage_amount = 0.0
         if pre_entry['has_broker'] and pre_entry.get('brokerage_rate'):
+            # Calculate based on line items total
+            line_items_total = sum(item.amount for item in bill_data.line_items)
+            total_bags = sum(item.bags for item in bill_data.line_items)
+            total_qtls = sum(item.agreed_weight for item in bill_data.line_items)
+            
             brokerage_amount = calculate_brokerage_amount(
                 pre_entry['brokerage_type'],
                 pre_entry['brokerage_rate'],
                 total_bags,
                 total_qtls,
-                subtotal
+                line_items_total
             )
         
-        # Calculate totals
-        totals = calculate_bill_totals(
-            bill_data.line_items,
-            bill_data.freight,
-            bill_data.hamali_tulai,
-            bill_data.aadat,
-            bill_data.mandi_cess,
-            bill_data.bank_charges,
-            bill_data.rounding,
-            brokerage_amount
+        # Process line items to ensure all calculations are correct
+        processed_line_items = []
+        for item in bill_data.line_items:
+            # Recalculate bags and remaining kg based on agreed weight and pack size
+            bags, remaining_kg = calculate_bags_and_remaining(item.agreed_weight, item.pack_size)
+            
+            # Calculate item amount
+            amount = round(item.agreed_weight * item.rate_per_qtl, 2)
+            
+            # Calculate taxes for this line item
+            tax_calcs = calculate_line_item_taxes(
+                amount, item.cgst_rate, item.sgst_rate, item.igst_rate
+            )
+            
+            processed_item = BillPurchaseLineItem(
+                item_id=item.item_id,
+                item_name=item.item_name,
+                quality=item.quality,
+                pack_size=item.pack_size,
+                bags=bags,
+                remaining_kg=remaining_kg,
+                actual_weight=item.actual_weight,
+                agreed_weight=item.agreed_weight,
+                rate_per_qtl=item.rate_per_qtl,
+                amount=amount,
+                cgst_rate=item.cgst_rate,
+                sgst_rate=item.sgst_rate,
+                igst_rate=item.igst_rate,
+                cgst_amount=tax_calcs['cgst_amount'],
+                sgst_amount=tax_calcs['sgst_amount'],
+                igst_amount=tax_calcs['igst_amount'],
+                sort_order=item.sort_order
+            )
+            processed_line_items.append(processed_item)
+        
+        # Calculate comprehensive totals
+        totals = calculate_bill_totals_new(
+            processed_line_items,
+            bill_data.batav_percentage,
+            bill_data.claim_type,
+            bill_data.claim_rate
         )
         
-        # Create bill purchase
+        # Create bill purchase with new structure
         bill_purchase = BillPurchase(
+            # Section 1: Bill Details
+            bill_date=bill_data.bill_date,
+            bill_number=bill_number,
+            bill_type=bill_data.bill_type,
+            vehicle_number=weighbridge_entry['vehicle_number'],
+            
+            # References
             pre_entry_id=bill_data.pre_entry_id,
             pre_entry_number=pre_entry['pre_entry_number'],
             weighbridge_slip_id=weighbridge_entry['slip_id'],
-            supplier_invoice_no=bill_data.supplier_invoice_no,
-            supplier_invoice_date=bill_data.supplier_invoice_date,
+            
+            # Section 2: Supplier Details
             supplier_id=pre_entry['supplier_id'],
             supplier_name=pre_entry['supplier_name'],
             supplier_gstin=pre_entry.get('supplier_gstin'),
@@ -438,16 +480,25 @@ async def create_bill_purchase(bill_data: BillPurchaseCreate):
             brokerage_type=pre_entry.get('brokerage_type'),
             brokerage_rate=pre_entry.get('brokerage_rate'),
             brokerage_amount=brokerage_amount,
-            line_items=bill_data.line_items,
-            freight=bill_data.freight,
-            hamali_tulai=bill_data.hamali_tulai,
-            aadat=bill_data.aadat,
-            mandi_cess=bill_data.mandi_cess,
-            bank_charges=bill_data.bank_charges,
-            rounding=bill_data.rounding,
-            subtotal=totals['subtotal'],
-            total_charges=totals['total_charges'],
-            grand_total=totals['grand_total'],
+            
+            # Section 3: Line Items
+            line_items=processed_line_items,
+            
+            # Section 4: Adjustments
+            batav_percentage=bill_data.batav_percentage,
+            batav_amount=totals['batav_amount'],
+            claim_type=bill_data.claim_type,
+            claim_rate=bill_data.claim_rate,
+            claim_amount=totals['claim_amount'],
+            
+            # Totals
+            line_items_total=totals['line_items_total'],
+            total_tax_amount=totals['total_tax_amount'],
+            gross_amount=totals['gross_amount'],
+            total_deductions=totals['total_deductions'],
+            net_amount=totals['net_amount'],
+            
+            # Additional
             eway_bill_no=pre_entry.get('eway_bill_no'),
             remarks=bill_data.remarks,
             created_by=bill_data.created_by
@@ -458,6 +509,8 @@ async def create_bill_purchase(bill_data: BillPurchaseCreate):
         doc['created_at'] = doc['created_at'].isoformat()
         if doc.get('updated_at'):
             doc['updated_at'] = doc['updated_at'].isoformat()
+        if doc.get('posted_at'):
+            doc['posted_at'] = doc['posted_at'].isoformat()
         
         await db.bill_purchases.insert_one(doc)
         
