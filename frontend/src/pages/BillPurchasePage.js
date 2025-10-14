@@ -258,10 +258,20 @@ function BillPurchasePage({ user, onLogout }) {
         {
           item_id: '',
           item_name: '',
+          quality: '',
+          pack_size: 100,
           bags: 0,
-          kgs: 0,
+          remaining_kg: 0,
+          actual_weight: 0,
+          agreed_weight: 0,
           rate_per_qtl: 0,
           amount: 0,
+          cgst_rate: 0,
+          sgst_rate: 0,
+          igst_rate: 0,
+          cgst_amount: 0,
+          sgst_amount: 0,
+          igst_amount: 0,
           sort_order: prev.line_items.length + 1
         }
       ]
