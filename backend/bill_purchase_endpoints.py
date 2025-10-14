@@ -275,10 +275,16 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
         
         # Get item details if item_id provided
         item_name = None
+        item_rate = pre_entry_data.item_rate  # Use provided rate or fetch from item
+        
         if pre_entry_data.item_id:
             item = await db.items.find_one({"id": pre_entry_data.item_id})
             if item:
                 item_name = item['name']
+                # Auto-fill rate from item master if not provided in request
+                if item_rate is None:
+                    item_rate = item.get('rate', 0.0)
+                    print(f"[BACKEND] Auto-filled rate {item_rate} from item {item_name}")
         
         # Check duplicate supplier + e-way bill combination
         if pre_entry_data.eway_bill_no:
