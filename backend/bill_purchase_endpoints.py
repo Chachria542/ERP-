@@ -125,10 +125,14 @@ def calculate_similarity(str1: str, str2: str) -> float:
 @router.post("/suppliers/quick-create", response_model=PartyExtended)
 async def quick_create_supplier(supplier_data: dict):
     """Quick supplier creation from pre-entry context"""
+    print(f"[BACKEND] Received supplier data: {supplier_data}")
+    
     # Validate required fields
     required_fields = ['name', 'place_of_supply', 'gstin', 'contact']
     for field in required_fields:
         if not supplier_data.get(field):
+            print(f"[BACKEND] Missing required field: {field}")
+            print(f"[BACKEND] Available fields: {list(supplier_data.keys())}")
             raise HTTPException(status_code=400, detail=f"{field} is required")
     
     # Check for duplicate GSTIN
