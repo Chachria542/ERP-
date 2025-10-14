@@ -158,29 +158,38 @@ function SupplierAutocomplete({
 
   // Handle new supplier creation
   const handleCreateNewSupplier = async () => {
+    console.log('[SupplierAutocomplete] handleCreateNewSupplier called');
+    console.log('[SupplierAutocomplete] Current supplier data:', JSON.stringify(newSupplierData, null, 2));
+    
     try {
-      console.log('Creating new supplier with data:', newSupplierData);
+      // Validate required fields
+      const missingFields = [];
+      if (!newSupplierData.name?.trim()) missingFields.push('Name');
+      if (!newSupplierData.gstin?.trim()) missingFields.push('GSTIN');
+      if (!newSupplierData.place_of_supply?.trim()) missingFields.push('Place of Supply');
+      if (!newSupplierData.contact?.trim()) missingFields.push('Mobile Number');
       
-      if (!newSupplierData.name || !newSupplierData.gstin || 
-          !newSupplierData.place_of_supply || !newSupplierData.contact) {
-        toast.error('Please fill all required fields: Name, GSTIN, Place of Supply, and Mobile Number');
-        console.error('Validation failed - missing required fields:', {
-          name: !!newSupplierData.name,
-          gstin: !!newSupplierData.gstin,
-          place_of_supply: !!newSupplierData.place_of_supply,
-          contact: !!newSupplierData.contact
-        });
+      if (missingFields.length > 0) {
+        const errorMsg = `Please fill all required fields: ${missingFields.join(', ')}`;
+        console.error('[SupplierAutocomplete] Validation failed. Missing fields:', missingFields);
+        toast.error(errorMsg);
         return;
       }
 
-      console.log('Sending API request to create supplier...');
+      console.log('[SupplierAutocomplete] Validation passed. Sending API request...');
       const response = await axios.post(`${API}/suppliers/quick-create`, newSupplierData);
+      console.log('[SupplierAutocomplete] API response received:', response.data);
       
       toast.success('New supplier created successfully!');
+      
+      console.log('[SupplierAutocomplete] Calling handleSelectSupplier with new supplier data');
       handleSelectSupplier(response.data);
+      
+      console.log('[SupplierAutocomplete] Closing modal');
       setShowNewSupplierModal(false);
       
       // Reset form
+      console.log('[SupplierAutocomplete] Resetting form data');
       setNewSupplierData({
         name: '',
         gstin: '',
@@ -191,12 +200,20 @@ function SupplierAutocomplete({
         pan: ''
       });
       
+      console.log('[SupplierAutocomplete] Supplier creation completed successfully');
+      
     } catch (error) {
-      console.error('Error creating supplier:', error);
+      console.error('[SupplierAutocomplete] Error creating supplier:', error);
+      console.error('[SupplierAutocomplete] Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
       if (error.response?.data?.detail) {
         toast.error(error.response.data.detail);
       } else {
-        toast.error('Failed to create supplier');
+        toast.error('Failed to create supplier. Check console for details.');
       }
     }
   };
