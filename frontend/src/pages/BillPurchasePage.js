@@ -463,7 +463,7 @@ function BillPurchasePage({ user, onLogout }) {
               <div className="flex gap-2">
                 <Input
                   id="search"
-                  placeholder="Pre-entry number, supplier name, or E-Way bill..."
+                  placeholder="Search by pre-entry number or supplier name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
