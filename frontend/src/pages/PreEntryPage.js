@@ -292,6 +292,7 @@ function PreEntryPage({ user, onLogout }) {
           supplier_gstin: partyGstin,
           place_of_supply: placeOfSupply,
           item_id: itemId,
+          item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
           has_broker: hasBroker,
           broker_name: brokerName || null,
           brokerage_type: brokerageType !== 'none' ? brokerageType : null,
