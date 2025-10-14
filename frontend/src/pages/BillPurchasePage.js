@@ -173,27 +173,75 @@ function BillPurchasePage({ user, onLogout }) {
     }
   };
 
+  // Helper function to calculate bags and remaining kg
+  const calculateBagsAndRemaining = (totalWeightQtl, packSizeKg) => {
+    const totalWeightKg = totalWeightQtl * 100;
+    const bags = Math.floor(totalWeightKg / packSizeKg);
+    const remainingKg = Math.round((totalWeightKg % packSizeKg) * 100) / 100;
+    return { bags, remainingKg };
+  };
+
+  // Helper function to calculate tax amounts
+  const calculateTaxAmounts = (amount, cgstRate, sgstRate, igstRate) => {
+    const cgstAmount = cgstRate > 0 ? Math.round((amount * cgstRate / 100) * 100) / 100 : 0;
+    const sgstAmount = sgstRate > 0 ? Math.round((amount * sgstRate / 100) * 100) / 100 : 0;
+    const igstAmount = igstRate > 0 ? Math.round((amount * igstRate / 100) * 100) / 100 : 0;
+    
+    return { cgstAmount, sgstAmount, igstAmount };
+  };
+
   const handleLineItemChange = (index, field, value) => {
     setBillData(prev => {
       const newLineItems = [...prev.line_items];
-      newLineItems[index] = {
-        ...newLineItems[index],
-        [field]: value
-      };
+      const item = { ...newLineItems[index] };
       
-      // Auto-calculate amount when rate or kgs changes
-      if (field === 'rate_per_qtl' || field === 'kgs') {
-        const qtls = newLineItems[index].kgs / 100;
-        newLineItems[index].amount = qtls * newLineItems[index].rate_per_qtl;
-      }
+      // Update the field
+      item[field] = value;
       
       // Auto-fill item name when item is selected
       if (field === 'item_id') {
-        const selectedItem = items.find(item => item.id === value);
+        const selectedItem = items.find(itm => itm.id === value);
         if (selectedItem) {
-          newLineItems[index].item_name = selectedItem.name;
+          item.item_name = selectedItem.name;
         }
       }
+      
+      // Recalculate bags and remaining kg when pack size or agreed weight changes
+      if (field === 'pack_size' || field === 'agreed_weight') {
+        if (item.pack_size > 0 && item.agreed_weight > 0) {
+          const { bags, remainingKg } = calculateBagsAndRemaining(item.agreed_weight, item.pack_size);
+          item.bags = bags;
+          item.remaining_kg = remainingKg;
+        }
+      }
+      
+      // Recalculate amount when agreed weight or rate changes
+      if (field === 'agreed_weight' || field === 'rate_per_qtl') {
+        item.amount = Math.round(item.agreed_weight * item.rate_per_qtl * 100) / 100;
+      }
+      
+      // Recalculate taxes when amount or tax rates change
+      if (field === 'amount' || field === 'cgst_rate' || field === 'sgst_rate' || field === 'igst_rate') {
+        const { cgstAmount, sgstAmount, igstAmount } = calculateTaxAmounts(
+          item.amount, item.cgst_rate, item.sgst_rate, item.igst_rate
+        );
+        item.cgst_amount = cgstAmount;
+        item.sgst_amount = sgstAmount;
+        item.igst_amount = igstAmount;
+      }
+      
+      // Ensure mutual exclusion for CGST+SGST vs IGST
+      if (field === 'igst_rate' && value > 0) {
+        item.cgst_rate = 0;
+        item.sgst_rate = 0;
+        item.cgst_amount = 0;
+        item.sgst_amount = 0;
+      } else if ((field === 'cgst_rate' || field === 'sgst_rate') && value > 0) {
+        item.igst_rate = 0;
+        item.igst_amount = 0;
+      }
+      
+      newLineItems[index] = item;
       
       return {
         ...prev,
