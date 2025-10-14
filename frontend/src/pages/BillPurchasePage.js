@@ -35,7 +35,6 @@ const BROKERAGE_TYPES = [
 function BillPurchasePage({ user, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [items, setItems] = useState([]);
-  const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('pending');
