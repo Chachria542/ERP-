@@ -67,7 +67,17 @@ function BillPurchasePage({ user, onLogout }) {
   useEffect(() => {
     fetchQueue();
     fetchItems();
+    fetchBrokers();
   }, [statusFilter]);
+
+  const fetchBrokers = async () => {
+    try {
+      const response = await axios.get(`${API}/brokers`);
+      setBrokers(response.data);
+    } catch (error) {
+      console.error('Error fetching brokers:', error);
+    }
+  };
 
   const fetchQueue = async () => {
     try {
