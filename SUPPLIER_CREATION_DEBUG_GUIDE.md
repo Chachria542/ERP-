@@ -45,7 +45,16 @@ Comprehensive debug logs have been added throughout the supplier creation flow. 
 - Mobile number field now automatically strips non-numeric characters
 - Detailed console logs show validation results
 
-## How to Test
+## Quick Button Test
+
+**First, test if buttons work in isolation:**
+1. Open in browser: `http://localhost:3000/test-button.html`
+2. Fill in the 4 required fields
+3. Click "Create Supplier"
+4. Check if the button click is logged
+5. If this works, the issue is in the React component integration
+
+## How to Test in the App
 
 ### Step 1: Navigate to Pre-Entry
 1. Login to the application
