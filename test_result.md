@@ -797,7 +797,96 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+backend:
+  - task: "Sales Pre-Entry Backend Endpoints"
+    implemented: true
+    working: true
+    file: "backend/sales_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Sales Pre-Entry backend endpoint created (POST /api/sales/pre-entry). Includes order auto-fetch, customer details, item/marka, bharti (pack size), expected quantities, broker details, location (godown/mandi), and pre-entry number generation (SPRE-YY-######). Backend models complete in sales_models.py. Needs testing to verify pre-entry creation, sequential numbering, and data validation."
+
+frontend:
+  - task: "Sales Pre-Entry Frontend Page"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/SalesPreEntryPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Complete Sales Pre-Entry form implemented with all required sections: Order Number (optional), Customer Details (dropdown with auto-fill GSTIN/Place of Supply), Location (Godown/Mandi toggle), Item Details (item selection with rate auto-fill, marka memory per item, bharti/pack size dropdown), Expected Quantity (bags/kgs), Broker Details (using BrokerAutocomplete component), and Remarks. Form validation and API integration complete. Customer dropdown was initially empty - added 5 test customers to database. Page now accessible after login and displays correctly with all form sections. Needs full end-to-end testing."
+
+metadata:
+  test_sequence: 5
+
+test_plan:
+  current_focus:
+    - "Sales Pre-Entry Backend Endpoints"
+    - "Sales Pre-Entry Frontend Page"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
 agent_communication:
+  - agent: "main"
+    message: |
+      🔧 **SALES MODULE PHASE 1 & 2 IMPLEMENTATION STATUS**
+      
+      **What was implemented:**
+      1. **Backend Foundation (Phase 1):** 
+         - Created sales_models.py with SalesPreEntry, SalesInvoice, SalesReturn, MarkaMemory models
+         - Created sales_endpoints.py with Sales Pre-Entry creation endpoint (POST /api/sales/pre-entry)
+         - Integrated sales_router into server.py and initialized MongoDB collections
+         - Pre-entry number generation in format SPRE-YY-######
+      
+      2. **Frontend Sales Pre-Entry Page (Phase 2):**
+         - Created SalesPreEntryPage.js with complete form including:
+           * Order Number (optional, for future order integration)
+           * Customer Details section with customer dropdown and auto-fill
+           * Location selection (Godown/Mandi) with optional location name
+           * Item Details with item selection, rate auto-fill, marka memory, bharti (pack size) dropdown
+           * Expected Quantity (optional bags/kgs)
+           * Broker Details with BrokerAutocomplete component
+           * Remarks textarea
+         - Added route /sales-pre-entry to App.js
+         - Added "Sales Pre-Entry" navigation link to Layout.js
+      
+      3. **Weighbridge Integration (Phase 3):**
+         - Updated universal_weighbridge_models.py to support Tare/Gross flow
+         - Added weight_type field, separate tare/gross photo URLs and weights
+         - Modified universal_weighbridge_endpoints.py to handle sales pre-entry updates
+      
+      4. **Database Setup:**
+         - Created 5 test customers (Rajesh Traders, Lakshmi Rice Mills, Vishwakarma Grain Depot, Sai Provisions, Ganesh Wholesale Store)
+         - All customers have customer role, GSTIN, place of supply, contact details
+         - Items (Wheat, Soybean, Chana, Corn) already available
+      
+      **Current Status:**
+      ✅ Sales Pre-Entry page accessible after login
+      ✅ Customer dropdown populated with 5 customers
+      ✅ All form sections displaying correctly
+      ✅ BrokerAutocomplete component integrated
+      ✅ Item dropdown working with 4 items available
+      
+      **Ready for Backend Testing:**
+      - Test Sales Pre-Entry creation (POST /api/sales/pre-entry)
+      - Verify pre-entry number generation (SPRE-YY-######)
+      - Test customer data auto-fill
+      - Test item rate auto-fill
+      - Test broker integration
+      - Test marka memory endpoint
+      - Verify form validation and data persistence
+      
+      **Next Steps After Backend Testing:**
+      - Complete Sales Invoice with Returns Toggle (Phase 4)
+      - Implement Prints & Vouchers (Phase 5)
   - agent: "testing"
     message: |
       🎉 **NEW SUPPLIER CREATION DEBUGGING COMPLETED - SYSTEM WORKING CORRECTLY**
