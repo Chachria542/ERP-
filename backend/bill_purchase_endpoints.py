@@ -508,6 +508,42 @@ async def get_bill_purchase_queue(
 
 # ============= BILL PURCHASE ENDPOINTS =============
 
+async def create_brokerage_ledger_entries(
+    bill_id: str,
+    bill_number: str,
+    broker_name: str,
+    brokerage_amount: float
+):
+    """Create ledger entries for brokerage when bill is posted"""
+    # Entry 1: Debit Trade Expenses
+    trade_expense_entry = {
+        "id": str(uuid.uuid4()),
+        "bill_id": bill_id,
+        "bill_number": bill_number,
+        "account": "Trade Expenses",
+        "type": "debit",
+        "amount": brokerage_amount,
+        "description": f"Brokerage for Bill {bill_number} - {broker_name}",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Entry 2: Credit Brokerage Payable (with broker reference)
+    brokerage_payable_entry = {
+        "id": str(uuid.uuid4()),
+        "bill_id": bill_id,
+        "bill_number": bill_number,
+        "account": "Brokerage Payable",
+        "broker_name": broker_name,  # Reference to broker
+        "type": "credit",
+        "amount": brokerage_amount,
+        "description": f"Brokerage payable for Bill {bill_number}",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Insert ledger entries
+    await db.ledger_entries.insert_many([trade_expense_entry, brokerage_payable_entry])
+    print(f"[BACKEND] Created brokerage ledger entries for bill {bill_number}, amount: {brokerage_amount}")
+
 @router.post("/bill-purchase", response_model=BillPurchase)
 async def create_bill_purchase(bill_data: BillPurchaseCreate):
     """Create bill purchase after photo approval with new comprehensive structure"""
