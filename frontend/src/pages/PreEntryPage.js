@@ -639,7 +639,19 @@ function PreEntryPage({ user, onLogout }) {
               <Label className="text-sm font-semibold">Item *</Label>
               <select
                 value={itemId}
-                onChange={(e) => setItemId(e.target.value)}
+                onChange={(e) => {
+                  const selectedItemId = e.target.value;
+                  setItemId(selectedItemId);
+                  
+                  // Auto-fill rate from item master for Bill Purchase
+                  if (transactionType === 'bill_purchase' && selectedItemId) {
+                    const selectedItem = items.find(item => item.id === selectedItemId);
+                    if (selectedItem && selectedItem.rate) {
+                      setRatePerQtl(selectedItem.rate);
+                      console.log('[Pre-Entry] Auto-filled rate:', selectedItem.rate, 'for item:', selectedItem.name);
+                    }
+                  }
+                }}
                 className="erp-select mt-1"
                 required
               >
