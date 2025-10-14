@@ -731,7 +731,7 @@ async def get_bill_purchase(bill_id: str):
 
 @router.post("/bill-purchase/{bill_id}/post")
 async def post_bill_purchase(bill_id: str, user_id: str):
-    """Post/finalize bill purchase"""
+    """Post/finalize bill purchase and create ledger entries"""
     bill = await db.bill_purchases.find_one({"id": bill_id})
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")
@@ -750,7 +750,17 @@ async def post_bill_purchase(bill_id: str, user_id: str):
         }}
     )
     
-    return {"message": "Bill posted successfully"}
+    # Create brokerage ledger entries if applicable
+    if bill.get('has_broker') and bill.get('broker_name') and bill.get('brokerage_amount', 0) > 0:
+        await create_brokerage_ledger_entries(
+            bill_id=bill['id'],
+            bill_number=bill['bill_number'],
+            broker_name=bill['broker_name'],
+            brokerage_amount=bill['brokerage_amount']
+        )
+        print(f"[BACKEND] Brokerage ledger entries created for bill {bill['bill_number']}")
+    
+    return {"message": "Bill posted successfully", "ledger_entries_created": bill.get('has_broker', False)}
 
 # ============= WEIGHBRIDGE INTEGRATION ENDPOINTS =============
 
