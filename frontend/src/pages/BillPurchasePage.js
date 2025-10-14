@@ -945,9 +945,15 @@ function BillPurchasePage({ user, onLogout }) {
                     <Label>Batav (Cash Discount %)</Label>
                     <Input
                       type="number"
-                      step="0.01"
+                      className="no-spinner"
                       value={billData.batav_percentage}
-                      onChange={(e) => setBillData(prev => ({ ...prev, batav_percentage: parseFloat(e.target.value) || 0 }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                          setBillData(prev => ({ ...prev, batav_percentage: value }));
+                        }
+                      }}
+                      placeholder="0.00"
                     />
                   </div>
                   <div>
