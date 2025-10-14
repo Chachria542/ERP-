@@ -49,6 +49,19 @@ function PreEntryPage({ user, onLogout }) {
   const [partyMobile, setPartyMobile] = useState('');
   const [partyGstin, setPartyGstin] = useState('');
   
+  // Bill Purchase specific fields
+  const [suppliers, setSuppliers] = useState([]);
+  const [supplierId, setSupplierId] = useState('');
+  const [placeOfSupply, setPlaceOfSupply] = useState('');
+  const [hasBroker, setHasBroker] = useState(false);
+  const [brokerName, setBrokerName] = useState('');
+  const [brokerageType, setBrokerageType] = useState('none');
+  const [brokerageRate, setBrokerageRate] = useState('');
+  const [ewayBillNo, setEwayBillNo] = useState('');
+  const [expectedQuantityBags, setExpectedQuantityBags] = useState('');
+  const [expectedQuantityKgs, setExpectedQuantityKgs] = useState('');
+  const [expectedQuantityQtls, setExpectedQuantityQtls] = useState('');
+  
   // Item details
   const [itemId, setItemId] = useState('');
   const [quality, setQuality] = useState('');
