@@ -190,8 +190,8 @@ function SupplierAutocomplete({
   // Handle replace existing supplier
   const handleReplaceSupplier = async (supplier) => {
     try {
-      await axios.put(`${API}/suppliers/${supplier.id}/name`, {}, {
-        params: { new_name: inputValue.trim() }
+      await axios.put(`${API}/suppliers/${supplier.id}/name`, {
+        new_name: inputValue.trim()
       });
       
       toast.success(`Supplier name updated to: ${inputValue.trim()}`);
