@@ -39,15 +39,18 @@ function BillPurchasePage({ user, onLogout }) {
   // Bill form modal state
   const [showBillModal, setShowBillModal] = useState(false);
   const [billData, setBillData] = useState({
-    supplier_invoice_no: '',
-    supplier_invoice_date: '',
+    // Section 1: Bill Details
+    bill_date: new Date().toISOString().split('T')[0],
+    bill_type: 'purchase',
+    
+    // Section 3: Line Items
     line_items: [],
-    freight: 0,
-    hamali_tulai: 0,
-    aadat: 0,
-    mandi_cess: 0,
-    bank_charges: 0,
-    rounding: 0,
+    
+    // Section 4: Adjustments
+    batav_percentage: 0,
+    claim_type: 'flat',
+    claim_rate: 0,
+    
     remarks: ''
   });
   
