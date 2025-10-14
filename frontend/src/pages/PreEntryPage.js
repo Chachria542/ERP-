@@ -20,6 +20,13 @@ const TRANSACTION_TYPES = [
   { value: 'internal_transfer', label: 'Internal Transfer', icon: '🔄' }
 ];
 
+const BROKERAGE_TYPES = [
+  { value: 'per_quintal', label: 'Per Quintal' },
+  { value: 'per_bag', label: 'Per Bag' },
+  { value: 'percentage', label: 'Percentage' },
+  { value: 'none', label: 'None' }
+];
+
 function PreEntryPage({ user, onLogout }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
