@@ -32,6 +32,15 @@ const BROKERAGE_TYPES = [
   { value: 'none', label: 'None' }
 ];
 
+const PACK_SIZE_OPTIONS = [
+  { value: 100, label: '100 kg' },
+  { value: 50, label: '50 kg' },
+  { value: 35, label: '35 kg' },
+  { value: 30, label: '30 kg' },
+  { value: 25, label: '25 kg' },
+  { value: 'custom', label: 'Custom' }
+];
+
 function BillPurchasePage({ user, onLogout }) {
   const [queue, setQueue] = useState([]);
   const [items, setItems] = useState([]);
