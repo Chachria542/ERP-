@@ -178,16 +178,18 @@ class BillPurchase(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     
+    # Section 1: Bill Details
+    bill_date: str  # ISO date string
+    bill_number: str  # STC-BP-CY-XXXX format
+    bill_type: str  # "entry" or "purchase"
+    vehicle_number: str  # Auto-filled from weighbridge
+    
     # Reference to pre-entry
     pre_entry_id: str
     pre_entry_number: str  # BPRE-YY-######
     weighbridge_slip_id: str  # Links to weighbridge_entries
     
-    # Supplier invoice details
-    supplier_invoice_no: Optional[str] = None
-    supplier_invoice_date: Optional[str] = None  # ISO date string
-    
-    # Supplier details (auto-filled from pre-entry)
+    # Section 2: Supplier Details (auto-filled from pre-entry)
     supplier_id: str
     supplier_name: str
     supplier_gstin: Optional[str] = None
@@ -200,30 +202,23 @@ class BillPurchase(BaseModel):
     brokerage_rate: Optional[float] = None
     brokerage_amount: float = 0.0
     
-    # Line items
+    # Section 3: Line Items (typically single item from weighbridge)
     line_items: List[BillPurchaseLineItem] = Field(default_factory=list)
     
-    # Tax calculations (deferred for later implementation)
-    cgst_rate: float = 0.0
-    sgst_rate: float = 0.0
-    igst_rate: float = 0.0
-    cgst_amount: float = 0.0
-    sgst_amount: float = 0.0
-    igst_amount: float = 0.0
+    # Section 4: Adjustments
+    batav_percentage: float = 0.0  # Cash discount %
+    batav_amount: float = 0.0  # Calculated discount amount
     
-    # Additional charges
-    freight: float = 0.0
-    hamali_tulai: float = 0.0
-    aadat: float = 0.0
-    mandi_cess: float = 0.0
-    bank_charges: float = 0.0
-    rounding: float = 0.0
+    claim_type: str = "flat"  # "flat" or "percentage"
+    claim_rate: float = 0.0  # Rate (flat amount or %)
+    claim_amount: float = 0.0  # Final claim deduction amount
     
     # Totals
-    subtotal: float = 0.0  # Sum of line item amounts
-    total_tax: float = 0.0  # CGST + SGST + IGST
-    total_charges: float = 0.0  # Sum of additional charges
-    grand_total: float = 0.0  # subtotal + total_tax + total_charges + rounding
+    line_items_total: float = 0.0  # Sum of line item amounts
+    total_tax_amount: float = 0.0  # Sum of all taxes from line items
+    gross_amount: float = 0.0  # line_items_total + total_tax_amount
+    total_deductions: float = 0.0  # batav_amount + claim_amount
+    net_amount: float = 0.0  # gross_amount - total_deductions
     
     # Document details
     eway_bill_no: Optional[str] = None
