@@ -308,40 +308,61 @@ class SalesPreEntryTester:
             self.log_test("Marka Memory Non-existent Item", False, f"Request failed: {str(e)}")
             return False
     
-    def send_and_verify_otp(self, mobile):
-        """Helper method to send and verify OTP for a mobile"""
+    def test_validation_missing_required_fields(self):
+        """
+        Test 5: Data Validation - Missing Required Fields
+        Test validation for customer_id and place_of_supply
+        """
+        print("🔍 Test 5: Data Validation - Missing Required Fields...")
+        
         try:
-            # Send OTP
-            send_payload = {"mobile": mobile}
-            send_response = requests.post(f"{self.base_url}/otp/send", 
-                                        json=send_payload,
-                                        headers={'Content-Type': 'application/json'},
-                                        timeout=10)
+            # Test missing customer_id
+            payload_no_customer = {
+                "date": "2025-01-14",
+                "place_of_supply": "Mumbai, Maharashtra",
+                "created_by": "admin"
+            }
             
-            if send_response.status_code != 200:
+            response = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                   json=payload_no_customer,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
+            
+            if response.status_code == 422:  # Validation error
+                self.log_test("Validation Missing Customer ID", True, 
+                            "✅ Missing customer_id correctly rejected with 422")
+            else:
+                self.log_test("Validation Missing Customer ID", False, 
+                            f"❌ Expected 422, got {response.status_code}")
                 return False
             
-            # Wait and extract OTP
-            time.sleep(1)
-            actual_otp = self.get_otp_from_logs(mobile)
-            
-            if not actual_otp:
+            # Test missing place_of_supply
+            if self.customers:
+                payload_no_place = {
+                    "date": "2025-01-14",
+                    "customer_id": self.customers[0]['id'],
+                    "created_by": "admin"
+                }
+                
+                response = requests.post(f"{self.base_url}/sales/pre-entry", 
+                                       json=payload_no_place,
+                                       headers={'Content-Type': 'application/json'},
+                                       timeout=10)
+                
+                if response.status_code == 422:  # Validation error
+                    self.log_test("Validation Missing Place of Supply", True, 
+                                "✅ Missing place_of_supply correctly rejected with 422")
+                    return True
+                else:
+                    self.log_test("Validation Missing Place of Supply", False, 
+                                f"❌ Expected 422, got {response.status_code}")
+                    return False
+            else:
+                self.log_test("Validation Missing Required Fields", False, "No customers available for testing")
                 return False
-            
-            # Verify OTP
-            verify_payload = {"mobile": mobile, "otp": actual_otp}
-            verify_response = requests.post(f"{self.base_url}/otp/verify", 
-                                          json=verify_payload,
-                                          headers={'Content-Type': 'application/json'},
-                                          timeout=10)
-            
-            if verify_response.status_code != 200:
-                return False
-            
-            verify_data = verify_response.json()
-            return verify_data.get("verified") == True
-            
-        except:
+                
+        except Exception as e:
+            self.log_test("Validation Missing Required Fields", False, f"Request failed: {str(e)}")
             return False
     
     def test_otp_verification_with_failed_pre_entry(self):
