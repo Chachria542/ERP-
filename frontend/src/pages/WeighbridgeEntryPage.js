@@ -42,18 +42,8 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
   // Calculate net weight whenever weights change
   useEffect(() => {
-    let gross = 0;
-    let tare = 0;
-
-    if (transactionType === 'purchase') {
-      // Purchase: First=GROSS, Second=TARE
-      gross = existingGrossWeight || parseFloat(firstWeightValue) || 0;
-      tare = existingTareWeight || parseFloat(secondWeightValue) || 0;
-    } else if (transactionType === 'sale') {
-      // Sale: First=TARE, Second=GROSS
-      tare = existingTareWeight || parseFloat(firstWeightValue) || 0;
-      gross = existingGrossWeight || parseFloat(secondWeightValue) || 0;
-    }
+    const gross = existingGrossWeight || 0;
+    const tare = existingTareWeight || 0;
 
     const net = gross - tare;
     if (net > 0) {
@@ -65,7 +55,7 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       setBags(0);
       setQuintals(0);
     }
-  }, [firstWeightValue, secondWeightValue, existingTareWeight, existingGrossWeight, transactionType]);
+  }, [existingTareWeight, existingGrossWeight]);
 
   const handleFetchSlip = async () => {
     if (!slipId.trim()) {
