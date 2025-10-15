@@ -315,14 +315,17 @@ class SalesFlowTester:
                     customer_name = found_item.get('customer_name')
                     item_name = found_item.get('item_name')
                     
-                    # Verify net_weight is 50000 and other details are present
-                    if net_weight == 50000 and customer_name and item_name:
+                    # Calculate expected net weight (55000 - 2345 = 52655)
+                    expected_net = 52655
+                    
+                    # Verify net_weight and other details are present
+                    if net_weight == expected_net and customer_name and item_name:
                         self.log_test("Phase 7: Now in Queue", True, 
                                     f"✅ {self.target_slip_id} now in queue: Net Weight: {net_weight} kg, Customer: {customer_name}, Item: {item_name}")
                         return True
                     else:
                         self.log_test("Phase 7: Now in Queue", False, 
-                                    f"❌ Found in queue but incorrect data: net_weight={net_weight}, customer={customer_name}, item={item_name}")
+                                    f"❌ Found in queue but incorrect data: net_weight={net_weight} (expected {expected_net}), customer={customer_name}, item={item_name}")
                         return False
                 else:
                     self.log_test("Phase 7: Now in Queue", False, 
