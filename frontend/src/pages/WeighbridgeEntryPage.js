@@ -27,6 +27,11 @@ function WeighbridgeEntryPage({ user, onLogout }) {
   const [grossWeight, setGrossWeight] = useState('');
   const [tareWeight, setTareWeight] = useState('');
   const [shift, setShift] = useState('Morning');
+  
+  // For Sales TARE/GROSS flow
+  const [weightType, setWeightType] = useState('single'); // 'single', 'tare', 'gross'
+  const [measuredWeight, setMeasuredWeight] = useState('');
+  const [existingTareWeight, setExistingTareWeight] = useState(0);
 
   // Calculated fields
   const [netWeight, setNetWeight] = useState(0);
