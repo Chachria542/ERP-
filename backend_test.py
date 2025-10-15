@@ -40,41 +40,46 @@ class SalesFlowTester:
             "response": response_data
         })
     
-    def setup_test_data(self):
-        """Setup test data - get available customers and items"""
-        print("🔧 Setting up test data...")
+    def test_phase1_verify_pre_entry_status(self):
+        """
+        Phase 1: Verify Pre-Entry Status
+        GET /api/pre-entry/SPRE-25-000014
+        """
+        print("🔍 Phase 1: Verify Pre-Entry Status...")
         
         try:
-            # Get customers with customer role
-            parties_response = requests.get(f"{self.base_url}/parties", timeout=10)
-            if parties_response.status_code == 200:
-                parties = parties_response.json()
-                self.customers = [p for p in parties if "customer" in p.get("roles", [])]
-                if len(self.customers) < 1:
-                    self.log_test("Test Data Setup", False, "No customers found with 'customer' role")
-                    return False
-                self.log_test("Test Data Setup", True, f"Found {len(self.customers)} customers")
-            else:
-                self.log_test("Test Data Setup", False, f"Failed to get parties: HTTP {parties_response.status_code}")
-                return False
+            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
             
-            # Get available items
-            items_response = requests.get(f"{self.base_url}/items", timeout=10)
-            if items_response.status_code == 200:
-                self.items = items_response.json()
-                if len(self.items) < 1:
-                    self.log_test("Test Data Setup", False, "No items available for testing")
-                    return False
-                self.log_test("Test Data Setup", True, f"Found {len(self.items)} items")
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Verify it returns the sales pre-entry
+                if data.get('slip_id') == self.target_slip_id:
+                    status = data.get('status')
+                    customer_name = data.get('customer_name') or data.get('party_name')
+                    item_name = data.get('item_name')
+                    
+                    # Check status is "weigh_pending"
+                    if status == "weigh_pending":
+                        self.log_test("Phase 1: Pre-Entry Status", True, 
+                                    f"✅ Pre-entry found: {self.target_slip_id}, Status: {status}, Customer: {customer_name}, Item: {item_name}")
+                        return True, customer_name, item_name
+                    else:
+                        self.log_test("Phase 1: Pre-Entry Status", False, 
+                                    f"❌ Expected status 'weigh_pending', got '{status}'")
+                        return False, customer_name, item_name
+                else:
+                    self.log_test("Phase 1: Pre-Entry Status", False, 
+                                f"❌ Slip ID mismatch. Expected: {self.target_slip_id}, Got: {data.get('slip_id')}")
+                    return False, None, None
             else:
-                self.log_test("Test Data Setup", False, f"Failed to get items: HTTP {items_response.status_code}")
-                return False
+                self.log_test("Phase 1: Pre-Entry Status", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                return False, None, None
                 
         except Exception as e:
-            self.log_test("Test Data Setup", False, f"Setup failed: {str(e)}")
-            return False
-        
-        return True
+            self.log_test("Phase 1: Pre-Entry Status", False, f"Request failed: {str(e)}")
+            return False, None, None
     
     def test_sales_pre_entry_creation_basic(self):
         """
