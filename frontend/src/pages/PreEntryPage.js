@@ -663,6 +663,203 @@ function PreEntryPage({ user, onLogout }) {
                   </p>
                 </div>
               </div>
+            ) : transactionType === 'sale' ? (
+              // Sale specific fields
+              <div className="space-y-4">
+                {/* Customer Selection */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-semibold">Customer *</Label>
+                    <Select value={customerId} onValueChange={handleCustomerSelect}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map(customer => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold">Customer GSTIN</Label>
+                    <Input
+                      value={customerGstin}
+                      onChange={(e) => setCustomerGstin(e.target.value)}
+                      placeholder="Auto-filled from customer"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-semibold">Place of Supply *</Label>
+                  <Input
+                    value={placeOfSupply}
+                    onChange={(e) => setPlaceOfSupply(e.target.value)}
+                    placeholder="e.g., Mumbai, Maharashtra"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+
+                {/* Location Section */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h5 className="font-medium">Location</h5>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="godown"
+                        checked={!isMandi}
+                        onChange={() => setIsMandi(false)}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="godown">Godown (Default)</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="mandi"
+                        checked={isMandi}
+                        onChange={() => setIsMandi(true)}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="mandi">Mandi</Label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-semibold">Location Name (Optional)</Label>
+                    <Input
+                      value={locationName}
+                      onChange={(e) => setLocationName(e.target.value)}
+                      placeholder={isMandi ? "Mandi name" : "Godown name"}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                {/* Item Details with Marka and Bharti */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h5 className="font-medium">Item & Marka</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Marka (Brand)</Label>
+                      <Input
+                        value={marka}
+                        onChange={(e) => setMarka(e.target.value)}
+                        placeholder="Enter marka"
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-semibold">Bharti (Pack Size)</Label>
+                      <Select value={bharti.toString()} onValueChange={(val) => setBharti(parseInt(val))}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="100">100 kg</SelectItem>
+                          <SelectItem value="50">50 kg</SelectItem>
+                          <SelectItem value="35">35 kg</SelectItem>
+                          <SelectItem value="30">30 kg</SelectItem>
+                          <SelectItem value="25">25 kg</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expected Quantity */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <h5 className="font-medium">Expected Quantity (Optional)</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-semibold">Expected Bags</Label>
+                      <Input
+                        type="number"
+                        value={expectedBagsSale}
+                        onChange={(e) => setExpectedBagsSale(e.target.value)}
+                        placeholder="e.g., 100"
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-semibold">Expected Kgs</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={expectedKgsSale}
+                        onChange={(e) => setExpectedKgsSale(e.target.value)}
+                        placeholder="e.g., 5000"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Broker Section for Sale */}
+                <div className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="has_broker_sale"
+                      checked={hasBroker}
+                      onCheckedChange={setHasBroker}
+                    />
+                    <Label htmlFor="has_broker_sale">Has Broker</Label>
+                  </div>
+
+                  {hasBroker && (
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <Label className="text-sm font-semibold">Broker Name</Label>
+                        <Input
+                          value={brokerName}
+                          onChange={(e) => setBrokerName(e.target.value)}
+                          placeholder="Type broker name..."
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-semibold">Brokerage Type</Label>
+                        <Select value={brokerageType} onValueChange={setBrokerageType}>
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {BROKERAGE_TYPES.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {brokerageType !== 'none' && (
+                        <div>
+                          <Label className="text-sm font-semibold">
+                            Brokerage Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
+                          </Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={brokerageRate}
+                            onChange={(e) => setBrokerageRate(e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
               // Farmer Purchase fields (existing logic)
               <div className="grid grid-cols-3 gap-4">
