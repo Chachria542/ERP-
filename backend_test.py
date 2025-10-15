@@ -162,43 +162,39 @@ class SalesFlowTester:
             self.log_test("Phase 3: Tare Completed Status", False, f"Request failed: {str(e)}")
             return False
     
-    def test_marka_memory_endpoint(self):
+    def test_phase4_verify_not_in_queue_yet(self):
         """
-        Test 3: Marka Memory Endpoint
-        Test fetching marka options for an item
+        Phase 4: Verify SPRE-25-000014 is NOT in the queue yet
+        GET /api/sales/queue?status=pending (status is tare_completed, not pending)
         """
-        print("🔍 Test 3: Marka Memory Endpoint...")
-        
-        if not self.items:
-            self.log_test("Marka Memory Endpoint", False, "No items available for testing")
-            return False
-        
-        item = self.items[0]
-        item_id = item['id']
+        print("🔍 Phase 4: Verify NOT in Sales Queue Yet...")
         
         try:
-            # Test marka endpoint
-            response = requests.get(f"{self.base_url}/sales/marka/{item_id}", timeout=10)
+            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
             
             if response.status_code == 200:
-                markas = response.json()
+                queue_items = response.json()
                 
-                # Should return array (even if empty)
-                if isinstance(markas, list):
-                    self.log_test("Marka Memory Endpoint", True, 
-                                f"✅ Marka endpoint working, returned {len(markas)} marka options for item {item['name']}")
+                # Check if our slip is in the queue (it shouldn't be)
+                found_in_queue = any(item.get('slip_id') == self.target_slip_id or 
+                                   item.get('pre_entry_number') == self.target_slip_id 
+                                   for item in queue_items)
+                
+                if not found_in_queue:
+                    self.log_test("Phase 4: Not in Queue Yet", True, 
+                                f"✅ {self.target_slip_id} correctly NOT in pending queue (status is tare_completed)")
                     return True
                 else:
-                    self.log_test("Marka Memory Endpoint", False, 
-                                f"❌ Expected array, got: {type(markas)}")
+                    self.log_test("Phase 4: Not in Queue Yet", False, 
+                                f"❌ {self.target_slip_id} unexpectedly found in pending queue")
                     return False
             else:
-                self.log_test("Marka Memory Endpoint", False, 
+                self.log_test("Phase 4: Not in Queue Yet", False, 
                             f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Marka Memory Endpoint", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 4: Not in Queue Yet", False, f"Request failed: {str(e)}")
             return False
     
     def test_marka_memory_nonexistent_item(self):
