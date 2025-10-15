@@ -170,43 +170,46 @@ function SalesInvoicePage({ user, onLogout }) {
     // Calculate amount
     const amount = actualQtl * rate;
     
-    // Calculate taxes
-    const cgstAmount = invoiceData.cgst_rate ? (amount * parseFloat(invoiceData.cgst_rate)) / 100 : 0;
-    const sgstAmount = invoiceData.sgst_rate ? (amount * parseFloat(invoiceData.sgst_rate)) / 100 : 0;
-    const igstAmount = invoiceData.igst_rate ? (amount * parseFloat(invoiceData.igst_rate)) / 100 : 0;
-    const taxTotal = cgstAmount + sgstAmount + igstAmount;
+    // Subtotal = Amount (before TCS and GST)
+    const subtotal = amount;
+    
+    // Calculate TCS on Subtotal (BEFORE GST)
+    const tcsAmount = invoiceData.tcs_applicable && invoiceData.tcs_rate 
+      ? (subtotal * parseFloat(invoiceData.tcs_rate)) / 100 
+      : 0;
+    
+    // Calculate taxes on (Subtotal + TCS)
+    const taxableAmount = subtotal + tcsAmount;
+    const cgstAmount = invoiceData.cgst_rate ? (taxableAmount * parseFloat(invoiceData.cgst_rate)) / 100 : 0;
+    const sgstAmount = invoiceData.sgst_rate ? (taxableAmount * parseFloat(invoiceData.sgst_rate)) / 100 : 0;
+    const taxTotal = cgstAmount + sgstAmount;
     
     // Calculate additional charges
     const freight = parseFloat(invoiceData.freight) || 0;
     const loadingCharges = parseFloat(invoiceData.loading_charges) || 0;
     const otherCharges = parseFloat(invoiceData.other_charges) || 0;
     
-    // Calculate subtotal before TCS
-    const subtotal = amount + taxTotal + freight + loadingCharges + otherCharges;
-    
-    // Calculate TCS
-    const tcsAmount = invoiceData.tcs_applicable && invoiceData.tcs_rate 
-      ? (subtotal * parseFloat(invoiceData.tcs_rate)) / 100 
-      : 0;
-    
     // Calculate grand total before rounding
-    const beforeRounding = subtotal + tcsAmount;
+    // Formula: Subtotal + TCS + GST + Additional Charges
+    const beforeRounding = subtotal + tcsAmount + taxTotal + freight + loadingCharges + otherCharges;
     
     // Apply rounding to nearest rupee
     const roundOff = Math.round(beforeRounding) - beforeRounding;
     const grandTotal = Math.round(beforeRounding);
     
+    // If Sales Return, make amounts negative
+    const multiplier = isReturn ? -1 : 1;
+    
     return {
       actual_qtl: actualQtl.toFixed(2),
-      amount: amount.toFixed(2),
-      cgst_amount: cgstAmount.toFixed(2),
-      sgst_amount: sgstAmount.toFixed(2),
-      igst_amount: igstAmount.toFixed(2),
-      tax_total: taxTotal.toFixed(2),
-      tcs_amount: tcsAmount.toFixed(2),
-      round_off: roundOff.toFixed(2),
-      subtotal: subtotal.toFixed(2),
-      grand_total: grandTotal.toFixed(2)
+      amount: (amount * multiplier).toFixed(2),
+      cgst_amount: (cgstAmount * multiplier).toFixed(2),
+      sgst_amount: (sgstAmount * multiplier).toFixed(2),
+      tax_total: (taxTotal * multiplier).toFixed(2),
+      tcs_amount: (tcsAmount * multiplier).toFixed(2),
+      round_off: (roundOff * multiplier).toFixed(2),
+      subtotal: (subtotal * multiplier).toFixed(2),
+      grand_total: (grandTotal * multiplier).toFixed(2)
     };
   };
 
