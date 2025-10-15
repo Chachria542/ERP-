@@ -76,6 +76,7 @@ function PreEntryPage({ user, onLogout }) {
   // Sale specific fields
   const [customers, setCustomers] = useState([]);
   const [customerId, setCustomerId] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [customerGstin, setCustomerGstin] = useState('');
   const [marka, setMarka] = useState('');
   const [markaOptions, setMarkaOptions] = useState([]);
