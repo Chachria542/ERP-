@@ -40,6 +40,21 @@ async def generate_sales_pre_entry_number() -> str:
     
     return f"SPRE-{fy_year:02d}-{new_no:06d}"
 
+async def create_sales_voucher(invoice_doc: dict):
+    """Create voucher entries for sales invoice"""
+    # TODO: Implement voucher creation logic
+    # This will create ledger entries for:
+    # - Customer account (debit)
+    # - Sales account (credit)
+    # - CGST account (credit)
+    # - SGST account (credit)
+    # - TCS account (credit)
+    # - Broker account (debit)
+    # - Freight account (debit)
+    # - Round-off account (debit/credit)
+    print(f"[BACKEND] Voucher creation placeholder for invoice: {invoice_doc['invoice_number']}")
+    pass
+
 async def generate_sales_invoice_number() -> str:
     """Generate SAL-YY-###### format"""
     from bill_purchase_models import get_financial_year
