@@ -496,12 +496,10 @@ function PreEntryPage({ user, onLogout }) {
     // Reset Sale fields
     setCustomerId('');
     setCustomerGstin('');
-    setIsMandi(false);
-    setLocationName('');
     setMarka('');
+    setMarkaOptions([]);
     setBharti(50);
-    setExpectedBagsSale('');
-    setExpectedKgsSale('');
+    setExpectedWeight('');
   };
 
   const renderDynamicFields = () => {
