@@ -94,8 +94,6 @@ class SalesPreEntryCreate(BaseModel):
     customer_id: str
     customer_gstin: Optional[str] = None
     place_of_supply: str
-    is_mandi: bool = False
-    location_name: Optional[str] = None
     item_id: Optional[str] = None
     item_rate: Optional[float] = None
     marka: Optional[str] = None
