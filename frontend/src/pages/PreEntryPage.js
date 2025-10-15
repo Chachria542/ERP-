@@ -160,6 +160,20 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  const fetchCustomers = async () => {
+    try {
+      const response = await axios.get(`${API}/parties`);
+      // Filter customers only
+      const customerList = response.data.filter(party => 
+        party.roles && party.roles.includes('customer')
+      );
+      setCustomers(customerList);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      toast.error('Failed to load customers');
+    }
+  };
+
   useEffect(() => {
     if (transactionType === 'bill_purchase') {
       fetchSuppliers();
