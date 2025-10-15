@@ -128,87 +128,38 @@ class SalesFlowTester:
             self.log_test("Phase 2: TARE Weight Entry", False, f"Request failed: {str(e)}")
             return False
     
-    def test_sales_pre_entry_sequential_numbering(self):
+    def test_phase3_verify_tare_completed_status(self):
         """
-        Test 2: Sequential Pre-Entry Number Generation
-        Test that multiple pre-entries get sequential numbers
+        Phase 3: Verify Pre-Entry Status Changed to tare_completed
+        GET /api/pre-entry/SPRE-25-000014 after TARE weight
         """
-        print("🔍 Test 2: Sequential Pre-Entry Number Generation...")
-        
-        if not self.customers or not self.items:
-            self.log_test("Sequential Numbering", False, "No test data available")
-            return False
-        
-        customer = self.customers[0]
-        item = self.items[0]
+        print("🔍 Phase 3: Verify Pre-Entry Status Changed to tare_completed...")
         
         try:
-            # Create first pre-entry
-            payload1 = {
-                "date": "2025-01-14",
-                "customer_id": customer['id'],
-                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
-                "item_id": item['id'],
-                "created_by": "admin"
-            }
+            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
             
-            response1 = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                    json=payload1,
-                                    headers={'Content-Type': 'application/json'},
-                                    timeout=10)
-            
-            if response1.status_code != 200:
-                self.log_test("Sequential Numbering", False, 
-                            f"First pre-entry creation failed: HTTP {response1.status_code}")
-                return False
-            
-            data1 = response1.json()
-            pre_entry_no1 = data1.get("pre_entry_number")
-            
-            # Create second pre-entry
-            payload2 = {
-                "date": "2025-01-14",
-                "customer_id": customer['id'],
-                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
-                "item_id": item['id'],
-                "created_by": "admin"
-            }
-            
-            response2 = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                    json=payload2,
-                                    headers={'Content-Type': 'application/json'},
-                                    timeout=10)
-            
-            if response2.status_code != 200:
-                self.log_test("Sequential Numbering", False, 
-                            f"Second pre-entry creation failed: HTTP {response2.status_code}")
-                return False
-            
-            data2 = response2.json()
-            pre_entry_no2 = data2.get("pre_entry_number")
-            
-            # Verify sequential numbering
-            if pre_entry_no1 and pre_entry_no2:
-                # Extract numbers from SPRE-YY-###### format
-                num1 = int(pre_entry_no1.split('-')[-1])
-                num2 = int(pre_entry_no2.split('-')[-1])
+            if response.status_code == 200:
+                data = response.json()
                 
-                if num2 == num1 + 1:
-                    self.created_pre_entries.extend([data1, data2])
-                    self.log_test("Sequential Numbering", True, 
-                                f"✅ Sequential numbering working: {pre_entry_no1} → {pre_entry_no2}")
+                status = data.get('status')
+                tare_weight = data.get('tare_weight')
+                
+                # Verify status changed to "tare_completed" and tare_weight is 5000
+                if status == "tare_completed" and tare_weight == 5000:
+                    self.log_test("Phase 3: Tare Completed Status", True, 
+                                f"✅ Status changed to 'tare_completed', tare_weight: {tare_weight} kg")
                     return True
                 else:
-                    self.log_test("Sequential Numbering", False, 
-                                f"❌ Non-sequential numbers: {pre_entry_no1} → {pre_entry_no2}")
+                    self.log_test("Phase 3: Tare Completed Status", False, 
+                                f"❌ Expected status='tare_completed' and tare_weight=5000, got status='{status}', tare_weight={tare_weight}")
                     return False
             else:
-                self.log_test("Sequential Numbering", False, 
-                            "❌ Missing pre-entry numbers in response")
+                self.log_test("Phase 3: Tare Completed Status", False, 
+                            f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Sequential Numbering", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 3: Tare Completed Status", False, f"Request failed: {str(e)}")
             return False
     
     def test_marka_memory_endpoint(self):
