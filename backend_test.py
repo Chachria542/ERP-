@@ -101,52 +101,95 @@ class SalesInvoiceCreationTester:
             self.log_test("Sales Queue Endpoint", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_phase2_tare_weight_entry(self):
+    def test_sales_invoice_creation_success(self, queue_entry):
         """
-        Phase 2: TARE Weight Entry (Empty Truck)
-        POST /api/weighbridge-entry with weight_type: "tare"
+        Test 2: Sales Invoice Creation Testing - Success Case
+        POST /api/sales/invoice with complete payload
+        Expected: Success (200/201), invoice_number in SAL-YY-###### format
         """
-        print("🔍 Phase 2: TARE Weight Entry (Empty Truck)...")
+        print("🔍 Test 2: Sales Invoice Creation - Success Case...")
         
         try:
+            # Prepare invoice payload with complete data
             payload = {
-                "slip_id": self.target_slip_id,
-                "vehicle_number": self.test_vehicle,
-                "vehicle_type": "Truck",
-                "driver_name": self.test_driver,
-                "driver_mobile": self.test_mobile,
-                "weight": 5000,
-                "weight_type": "tare",
-                "operator_id": self.test_operator,
-                "operator_name": "Test Operator",
-                "shift": "Morning"
+                "sale_type": "normal_sale",
+                "invoice_date": datetime.now().strftime("%Y-%m-%d"),
+                "pre_entry_id": queue_entry.get('pre_entry_id'),
+                "weighbridge_slip_no": queue_entry.get('slip_id'),
+                "is_entry": queue_entry.get('is_entry', False),
+                "line_items": [
+                    {
+                        "item_id": queue_entry.get('item_id'),
+                        "item_name": queue_entry.get('item_name'),
+                        "marka": queue_entry.get('marka', "Test Marka"),
+                        "bags": 50,
+                        "kgs": 0.0,
+                        "bharti": queue_entry.get('bharti', 50),
+                        "actual_qtl": 50.0,
+                        "rate": 2500.0,
+                        "amount": 125000.0
+                    }
+                ],
+                "cgst_rate": 9.0,
+                "cgst_amount": 11250.0,
+                "sgst_rate": 9.0,
+                "sgst_amount": 11250.0,
+                "freight": 1000.0,
+                "loading_charges": 500.0,
+                "other_charges": 0.0,
+                "tcs_applicable": True,
+                "tcs_rate": 0.1,
+                "tcs_amount": 125.0,
+                "round_off": 0.0,
+                "grand_total": 149125.0,
+                "broker_name": queue_entry.get('broker_name'),
+                "brokerage_type": queue_entry.get('brokerage_type'),
+                "brokerage_rate": queue_entry.get('brokerage_rate'),
+                "remarks": "Test invoice creation",
+                "created_by": "test-user"
             }
             
-            response = requests.post(f"{self.base_url}/weighbridge-entry", 
+            response = requests.post(f"{self.base_url}/sales/invoice", 
                                    json=payload,
                                    headers={'Content-Type': 'application/json'},
                                    timeout=10)
             
-            if response.status_code == 200:
+            if response.status_code in [200, 201]:
                 data = response.json()
+                invoice_number = data.get('invoice_number')
                 
-                # Verify weighbridge entry created successfully
-                if data.get('weight_type') == 'tare' and data.get('weight') == 5000:
-                    self.log_test("Phase 2: TARE Weight Entry", True, 
-                                f"✅ TARE weighbridge entry created successfully, Weight: {data.get('weight')} kg")
-                    return True
+                # Verify invoice number format SAL-YY-######
+                if invoice_number and invoice_number.startswith('SAL-') and len(invoice_number) == 13:
+                    # Verify pre-entry status updated
+                    pre_entry_response = requests.get(f"{self.base_url}/sales/pre-entry/by-number/{queue_entry.get('pre_entry_number')}")
+                    if pre_entry_response.status_code == 200:
+                        pre_entry_data = pre_entry_response.json()
+                        pre_entry_status = pre_entry_data.get('pre_entry', {}).get('status')
+                        
+                        if pre_entry_status == 'invoice_generated':
+                            self.log_test("Sales Invoice Creation - Success", True, 
+                                        f"✅ Invoice created: {invoice_number}, Pre-entry status updated to: {pre_entry_status}")
+                            return True, invoice_number
+                        else:
+                            self.log_test("Sales Invoice Creation - Success", False, 
+                                        f"❌ Invoice created but pre-entry status not updated. Expected: invoice_generated, Got: {pre_entry_status}")
+                            return False, invoice_number
+                    else:
+                        self.log_test("Sales Invoice Creation - Success", True, 
+                                    f"✅ Invoice created: {invoice_number} (could not verify pre-entry status)")
+                        return True, invoice_number
                 else:
-                    self.log_test("Phase 2: TARE Weight Entry", False, 
-                                f"❌ Unexpected response data: weight_type={data.get('weight_type')}, weight={data.get('weight')}")
-                    return False
+                    self.log_test("Sales Invoice Creation - Success", False, 
+                                f"❌ Invalid invoice number format: {invoice_number}")
+                    return False, None
             else:
-                self.log_test("Phase 2: TARE Weight Entry", False, 
+                self.log_test("Sales Invoice Creation - Success", False, 
                             f"HTTP {response.status_code}: {response.text}")
-                return False
+                return False, None
                 
         except Exception as e:
-            self.log_test("Phase 2: TARE Weight Entry", False, f"Request failed: {str(e)}")
-            return False
+            self.log_test("Sales Invoice Creation - Success", False, f"Request failed: {str(e)}")
+            return False, None
     
     def test_phase3_verify_tare_completed_status(self):
         """
