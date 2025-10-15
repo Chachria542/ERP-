@@ -1574,6 +1574,25 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "CRITICAL FIX IMPLEMENTED: Root cause identified - frontend using selectedPreEntry.id instead of selectedPreEntry.pre_entry_id, and queue response not including item_id. Fixed by: 1) Updated SalesQueueItem model to include customer_id, place_of_supply, item_id, bharti, is_entry, brokerage_type, and brokerage_rate fields for complete invoice auto-fill. 2) Updated sales queue endpoint to return all these fields from pre-entry. 3) Fixed frontend payload to use selectedPreEntry.pre_entry_id instead of selectedPreEntry.id. Now queue provides all data needed for invoice creation, and frontend correctly references the pre_entry_id field. Backend restarted successfully. Ready for testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ SALES INVOICE CREATION FIX TESTING COMPLETED - 100% SUCCESS RATE (5/5 tests passed): Sales queue endpoint returns all required fields, invoice created successfully with SAL-25-000002, pre-entry status updated to invoice_generated, all edge cases validated correctly (422 for missing fields, 404 for invalid IDs, 400 for wrong status). The 422 validation error has been completely resolved."
+
+  - task: "Weighbridge Photo Placeholder Fix - External Service Dependency"
+    implemented: true
+    working: true
+    file: "backend/universal_weighbridge_endpoints.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED: ERR_NAME_NOT_RESOLVED error when loading weighbridge photos. System trying to load placeholder images from via.placeholder.com external service which cannot be reached."
+      - working: true
+        agent: "main"
+        comment: "ISSUE FIXED: Replaced external placeholder service (via.placeholder.com) with embedded SVG data URIs. Now uses inline SVG images that work offline without external dependencies. Photo placeholders display gray rectangles with text labels (Tare/Gross Weight Photo). Updated all existing weighbridge entries in database with new placeholders. Backend restarted successfully. No more external DNS lookups or network requests for placeholder images."
+
 
 frontend:
   - task: "Sales Invoice Submission Payload Fix"
