@@ -751,18 +751,16 @@ function PreEntryPage({ user, onLogout }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-semibold">Customer *</Label>
-                      <Select value={customerId} onValueChange={handleCustomerSelect}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select customer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {customers.map(customer => (
-                            <SelectItem key={customer.id} value={customer.id}>
-                              {customer.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <CustomerAutocomplete
+                        value={inputValue}
+                        onSelect={(customer) => {
+                          setCustomerId(customer.id);
+                          setCustomerGstin(customer.gstin || '');
+                          setPlaceOfSupply(customer.place_of_supply || '');
+                        }}
+                        placeholder="Type customer name..."
+                        className="mt-1"
+                      />
                     </div>
                     <div>
                       <Label className="text-sm font-semibold">GSTIN</Label>
