@@ -81,43 +81,28 @@ class SalesFlowTester:
             self.log_test("Phase 1: Pre-Entry Status", False, f"Request failed: {str(e)}")
             return False, None, None
     
-    def test_sales_pre_entry_creation_basic(self):
+    def test_phase2_tare_weight_entry(self):
         """
-        Test 1: Basic Sales Pre-Entry Creation
-        Test creating a sales pre-entry with all required fields
+        Phase 2: TARE Weight Entry (Empty Truck)
+        POST /api/weighbridge-entry with weight_type: "tare"
         """
-        print("🔍 Test 1: Basic Sales Pre-Entry Creation...")
-        
-        if not self.customers or not self.items:
-            self.log_test("Sales Pre-Entry Creation Basic", False, "No test data available")
-            return False
-        
-        customer = self.customers[0]
-        item = self.items[0]
+        print("🔍 Phase 2: TARE Weight Entry (Empty Truck)...")
         
         try:
             payload = {
-                "date": "2025-01-14",
-                "customer_id": customer['id'],
-                "customer_gstin": customer.get('gstin'),
-                "place_of_supply": customer.get('place_of_supply', 'Mumbai, Maharashtra'),
-                "item_id": item['id'],
-                "bharti": 50,
-                "has_broker": True,
-                "broker_name": "Test Broker",
-                "brokerage_type": "per_quintal",
-                "brokerage_rate": 10.0,
-                "is_mandi": False,
-                "location_name": "Main Godown",
-                "expected_bags": 100,
-                "expected_kgs": 5000.0,
-                "order_number": "ORD-001",
-                "marka": "Premium Quality",
-                "remarks": "Test sales pre-entry creation",
-                "created_by": "admin"
+                "slip_id": self.target_slip_id,
+                "vehicle_number": self.test_vehicle,
+                "vehicle_type": "Truck",
+                "driver_name": self.test_driver,
+                "driver_mobile": self.test_mobile,
+                "weight": 5000,
+                "weight_type": "tare",
+                "operator_id": self.test_operator,
+                "operator_name": "Test Operator",
+                "shift": "Morning"
             }
             
-            response = requests.post(f"{self.base_url}/sales/pre-entry", 
+            response = requests.post(f"{self.base_url}/weighbridge-entry", 
                                    json=payload,
                                    headers={'Content-Type': 'application/json'},
                                    timeout=10)
@@ -125,33 +110,22 @@ class SalesFlowTester:
             if response.status_code == 200:
                 data = response.json()
                 
-                # Verify response structure
-                required_fields = ["pre_entry_number", "slip_id", "qr_code", "customer_name", "item_name"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if not missing_fields:
-                    # Check pre-entry number format (SPRE-YY-######)
-                    pre_entry_no = data.get("pre_entry_number")
-                    if pre_entry_no and pre_entry_no.startswith("SPRE-") and len(pre_entry_no) == 14:
-                        self.created_pre_entries.append(data)
-                        self.log_test("Sales Pre-Entry Creation Basic", True, 
-                                    f"✅ Created pre-entry: {pre_entry_no}, Customer: {data.get('customer_name')}, Item: {data.get('item_name')}")
-                        return True
-                    else:
-                        self.log_test("Sales Pre-Entry Creation Basic", False, 
-                                    f"Invalid pre-entry number format: {pre_entry_no}")
-                        return False
+                # Verify weighbridge entry created successfully
+                if data.get('weight_type') == 'tare' and data.get('weight') == 5000:
+                    self.log_test("Phase 2: TARE Weight Entry", True, 
+                                f"✅ TARE weighbridge entry created successfully, Weight: {data.get('weight')} kg")
+                    return True
                 else:
-                    self.log_test("Sales Pre-Entry Creation Basic", False, 
-                                f"Missing required fields: {missing_fields}")
+                    self.log_test("Phase 2: TARE Weight Entry", False, 
+                                f"❌ Unexpected response data: weight_type={data.get('weight_type')}, weight={data.get('weight')}")
                     return False
             else:
-                self.log_test("Sales Pre-Entry Creation Basic", False, 
+                self.log_test("Phase 2: TARE Weight Entry", False, 
                             f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Sales Pre-Entry Creation Basic", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 2: TARE Weight Entry", False, f"Request failed: {str(e)}")
             return False
     
     def test_sales_pre_entry_sequential_numbering(self):
