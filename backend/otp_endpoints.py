@@ -123,10 +123,42 @@ async def verify_otp(request: OTPVerifyRequest):
     """
     Verify OTP for mobile number.
     Updates farmer's mobile_verified status on success.
+    
+    TESTING FEATURE: Universal OTP "0000" always works for any mobile number.
     """
     try:
         print(f"[OTP VERIFY] Request received - Mobile: {request.mobile}, OTP: {request.otp}")
         
+        # UNIVERSAL TESTING OTP - Always works for development/testing
+        UNIVERSAL_OTP = "0000"
+        if request.otp == UNIVERSAL_OTP:
+            print(f"[OTP VERIFY] Universal testing OTP used - Auto-approving")
+            
+            # Update or create farmer with verification status
+            farmer = await db.farmers.find_one({"mobile": request.mobile})
+            
+            if farmer:
+                # Update existing farmer
+                await db.farmers.update_one(
+                    {"mobile": request.mobile},
+                    {
+                        "$set": {
+                            "mobile_verified": True,
+                            "mobile_verified_at": datetime.now(timezone.utc).isoformat()
+                        },
+                        "$inc": {"otp_verified_count": 1}
+                    }
+                )
+            
+            print(f"[OTP VERIFY SUCCESS] Universal OTP verified for mobile: {request.mobile}")
+            
+            return {
+                "message": "OTP verified successfully (Universal Testing OTP)",
+                "mobile": request.mobile,
+                "verified": True
+            }
+        
+        # Normal OTP verification flow
         # Find latest OTP for this mobile
         otp_record = await db.otp_verifications.find_one(
             {
