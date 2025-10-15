@@ -673,10 +673,10 @@ function SalesInvoicePage({ user, onLogout }) {
                 </div>
               </Card>
 
-              {/* Taxes */}
+              {/* Taxes (CGST + SGST only) */}
               <Card className="p-4">
-                <h3 className="font-bold mb-3">Taxes</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="font-bold mb-3">Taxes (CGST + SGST)</h3>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>CGST Rate (%)</Label>
                     <Input
@@ -701,19 +701,10 @@ function SalesInvoicePage({ user, onLogout }) {
                     />
                     <p className="text-sm text-gray-600 mt-1">Amount: ₹ {invoiceData.sgst_amount}</p>
                   </div>
-                  <div>
-                    <Label>IGST Rate (%)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={invoiceData.igst_rate}
-                      onChange={(e) => setInvoiceData({...invoiceData, igst_rate: e.target.value})}
-                      placeholder="0.00"
-                      className="mt-1"
-                    />
-                    <p className="text-sm text-gray-600 mt-1">Amount: ₹ {invoiceData.igst_amount}</p>
-                  </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  ℹ️ Tax is calculated on (Subtotal + TCS)
+                </p>
               </Card>
 
               {/* Additional Charges */}
