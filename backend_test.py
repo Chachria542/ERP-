@@ -285,37 +285,52 @@ class SalesFlowTester:
             self.log_test("Phase 6: Pending Status with Weights", False, f"Request failed: {str(e)}")
             return False
     
-    def test_validation_invalid_customer_id(self):
+    def test_phase7_verify_now_in_queue(self):
         """
-        Test 6: Data Validation - Invalid Customer ID
-        Test with non-existent customer_id
+        Phase 7: Verify SPRE-25-000014 NOW appears in the sales queue
+        GET /api/sales/queue?status=pending
         """
-        print("🔍 Test 6: Data Validation - Invalid Customer ID...")
+        print("🔍 Phase 7: Verify NOW in Sales Queue...")
         
         try:
-            payload = {
-                "date": "2025-01-14",
-                "customer_id": "invalid-customer-id",
-                "place_of_supply": "Mumbai, Maharashtra",
-                "created_by": "admin"
-            }
+            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
             
-            response = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code == 404:
-                self.log_test("Validation Invalid Customer ID", True, 
-                            "✅ Invalid customer_id correctly rejected with 404")
-                return True
+            if response.status_code == 200:
+                queue_items = response.json()
+                
+                # Find our slip in the queue
+                found_item = None
+                for item in queue_items:
+                    if (item.get('slip_id') == self.target_slip_id or 
+                        item.get('pre_entry_number') == self.target_slip_id):
+                        found_item = item
+                        break
+                
+                if found_item:
+                    net_weight = found_item.get('net_weight')
+                    customer_name = found_item.get('customer_name')
+                    item_name = found_item.get('item_name')
+                    
+                    # Verify net_weight is 50000 and other details are present
+                    if net_weight == 50000 and customer_name and item_name:
+                        self.log_test("Phase 7: Now in Queue", True, 
+                                    f"✅ {self.target_slip_id} now in queue: Net Weight: {net_weight} kg, Customer: {customer_name}, Item: {item_name}")
+                        return True
+                    else:
+                        self.log_test("Phase 7: Now in Queue", False, 
+                                    f"❌ Found in queue but incorrect data: net_weight={net_weight}, customer={customer_name}, item={item_name}")
+                        return False
+                else:
+                    self.log_test("Phase 7: Now in Queue", False, 
+                                f"❌ {self.target_slip_id} not found in pending queue")
+                    return False
             else:
-                self.log_test("Validation Invalid Customer ID", False, 
-                            f"❌ Expected 404, got {response.status_code}: {response.text}")
+                self.log_test("Phase 7: Now in Queue", False, 
+                            f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Validation Invalid Customer ID", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 7: Now in Queue", False, f"Request failed: {str(e)}")
             return False
     
     def test_integration_customer_data_fetch(self):
