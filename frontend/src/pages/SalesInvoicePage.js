@@ -250,14 +250,14 @@ function SalesInvoicePage({ user, onLogout }) {
       }
       
       const payload = {
-        pre_entry_id: selectedPreEntry.id,
+        pre_entry_id: selectedPreEntry.pre_entry_id,  // Fixed: use pre_entry_id from queue
         sale_type: isReturn ? 'sales_return' : 'normal_sale',
         invoice_date: invoiceData.invoice_date,
         weighbridge_slip_no: invoiceData.weighbridge_slip_no,
         is_entry: invoiceData.is_entry,
         
         line_items: [{
-          item_id: invoiceData.item_id,
+          item_id: invoiceData.item_id,  // Now available from queue
           item_name: invoiceData.item_name,
           marka: invoiceData.marka,
           bags: parseInt(invoiceData.bags),
