@@ -375,63 +375,62 @@ class SalesFlowTester:
             self.log_test("Phase 8: Fetch Weighbridge Photos", False, f"Request failed: {str(e)}")
             return False
     
-    def test_integration_item_data_fetch(self):
-        """
-        Test 8: Integration - Item Data Fetch and Rate Auto-fill
-        Verify item data is fetched correctly and rate auto-fills
-        """
-        print("🔍 Test 8: Integration - Item Data Fetch and Rate Auto-fill...")
+    def run_complete_sales_flow_test(self):
+        """Run the complete Sales Pre-Entry to Invoice flow test"""
+        print("🚀 Starting Complete Sales Pre-Entry to Invoice Flow Testing")
+        print(f"Testing against: {self.base_url}")
+        print(f"Target Slip ID: {self.target_slip_id}")
+        print("=" * 80)
         
-        if not self.customers or not self.items:
-            self.log_test("Integration Item Data", False, "No test data available")
+        # Phase 1: Verify Pre-Entry Status
+        success1, customer_name, item_name = self.test_phase1_verify_pre_entry_status()
+        if not success1:
+            print("❌ Phase 1 failed. Cannot proceed with flow testing.")
             return False
         
-        customer = self.customers[0]
-        item = self.items[0]
-        
-        try:
-            payload = {
-                "date": "2025-01-14",
-                "customer_id": customer['id'],
-                "place_of_supply": "Test Place of Supply",
-                "item_id": item['id'],
-                # Don't provide item_rate to test auto-fill
-                "created_by": "admin"
-            }
-            
-            response = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                # Verify item data is correctly fetched and populated
-                if (data.get('item_name') == item['name'] and
-                    data.get('item_id') == item['id']):
-                    
-                    # Check if rate auto-filled from item master
-                    item_rate = data.get('item_rate')
-                    if item_rate is not None:
-                        self.log_test("Integration Item Data", True, 
-                                    f"✅ Item data correctly fetched: {item['name']}, Rate: {item_rate}")
-                    else:
-                        self.log_test("Integration Item Data", True, 
-                                    f"✅ Item data correctly fetched: {item['name']} (no rate auto-fill)")
-                    return True
-                else:
-                    self.log_test("Integration Item Data", False, 
-                                f"❌ Item data mismatch. Expected: {item['name']}, Got: {data.get('item_name')}")
-                    return False
-            else:
-                self.log_test("Integration Item Data", False, 
-                            f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Integration Item Data", False, f"Request failed: {str(e)}")
+        # Phase 2: TARE Weight Entry
+        success2 = self.test_phase2_tare_weight_entry()
+        if not success2:
+            print("❌ Phase 2 failed. Cannot proceed with flow testing.")
             return False
+        
+        # Phase 3: Verify tare_completed status
+        success3 = self.test_phase3_verify_tare_completed_status()
+        if not success3:
+            print("❌ Phase 3 failed. Cannot proceed with flow testing.")
+            return False
+        
+        # Phase 4: Verify NOT in queue yet
+        success4 = self.test_phase4_verify_not_in_queue_yet()
+        if not success4:
+            print("❌ Phase 4 failed. Cannot proceed with flow testing.")
+            return False
+        
+        # Phase 5: GROSS Weight Entry
+        success5 = self.test_phase5_gross_weight_entry()
+        if not success5:
+            print("❌ Phase 5 failed. Cannot proceed with flow testing.")
+            return False
+        
+        # Phase 6: Verify pending status with all weights
+        success6 = self.test_phase6_verify_pending_status_and_weights()
+        if not success6:
+            print("❌ Phase 6 failed. Cannot proceed with flow testing.")
+            return False
+        
+        # Phase 7: Verify NOW in queue
+        success7 = self.test_phase7_verify_now_in_queue()
+        if not success7:
+            print("❌ Phase 7 failed. Cannot proceed with flow testing.")
+            return False
+        
+        # Phase 8: Fetch weighbridge photos
+        success8 = self.test_phase8_fetch_weighbridge_photos()
+        if not success8:
+            print("❌ Phase 8 failed.")
+            return False
+        
+        return True
     
     def run_all_tests(self):
         """Run all Sales Pre-Entry tests"""
