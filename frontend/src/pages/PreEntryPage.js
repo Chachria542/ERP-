@@ -72,6 +72,17 @@ function PreEntryPage({ user, onLogout }) {
   const [expectedQuantityKgs, setExpectedQuantityKgs] = useState('');
   const [expectedQuantityQtls, setExpectedQuantityQtls] = useState('');
   
+  // Sale specific fields
+  const [customers, setCustomers] = useState([]);
+  const [customerId, setCustomerId] = useState('');
+  const [customerGstin, setCustomerGstin] = useState('');
+  const [isMandi, setIsMandi] = useState(false);
+  const [locationName, setLocationName] = useState('');
+  const [marka, setMarka] = useState('');
+  const [bharti, setBharti] = useState(50);
+  const [expectedBagsSale, setExpectedBagsSale] = useState('');
+  const [expectedKgsSale, setExpectedKgsSale] = useState('');
+  
   // Item details
   const [itemId, setItemId] = useState('');
   const [quality, setQuality] = useState('');
