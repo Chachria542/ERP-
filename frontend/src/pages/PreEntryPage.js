@@ -348,6 +348,32 @@ function PreEntryPage({ user, onLogout }) {
         };
         
         endpoint = `${API}/bill-purchase/pre-entry`;
+      } else if (transactionType === 'sale') {
+        // Sale payload
+        payload = {
+          date: new Date().toISOString().split('T')[0],
+          order_number: orderNumber || null,
+          customer_id: customerId,
+          customer_gstin: customerGstin || null,
+          place_of_supply: placeOfSupply,
+          is_mandi: isMandi,
+          location_name: locationName || null,
+          item_id: itemId || null,
+          item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
+          marka: marka || null,
+          bharti: bharti,
+          expected_bags: expectedBagsSale ? parseInt(expectedBagsSale) : null,
+          expected_kgs: expectedKgsSale ? parseFloat(expectedKgsSale) : null,
+          has_broker: hasBroker,
+          broker_id: null,
+          broker_name: brokerName || null,
+          brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
+          brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
+          remarks: remarks || null,
+          created_by: user.username
+        };
+        
+        endpoint = `${API}/sales/pre-entry`;
       } else {
         // Farmer Purchase payload (existing logic)
         payload = {
