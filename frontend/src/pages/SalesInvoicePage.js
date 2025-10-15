@@ -861,7 +861,7 @@ function SalesInvoicePage({ user, onLogout }) {
                   className="btn-primary"
                   disabled={submitting}
                 >
-                  {submitting ? 'Creating...' : `Create ${isReturn ? 'Return' : 'Invoice'}`}
+                  {submitting ? '💾 Saving...' : `💾 Save ${isReturn ? 'Return' : 'Invoice'}`}
                 </Button>
               </div>
             </div>
