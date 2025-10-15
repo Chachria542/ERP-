@@ -191,38 +191,48 @@ class SalesInvoiceCreationTester:
             self.log_test("Sales Invoice Creation - Success", False, f"Request failed: {str(e)}")
             return False, None
     
-    def test_phase3_verify_tare_completed_status(self):
+    def test_missing_pre_entry_id(self):
         """
-        Phase 3: Verify Pre-Entry Status Changed to tare_completed
-        GET /api/pre-entry/SPRE-25-000014 after TARE weight
+        Test 3: Edge Case - Missing pre_entry_id
+        Should fail with 422 validation error
         """
-        print("🔍 Phase 3: Verify Pre-Entry Status Changed to tare_completed...")
+        print("🔍 Test 3: Edge Case - Missing pre_entry_id...")
         
         try:
-            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
+            payload = {
+                "sale_type": "normal_sale",
+                "invoice_date": datetime.now().strftime("%Y-%m-%d"),
+                # Missing pre_entry_id
+                "line_items": [
+                    {
+                        "item_id": "test-item-id",
+                        "item_name": "Test Item",
+                        "bags": 10,
+                        "actual_qtl": 10.0,
+                        "rate": 2500.0,
+                        "amount": 25000.0
+                    }
+                ],
+                "grand_total": 25000.0,
+                "created_by": "test-user"
+            }
             
-            if response.status_code == 200:
-                data = response.json()
-                
-                status = data.get('status')
-                tare_weight = data.get('tare_weight')
-                
-                # Verify status changed to "tare_completed" and tare_weight is 5000
-                if status == "tare_completed" and tare_weight == 5000:
-                    self.log_test("Phase 3: Tare Completed Status", True, 
-                                f"✅ Status changed to 'tare_completed', tare_weight: {tare_weight} kg")
-                    return True
-                else:
-                    self.log_test("Phase 3: Tare Completed Status", False, 
-                                f"❌ Expected status='tare_completed' and tare_weight=5000, got status='{status}', tare_weight={tare_weight}")
-                    return False
+            response = requests.post(f"{self.base_url}/sales/invoice", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
+            
+            if response.status_code == 422:
+                self.log_test("Missing pre_entry_id Edge Case", True, 
+                            "✅ Correctly returned 422 validation error for missing pre_entry_id")
+                return True
             else:
-                self.log_test("Phase 3: Tare Completed Status", False, 
-                            f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Missing pre_entry_id Edge Case", False, 
+                            f"❌ Expected 422, got {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Phase 3: Tare Completed Status", False, f"Request failed: {str(e)}")
+            self.log_test("Missing pre_entry_id Edge Case", False, f"Request failed: {str(e)}")
             return False
     
     def test_phase4_verify_not_in_queue_yet(self):
