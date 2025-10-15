@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Sales Pre-Entry to Invoice Flow
-Tests the complete Sales Pre-Entry to Invoice flow end-to-end as requested
+Backend API Testing for Sales Invoice Creation Fix
+Tests the Sales Invoice Creation fix for 422 validation error as requested in review
 """
 import requests
 import json
@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://erp-sales-invoice.preview.emergentagent.com/api"
 
-class SalesFlowTester:
+class SalesInvoiceCreationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
