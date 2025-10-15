@@ -641,3 +641,188 @@ async def get_farmer(mobile: str):
         farmer['created_at'] = datetime.fromisoformat(farmer['created_at'])
     
     return farmer
+
+
+
+# ============= UNIVERSAL WEIGHBRIDGE QUEUE =============
+
+@router.get("/weighbridge/queue", response_model=WeighbridgeQueueResponse)
+async def get_weighbridge_queue(
+    transaction_type: Optional[str] = None,
+    status: Optional[str] = None
+):
+    """
+    Universal weighbridge queue - shows all pending pre-entries from all transaction types.
+    Includes smart action buttons (TARE/GROSS) based on current status.
+    
+    Query params:
+    - transaction_type: Filter by 'farmer_purchase', 'bill_purchase', or 'sale'
+    - status: Filter by status ('pending', 'tare_completed', etc.)
+    """
+    try:
+        queue_items = []
+        
+        # ===== 1. Fetch Farmer Purchase Pre-Entries (WB-) =====
+        wb_filter = {"status": {"$nin": ["weighed", "paid"]}}
+        if status:
+            wb_filter["status"] = status
+        
+        if not transaction_type or transaction_type == 'farmer_purchase':
+            wb_entries = await db.pre_entries.find(wb_filter, {"_id": 0}).to_list(1000)
+            
+            for entry in wb_entries:
+                # Determine next action based on status
+                tare_pending = False
+                gross_pending = False
+                next_action = 'gross'  # Default for farmer purchase
+                
+                if entry['status'] == 'pending':
+                    # No weights captured yet - need GROSS first for purchase
+                    gross_pending = True
+                    next_action = 'gross'
+                elif entry['status'] == 'gross_completed':
+                    # GROSS done, need TARE
+                    tare_pending = True
+                    next_action = 'tare'
+                elif entry['status'] == 'weighed':
+                    # Both done
+                    next_action = 'complete'
+                
+                queue_item = WeighbridgeQueueItem(
+                    pre_entry_id=entry['id'],
+                    slip_id=entry['slip_id'],
+                    pre_entry_number=entry['slip_id'],  # Same as slip_id for WB
+                    transaction_type='farmer_purchase',
+                    party_name=entry.get('party_name', 'Unknown'),
+                    party_mobile=entry.get('farmer_mobile'),
+                    item_name=entry.get('item_name'),
+                    item_id=entry.get('item_id'),
+                    tare_weight=entry.get('tare_weight'),
+                    gross_weight=entry.get('gross_weight'),
+                    net_weight=entry.get('net_weight'),
+                    vehicle_number=entry.get('vehicle_number'),
+                    vehicle_type=entry.get('vehicle_type'),
+                    status=entry['status'],
+                    tare_pending=tare_pending,
+                    gross_pending=gross_pending,
+                    next_action=next_action,
+                    created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
+                    date=entry.get('date', '')
+                )
+                queue_items.append(queue_item)
+        
+        # ===== 2. Fetch Bill Purchase Pre-Entries (BPRE-) =====
+        if not transaction_type or transaction_type == 'bill_purchase':
+            bp_filter = {"weighbridge_completed": False}
+            bp_entries = await db.bill_purchase_pre_entries.find(bp_filter, {"_id": 0}).to_list(1000)
+            
+            for entry in bp_entries:
+                # Determine next action
+                tare_pending = False
+                gross_pending = False
+                next_action = 'gross'
+                
+                tare_wt = entry.get('tare_weight', 0) or 0
+                gross_wt = entry.get('gross_weight', 0) or 0
+                
+                if gross_wt == 0:
+                    # Need GROSS first
+                    gross_pending = True
+                    next_action = 'gross'
+                elif tare_wt == 0:
+                    # GROSS done, need TARE
+                    tare_pending = True
+                    next_action = 'tare'
+                else:
+                    # Both done
+                    next_action = 'complete'
+                
+                queue_item = WeighbridgeQueueItem(
+                    pre_entry_id=entry['id'],
+                    slip_id=entry['pre_entry_number'],
+                    pre_entry_number=entry['pre_entry_number'],
+                    transaction_type='bill_purchase',
+                    party_name=entry.get('supplier_name', 'Unknown'),
+                    party_mobile=None,
+                    item_name=entry.get('item_name'),
+                    item_id=entry.get('item_id'),
+                    tare_weight=entry.get('tare_weight'),
+                    gross_weight=entry.get('gross_weight'),
+                    net_weight=entry.get('net_weight'),
+                    vehicle_number=entry.get('vehicle_number'),
+                    vehicle_type=None,
+                    status=entry.get('status', 'pending'),
+                    tare_pending=tare_pending,
+                    gross_pending=gross_pending,
+                    next_action=next_action,
+                    created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
+                    date=entry.get('date', '')
+                )
+                queue_items.append(queue_item)
+        
+        # ===== 3. Fetch Sales Pre-Entries (SPRE-) =====
+        if not transaction_type or transaction_type == 'sale':
+            sales_filter = {"weighbridge_completed": False}
+            if status:
+                sales_filter["status"] = status
+            
+            sales_entries = await db.sales_pre_entries.find(sales_filter, {"_id": 0}).to_list(1000)
+            
+            for entry in sales_entries:
+                # Determine next action
+                tare_pending = False
+                gross_pending = False
+                next_action = 'tare'  # Sales starts with TARE
+                
+                tare_wt = entry.get('tare_weight', 0) or 0
+                gross_wt = entry.get('gross_weight', 0) or 0
+                
+                if tare_wt == 0:
+                    # Need TARE first for sales
+                    tare_pending = True
+                    next_action = 'tare'
+                elif gross_wt == 0:
+                    # TARE done, need GROSS
+                    gross_pending = True
+                    next_action = 'gross'
+                else:
+                    # Both done
+                    next_action = 'complete'
+                
+                queue_item = WeighbridgeQueueItem(
+                    pre_entry_id=entry['id'],
+                    slip_id=entry['slip_id'],
+                    pre_entry_number=entry['pre_entry_number'],
+                    transaction_type='sale',
+                    party_name=entry.get('customer_name', 'Unknown'),
+                    party_mobile=None,
+                    item_name=entry.get('item_name'),
+                    item_id=entry.get('item_id'),
+                    tare_weight=entry.get('tare_weight'),
+                    gross_weight=entry.get('gross_weight'),
+                    net_weight=entry.get('net_weight'),
+                    vehicle_number=entry.get('vehicle_number_from_tare'),
+                    vehicle_type=None,
+                    status=entry.get('status', 'pending'),
+                    tare_pending=tare_pending,
+                    gross_pending=gross_pending,
+                    next_action=next_action,
+                    created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
+                    date=entry.get('date', '')
+                )
+                queue_items.append(queue_item)
+        
+        # Sort by created_at (newest first)
+        queue_items.sort(key=lambda x: x.created_at, reverse=True)
+        
+        return WeighbridgeQueueResponse(
+            total=len(queue_items),
+            queue=queue_items
+        )
+        
+    except Exception as e:
+        print(f"[BACKEND ERROR] Weighbridge queue fetch failed: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
