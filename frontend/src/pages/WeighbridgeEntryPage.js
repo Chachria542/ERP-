@@ -240,8 +240,10 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                 <p className="font-bold">{preEntry.transaction_type}</p>
               </div>
               <div>
-                <p className="text-sm" style={{color: '#6B5846'}}>Party Name</p>
-                <p className="font-bold">{preEntry.party_name}</p>
+                <p className="text-sm" style={{color: '#6B5846'}}>
+                  {preEntry.transaction_type === 'sale' ? 'Customer Name' : 'Party Name'}
+                </p>
+                <p className="font-bold">{preEntry.party_name || preEntry.customer_name}</p>
               </div>
               <div>
                 <p className="text-sm" style={{color: '#6B5846'}}>Item</p>
