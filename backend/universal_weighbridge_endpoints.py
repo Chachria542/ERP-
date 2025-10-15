@@ -360,6 +360,7 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 "weight_type": entry_data.weight_type
             })
             if existing_same_type:
+                print(f"[WEIGHBRIDGE ERROR] Duplicate {entry_data.weight_type} weight attempt for {entry_data.slip_id}")
                 raise HTTPException(status_code=400, detail=f"{entry_data.weight_type.capitalize()} weight already captured for this slip")
         
         # Calculate weights based on type
