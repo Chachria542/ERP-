@@ -421,7 +421,21 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         print(f"[BACKEND] Created {entry_data.weight_type} weighbridge entry for {slip_id}, weight: {measured_weight} kg")
         
         # Update pre-entry status based on type
-        if entry_data.weight_type == "single" or (entry_data.weight_type == "gross" and net_weight > 0):
+        if entry_data.weight_type == "tare":
+            # TARE weighment - update status to tare_completed for sales
+            if is_sales:
+                update_data = {
+                    "tare_weight": measured_weight,
+                    "status": "tare_completed",
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                await getattr(db, collection_name).update_one(
+                    {"id": pre_entry['id']},
+                    {"$set": update_data}
+                )
+                print(f"[BACKEND] Updated sales pre-entry status to tare_completed, tare_weight: {measured_weight} kg")
+        
+        elif entry_data.weight_type == "single" or (entry_data.weight_type == "gross" and net_weight > 0):
             # Mark as completed (both weights captured)
             update_data = {
                 "weighbridge_completed": True,
@@ -429,11 +443,12 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
             }
             
             if is_sales:
-                # Update sales pre-entry with weights
+                # Update sales pre-entry with weights and status to pending (ready for invoice)
                 update_data["tare_weight"] = tare_entry['weight'] if entry_data.weight_type == "gross" else measured_weight
                 update_data["gross_weight"] = measured_weight if entry_data.weight_type == "gross" else 0
                 update_data["net_weight"] = net_weight
                 update_data["status"] = "pending"
+                print(f"[BACKEND] Updated sales pre-entry to PENDING (ready for invoice), net_weight: {net_weight} kg")
             elif is_bill_purchase:
                 update_data["status"] = "pending"
             else:
