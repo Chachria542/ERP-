@@ -215,37 +215,38 @@ class SalesInvoiceCreate(BaseModel):
     sale_type: SaleType = SaleType.NORMAL_SALE
     invoice_date: str
     pre_entry_id: str
-    
-    # Customer (editable)
-    customer_id: str
-    customer_gstin: Optional[str] = None
-    place_of_supply: str
+    weighbridge_slip_no: Optional[str] = None
     
     # Location
     is_entry: bool = False  # False = Godown (default), True = Entry
-    location_name: Optional[str] = None
     
-    # Broker (editable)
-    has_broker: bool = False
-    broker_id: Optional[str] = None
+    # Line items (item, marka, bags, kgs, bharti, rate)
+    line_items: List[dict]  # Will process in endpoint
+    
+    # Taxes (CGST + SGST only, no IGST)
+    cgst_rate: Optional[float] = None
+    cgst_amount: float = 0.0
+    sgst_rate: Optional[float] = None
+    sgst_amount: float = 0.0
+    
+    # Additional charges
+    freight: Optional[float] = None
+    loading_charges: Optional[float] = None
+    other_charges: Optional[float] = None
+    
+    # TCS (applied before GST)
+    tcs_applicable: bool = False
+    tcs_rate: Optional[float] = None
+    tcs_amount: float = 0.0
+    
+    # Totals
+    round_off: float = 0.0
+    grand_total: float = 0.0
+    
+    # Broker (always optional)
     broker_name: Optional[str] = None
-    brokerage_type: Optional[BrokerageType] = None
+    brokerage_type: Optional[str] = None
     brokerage_rate: Optional[float] = None
-    
-    # Freight
-    freight_amount: float = 0.0
-    freight_advance: float = 0.0
-    
-    # Line items
-    line_items: List[SalesInvoiceLineItem]
-    
-    # TCS
-    tcs_rate: float = 0.0
-    
-    # Transporter
-    transporter_name: Optional[str] = None
-    vehicle_number: Optional[str] = None
-    route: Optional[str] = None
     
     # Additional
     remarks: Optional[str] = None
