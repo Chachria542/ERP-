@@ -244,61 +244,45 @@ class SalesFlowTester:
             self.log_test("Phase 5: GROSS Weight Entry", False, f"Request failed: {str(e)}")
             return False
     
-    def test_validation_missing_required_fields(self):
+    def test_phase6_verify_pending_status_and_weights(self):
         """
-        Test 5: Data Validation - Missing Required Fields
-        Test validation for customer_id and place_of_supply
+        Phase 6: Verify Pre-Entry Status Changed to pending with all weights
+        GET /api/pre-entry/SPRE-25-000014 after GROSS weight
         """
-        print("🔍 Test 5: Data Validation - Missing Required Fields...")
+        print("🔍 Phase 6: Verify Pre-Entry Status Changed to pending with all weights...")
         
         try:
-            # Test missing customer_id
-            payload_no_customer = {
-                "date": "2025-01-14",
-                "place_of_supply": "Mumbai, Maharashtra",
-                "created_by": "admin"
-            }
+            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
             
-            response = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                   json=payload_no_customer,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code == 422:  # Validation error
-                self.log_test("Validation Missing Customer ID", True, 
-                            "✅ Missing customer_id correctly rejected with 422")
-            else:
-                self.log_test("Validation Missing Customer ID", False, 
-                            f"❌ Expected 422, got {response.status_code}")
-                return False
-            
-            # Test missing place_of_supply
-            if self.customers:
-                payload_no_place = {
-                    "date": "2025-01-14",
-                    "customer_id": self.customers[0]['id'],
-                    "created_by": "admin"
-                }
+            if response.status_code == 200:
+                data = response.json()
                 
-                response = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                       json=payload_no_place,
-                                       headers={'Content-Type': 'application/json'},
-                                       timeout=10)
+                status = data.get('status')
+                tare_weight = data.get('tare_weight')
+                gross_weight = data.get('gross_weight')
+                net_weight = data.get('net_weight')
                 
-                if response.status_code == 422:  # Validation error
-                    self.log_test("Validation Missing Place of Supply", True, 
-                                "✅ Missing place_of_supply correctly rejected with 422")
+                # Verify status changed to "pending" and all weights are correct
+                expected_net = 50000  # 55000 - 5000
+                
+                if (status == "pending" and 
+                    tare_weight == 5000 and 
+                    gross_weight == 55000 and 
+                    net_weight == expected_net):
+                    self.log_test("Phase 6: Pending Status with Weights", True, 
+                                f"✅ Status: {status}, Tare: {tare_weight} kg, Gross: {gross_weight} kg, Net: {net_weight} kg")
                     return True
                 else:
-                    self.log_test("Validation Missing Place of Supply", False, 
-                                f"❌ Expected 422, got {response.status_code}")
+                    self.log_test("Phase 6: Pending Status with Weights", False, 
+                                f"❌ Expected status='pending', tare=5000, gross=55000, net=50000. Got status='{status}', tare={tare_weight}, gross={gross_weight}, net={net_weight}")
                     return False
             else:
-                self.log_test("Validation Missing Required Fields", False, "No customers available for testing")
+                self.log_test("Phase 6: Pending Status with Weights", False, 
+                            f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Validation Missing Required Fields", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 6: Pending Status with Weights", False, f"Request failed: {str(e)}")
             return False
     
     def test_validation_invalid_customer_id(self):
