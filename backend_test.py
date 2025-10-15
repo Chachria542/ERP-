@@ -433,59 +433,14 @@ class SalesFlowTester:
         return True
     
     def run_all_tests(self):
-        """Run all Sales Pre-Entry tests"""
-        print("🚀 Starting Sales Pre-Entry Backend Testing")
-        print(f"Testing against: {self.base_url}")
-        print("=" * 80)
+        """Run the complete Sales Pre-Entry to Invoice flow test"""
         
-        # Setup test data first
-        if not self.setup_test_data():
-            print("❌ Test setup failed. Cannot proceed with testing.")
-            return False
-        
-        print("\n" + "=" * 80)
-        print("🔥 SALES PRE-ENTRY CREATION TESTS")
-        print("=" * 80)
-        
-        # Test 1: Basic pre-entry creation
-        self.test_sales_pre_entry_creation_basic()
-        
-        # Test 2: Sequential numbering
-        self.test_sales_pre_entry_sequential_numbering()
-        
-        print("\n" + "=" * 80)
-        print("📋 MARKA MEMORY ENDPOINT TESTS")
-        print("=" * 80)
-        
-        # Test 3: Marka memory endpoint
-        self.test_marka_memory_endpoint()
-        
-        # Test 4: Marka memory with non-existent item
-        self.test_marka_memory_nonexistent_item()
-        
-        print("\n" + "=" * 80)
-        print("📋 DATA VALIDATION TESTS")
-        print("=" * 80)
-        
-        # Test 5: Missing required fields
-        self.test_validation_missing_required_fields()
-        
-        # Test 6: Invalid customer ID
-        self.test_validation_invalid_customer_id()
-        
-        print("\n" + "=" * 80)
-        print("📋 INTEGRATION TESTS")
-        print("=" * 80)
-        
-        # Test 7: Customer data integration
-        self.test_integration_customer_data_fetch()
-        
-        # Test 8: Item data integration
-        self.test_integration_item_data_fetch()
+        # Run the complete flow test
+        flow_success = self.run_complete_sales_flow_test()
         
         # Summary
         print("\n" + "=" * 80)
-        print("📊 SALES PRE-ENTRY TEST SUMMARY")
+        print("📊 SALES PRE-ENTRY TO INVOICE FLOW TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -497,12 +452,6 @@ class SalesFlowTester:
         print(f"Failed: {failed_tests} ❌")
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Show created pre-entries
-        if self.created_pre_entries:
-            print(f"\n📝 CREATED PRE-ENTRIES ({len(self.created_pre_entries)}):")
-            for entry in self.created_pre_entries:
-                print(f"  - {entry.get('pre_entry_number')}: {entry.get('customer_name')} - {entry.get('item_name')}")
-        
         # Detailed results
         if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
@@ -510,22 +459,29 @@ class SalesFlowTester:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
             
-            print("\n🚨 SALES PRE-ENTRY ISSUES FOUND:")
-            print("Some Sales Pre-Entry endpoints may not be working correctly.")
+            print("\n🚨 SALES FLOW ISSUES FOUND:")
+            print("Some parts of the Sales Pre-Entry to Invoice flow are not working correctly.")
             print("Please review the failed tests above and check the implementation.")
         else:
-            print("\n🎉 ALL SALES PRE-ENTRY TESTS PASSED!")
-            print("✅ Sales Pre-Entry creation endpoint working correctly")
-            print("✅ Pre-entry number generation in SPRE-YY-###### format working")
-            print("✅ Sequential numbering working correctly")
-            print("✅ Marka memory endpoint working")
-            print("✅ Data validation working")
-            print("✅ Customer and item integration working")
+            print("\n🎉 COMPLETE SALES FLOW TEST PASSED!")
+            print("✅ Phase 1: Pre-Entry Status Verification")
+            print("✅ Phase 2: TARE Weight Entry (Empty Truck)")
+            print("✅ Phase 3: Status Transition to tare_completed")
+            print("✅ Phase 4: Correctly NOT in queue during tare_completed")
+            print("✅ Phase 5: GROSS Weight Entry (Loaded Truck)")
+            print("✅ Phase 6: Status Transition to pending with all weights")
+            print("✅ Phase 7: NOW appears in sales queue")
+            print("✅ Phase 8: Weighbridge photos fetch for modal")
+            print("\n🎯 SUCCESS CRITERIA MET:")
+            print("- Status transitions: weigh_pending → tare_completed → pending")
+            print("- Weights correctly saved and calculated (Net = 50000 kg)")
+            print("- Pre-entry appears in sales queue after GROSS weight")
+            print("- Combined weighbridge data fetch works for photo modal")
         
         print("\n" + "=" * 80)
         return failed_tests == 0
 
 if __name__ == "__main__":
-    tester = SalesPreEntryTester()
+    tester = SalesFlowTester()
     success = tester.run_all_tests()
     sys.exit(0 if success else 1)
