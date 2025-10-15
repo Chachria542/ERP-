@@ -141,6 +141,8 @@ function SalesInvoicePage({ user, onLogout }) {
     setInvoiceData({
       ...invoiceData,
       invoice_date: new Date().toISOString().split('T')[0],
+      weighbridge_slip_no: preEntry.pre_entry_number || '',
+      is_entry: preEntry.is_entry || false, // Carry from pre-entry
       item_id: preEntry.item_id,
       item_name: preEntry.item_name,
       marka: preEntry.marka || '',
@@ -148,7 +150,6 @@ function SalesInvoicePage({ user, onLogout }) {
       bags: Math.floor(preEntry.net_weight / (preEntry.bharti || 50)),
       kgs: preEntry.net_weight % (preEntry.bharti || 50),
       actual_qtl: (preEntry.net_weight / 100).toFixed(2),
-      has_broker: preEntry.has_broker,
       broker_name: preEntry.broker_name || '',
       brokerage_type: preEntry.brokerage_type || 'per_quintal',
       brokerage_rate: preEntry.brokerage_rate || ''
