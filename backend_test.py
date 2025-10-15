@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Sales Pre-Entry System
-Tests the new Sales Pre-Entry backend endpoints according to test_result.md
+Backend API Testing for Sales Pre-Entry to Invoice Flow
+Tests the complete Sales Pre-Entry to Invoice flow end-to-end as requested
 """
 import requests
 import json
@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://trade-flow-17.preview.emergentagent.com/api"
 
-class SalesPreEntryTester:
+class SalesFlowTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
