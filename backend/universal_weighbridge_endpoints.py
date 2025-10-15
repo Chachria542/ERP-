@@ -474,6 +474,60 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/weighbridge-entry/by-slip/{slip_id}")
+async def get_weighbridge_entry_by_slip(slip_id: str):
+    """
+    Fetch complete weighbridge data by slip ID.
+    For sales (SPRE-), combines TARE and GROSS entries.
+    For other types, returns single entry.
+    """
+    is_sales = slip_id.startswith("SPRE-")
+    
+    if is_sales:
+        # Fetch both TARE and GROSS entries for sales
+        tare_entry = await db.weighbridge_entries.find_one(
+            {"slip_id": slip_id, "weight_type": "tare"}, 
+            {"_id": 0}
+        )
+        gross_entry = await db.weighbridge_entries.find_one(
+            {"slip_id": slip_id, "weight_type": "gross"}, 
+            {"_id": 0}
+        )
+        
+        if not tare_entry and not gross_entry:
+            raise HTTPException(status_code=404, detail="Weighbridge entries not found")
+        
+        # Combine data
+        return {
+            "slip_id": slip_id,
+            "transaction_type": "sale",
+            "tare_weight": tare_entry['weight'] if tare_entry else 0,
+            "gross_weight": gross_entry['weight'] if gross_entry else 0,
+            "net_weight": (gross_entry['weight'] if gross_entry else 0) - (tare_entry['weight'] if tare_entry else 0),
+            "photo_tare_url": tare_entry.get('photo_url') if tare_entry else None,
+            "photo_gross_url": gross_entry.get('photo_url') if gross_entry else None,
+            "tare_timestamp": tare_entry.get('weighed_at') if tare_entry else None,
+            "gross_timestamp": gross_entry.get('weighed_at') if gross_entry else None,
+            "vehicle_number": gross_entry.get('vehicle_number') if gross_entry else tare_entry.get('vehicle_number') if tare_entry else None
+        }
+    else:
+        # Regular single weighment
+        wb_entry = await db.weighbridge_entries.find_one({"slip_id": slip_id}, {"_id": 0})
+        
+        if not wb_entry:
+            raise HTTPException(status_code=404, detail="Weighbridge entry not found")
+        
+        return {
+            "slip_id": slip_id,
+            "transaction_type": wb_entry.get('transaction_type'),
+            "tare_weight": wb_entry.get('tare_weight', 0),
+            "gross_weight": wb_entry.get('gross_weight', 0),
+            "net_weight": wb_entry.get('net_weight', 0),
+            "photo_tare_url": wb_entry.get('photo_tare_url'),
+            "photo_gross_url": wb_entry.get('photo_gross_url'),
+            "vehicle_number": wb_entry.get('vehicle_number')
+        }
+
 @router.get("/weighbridge-entry/{slip_id}")
 async def get_weighbridge_entry(slip_id: str):
     """
