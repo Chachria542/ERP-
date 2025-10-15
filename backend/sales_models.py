@@ -155,17 +155,10 @@ class SalesInvoice(BaseModel):
     is_entry: bool = False  # False = Godown (default), True = Entry
     location_name: Optional[str] = None
     
-    # Broker details (editable during invoice creation)
-    has_broker: bool = False
-    broker_id: Optional[str] = None
+    # Broker details (always optional)
     broker_name: Optional[str] = None
-    brokerage_type: Optional[BrokerageType] = None
+    brokerage_type: Optional[str] = None
     brokerage_rate: Optional[float] = None
-    brokerage_amount: float = 0.0
-    
-    # Freight
-    freight_amount: float = 0.0  # Global freight amount
-    freight_advance: float = 0.0  # Freight advance (slip)
     
     # Line items
     line_items: List[SalesInvoiceLineItem] = Field(default_factory=list)
