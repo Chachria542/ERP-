@@ -298,6 +298,12 @@ function PreEntryPage({ user, onLogout }) {
         toast.error('Please enter broker name');
         return;
       }
+    } else if (transactionType === 'sale') {
+      // Sale validation
+      if (!customerId || !placeOfSupply) {
+        toast.error('Customer and Place of Supply are required');
+        return;
+      }
     } else {
       // Farmer purchase validation
       if (!partyName || !itemId) {
