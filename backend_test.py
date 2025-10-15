@@ -339,50 +339,32 @@ class SalesInvoiceCreationTester:
             self.log_test("Wrong Status Pre-entry Edge Case", False, f"Request failed: {str(e)}")
             return False
     
-    def test_phase6_verify_pending_status_and_weights(self):
-        """
-        Phase 6: Verify Pre-Entry Status Changed to pending with all weights
-        GET /api/pre-entry/SPRE-25-000014 after GROSS weight
-        """
-        print("🔍 Phase 6: Verify Pre-Entry Status Changed to pending with all weights...")
+    def run_all_tests(self):
+        """Run all sales invoice creation tests"""
+        print("🚀 Starting Sales Invoice Creation Fix Testing")
+        print(f"Testing against: {self.base_url}")
+        print(f"Test credentials: {self.username}/{self.password}")
+        print("=" * 80)
         
-        try:
-            # First get the actual weighbridge data to know expected values
-            wb_response = requests.get(f"{self.base_url}/weighbridge-entry/by-slip/{self.target_slip_id}", timeout=10)
-            expected_tare = 2345  # From existing data
-            expected_gross = 55000  # What we're setting
-            expected_net = expected_gross - expected_tare  # 52655
-            
-            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                
-                status = data.get('status')
-                tare_weight = data.get('tare_weight')
-                gross_weight = data.get('gross_weight')
-                net_weight = data.get('net_weight')
-                
-                # Verify status changed to "pending" and all weights are correct
-                if (status == "pending" and 
-                    tare_weight == expected_tare and 
-                    gross_weight == expected_gross and 
-                    net_weight == expected_net):
-                    self.log_test("Phase 6: Pending Status with Weights", True, 
-                                f"✅ Status: {status}, Tare: {tare_weight} kg, Gross: {gross_weight} kg, Net: {net_weight} kg")
-                    return True
-                else:
-                    self.log_test("Phase 6: Pending Status with Weights", False, 
-                                f"❌ Expected status='pending', tare={expected_tare}, gross={expected_gross}, net={expected_net}. Got status='{status}', tare={tare_weight}, gross={gross_weight}, net={net_weight}")
-                    return False
-            else:
-                self.log_test("Phase 6: Pending Status with Weights", False, 
-                            f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Phase 6: Pending Status with Weights", False, f"Request failed: {str(e)}")
+        # Test 1: Sales Queue Endpoint
+        success1, queue_entry = self.test_sales_queue_endpoint()
+        if not success1:
+            print("❌ Sales Queue test failed. Cannot proceed with invoice creation tests.")
             return False
+        
+        # Test 2: Sales Invoice Creation - Success Case
+        success2, invoice_number = self.test_sales_invoice_creation_success(queue_entry)
+        
+        # Test 3: Edge Case - Missing pre_entry_id
+        success3 = self.test_missing_pre_entry_id()
+        
+        # Test 4: Edge Case - Invalid pre_entry_id  
+        success4 = self.test_invalid_pre_entry_id()
+        
+        # Test 5: Edge Case - Wrong status pre-entry
+        success5 = self.test_wrong_status_pre_entry()
+        
+        return success2 and success3 and success4 and success5
     
     def test_phase7_verify_now_in_queue(self):
         """
