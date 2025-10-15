@@ -52,10 +52,6 @@ class SalesPreEntry(BaseModel):
     customer_gstin: Optional[str] = None
     place_of_supply: str  # Required free text
     
-    # Location
-    is_mandi: bool = False  # False = Godown (default), True = Mandi
-    location_name: Optional[str] = None  # Mandi/Godown name
-    
     # Item details
     item_id: Optional[str] = None  # FK to items collection
     item_name: Optional[str] = None  # Auto-filled from item
