@@ -194,10 +194,19 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       return;
     }
 
-    // For sales, validate gross > tare
-    if (transactionType === 'sale' && weight <= existingTareWeight) {
-      toast.error(`GROSS weight (${weight} kg) must be greater than TARE weight (${existingTareWeight} kg)`);
-      return;
+    // Validate weight relationship
+    if (transactionType === 'purchase') {
+      // For purchase: TARE must be less than GROSS
+      if (weight >= existingGrossWeight) {
+        toast.error(`TARE weight (${weight} kg) must be less than GROSS weight (${existingGrossWeight} kg)`);
+        return;
+      }
+    } else {
+      // For sales: GROSS must be greater than TARE
+      if (weight <= existingTareWeight) {
+        toast.error(`GROSS weight (${weight} kg) must be greater than TARE weight (${existingTareWeight} kg)`);
+        return;
+      }
     }
 
     setLoading(true);
@@ -209,7 +218,7 @@ function WeighbridgeEntryPage({ user, onLogout }) {
         driver_name: driverName || null,
         driver_mobile: driverMobile || null,
         weight: weight,
-        weight_type: 'gross',
+        weight_type: transactionType === 'purchase' ? 'tare' : 'gross',
         operator_id: user.id,
         operator_name: user.name,
         shift: shift
@@ -218,8 +227,16 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       const response = await axios.post(`${API}/weighbridge-entry`, payload);
       
       setSecondWeightCaptured(true);
-      setExistingGrossWeight(weight);
-      toast.success(`✅ GROSS weight recorded! Net weight: ${(weight - existingTareWeight).toFixed(2)} kg. Ready for invoice!`);
+      
+      if (transactionType === 'purchase') {
+        setExistingTareWeight(weight);
+        const netWeight = existingGrossWeight - weight;
+        toast.success(`✅ TARE weight recorded! Net weight: ${netWeight.toFixed(2)} kg. Ready for ${preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment'}!`);
+      } else {
+        setExistingGrossWeight(weight);
+        const netWeight = weight - existingTareWeight;
+        toast.success(`✅ GROSS weight recorded! Net weight: ${netWeight.toFixed(2)} kg. Ready for Sales Invoice!`);
+      }
       
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to capture weight');
