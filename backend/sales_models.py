@@ -65,9 +65,8 @@ class SalesPreEntry(BaseModel):
     # Pack size (Bharti)
     bharti: int = 50  # Pack size in kg (default 50 kg)
     
-    # Expected quantity
-    expected_bags: Optional[int] = None
-    expected_kgs: Optional[float] = None
+    # Expected weight
+    expected_weight: Optional[float] = None  # Expected weight in quintals
     
     # Broker details (default checked)
     has_broker: bool = True
