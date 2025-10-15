@@ -104,8 +104,7 @@ class SalesPreEntryCreate(BaseModel):
     item_rate: Optional[float] = None
     marka: Optional[str] = None
     bharti: int = 50
-    expected_bags: Optional[int] = None
-    expected_kgs: Optional[float] = None
+    expected_weight: Optional[float] = None
     has_broker: bool = True
     broker_id: Optional[str] = None
     broker_name: Optional[str] = None
