@@ -779,48 +779,48 @@ function SalesInvoicePage({ user, onLogout }) {
                 )}
               </Card>
 
-              {/* Broker Details */}
-              {invoiceData.has_broker && (
-                <Card className="p-4">
-                  <h3 className="font-bold mb-3">Broker Details</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label>Broker Name</Label>
-                      <Input
-                        value={invoiceData.broker_name}
-                        onChange={(e) => setInvoiceData({...invoiceData, broker_name: e.target.value})}
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label>Brokerage Type</Label>
-                      <Select 
-                        value={invoiceData.brokerage_type} 
-                        onValueChange={(val) => setInvoiceData({...invoiceData, brokerage_type: val})}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {BROKERAGE_TYPES.map(type => (
-                            <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Brokerage Rate</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={invoiceData.brokerage_rate}
-                        onChange={(e) => setInvoiceData({...invoiceData, brokerage_rate: e.target.value})}
-                        className="mt-1"
-                      />
-                    </div>
+              {/* Broker Details (always shown) */}
+              <Card className="p-4">
+                <h3 className="font-bold mb-3">Broker Details (Optional)</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Broker Name</Label>
+                    <Input
+                      value={invoiceData.broker_name}
+                      onChange={(e) => setInvoiceData({...invoiceData, broker_name: e.target.value})}
+                      placeholder="Enter broker name"
+                      className="mt-1"
+                    />
                   </div>
-                </Card>
-              )}
+                  <div>
+                    <Label>Brokerage Type</Label>
+                    <Select 
+                      value={invoiceData.brokerage_type} 
+                      onValueChange={(val) => setInvoiceData({...invoiceData, brokerage_type: val})}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {BROKERAGE_TYPES.map(type => (
+                          <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Brokerage Rate</Label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={invoiceData.brokerage_rate}
+                      onChange={(e) => setInvoiceData({...invoiceData, brokerage_rate: e.target.value})}
+                      placeholder="0.00"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+              </Card>
 
               {/* Remarks */}
               <div>
