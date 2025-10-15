@@ -317,6 +317,8 @@ function WeighbridgeEntryPage({ user, onLogout }) {
     setNetWeight(0);
     setBags(0);
     setQuintals(0);
+    setShowWeightCapture(false);
+    fetchQueue(); // Refresh queue after reset
   };
 
   // Helper function to get weight labels
