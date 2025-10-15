@@ -333,54 +333,46 @@ class SalesFlowTester:
             self.log_test("Phase 7: Now in Queue", False, f"Request failed: {str(e)}")
             return False
     
-    def test_integration_customer_data_fetch(self):
+    def test_phase8_fetch_weighbridge_photos(self):
         """
-        Test 7: Integration - Customer Data Fetch
-        Verify customer data is fetched correctly from parties collection
+        Phase 8: Fetch Weighbridge Photos (for photo modal)
+        GET /api/weighbridge-entry/by-slip/SPRE-25-000014
         """
-        print("🔍 Test 7: Integration - Customer Data Fetch...")
-        
-        if not self.customers or not self.items:
-            self.log_test("Integration Customer Data", False, "No test data available")
-            return False
-        
-        customer = self.customers[0]
-        item = self.items[0]
+        print("🔍 Phase 8: Fetch Weighbridge Photos (for photo modal)...")
         
         try:
-            payload = {
-                "date": "2025-01-14",
-                "customer_id": customer['id'],
-                "place_of_supply": "Test Place of Supply",
-                "item_id": item['id'],
-                "created_by": "admin"
-            }
-            
-            response = requests.post(f"{self.base_url}/sales/pre-entry", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            response = requests.get(f"{self.base_url}/weighbridge-entry/by-slip/{self.target_slip_id}", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
                 
-                # Verify customer data is correctly fetched and populated
-                if (data.get('customer_name') == customer['name'] and
-                    data.get('customer_id') == customer['id']):
-                    self.log_test("Integration Customer Data", True, 
-                                f"✅ Customer data correctly fetched: {customer['name']}")
+                # Verify it returns combined TARE and GROSS data
+                tare_weight = data.get('tare_weight')
+                gross_weight = data.get('gross_weight')
+                net_weight = data.get('net_weight')
+                photo_tare_url = data.get('photo_tare_url')
+                photo_gross_url = data.get('photo_gross_url')
+                
+                # Check all required fields
+                if (tare_weight == 5000 and 
+                    gross_weight == 55000 and 
+                    net_weight == 50000 and 
+                    photo_tare_url and 
+                    photo_gross_url):
+                    self.log_test("Phase 8: Fetch Weighbridge Photos", True, 
+                                f"✅ Combined weighbridge data: Tare: {tare_weight} kg, Gross: {gross_weight} kg, Net: {net_weight} kg, Photos: Available")
                     return True
                 else:
-                    self.log_test("Integration Customer Data", False, 
-                                f"❌ Customer data mismatch. Expected: {customer['name']}, Got: {data.get('customer_name')}")
+                    self.log_test("Phase 8: Fetch Weighbridge Photos", False, 
+                                f"❌ Incomplete data: tare={tare_weight}, gross={gross_weight}, net={net_weight}, tare_photo={bool(photo_tare_url)}, gross_photo={bool(photo_gross_url)}")
                     return False
             else:
-                self.log_test("Integration Customer Data", False, 
+                self.log_test("Phase 8: Fetch Weighbridge Photos", False, 
                             f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Integration Customer Data", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 8: Fetch Weighbridge Photos", False, f"Request failed: {str(e)}")
             return False
     
     def test_integration_item_data_fetch(self):
