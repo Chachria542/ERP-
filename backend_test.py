@@ -197,43 +197,51 @@ class SalesFlowTester:
             self.log_test("Phase 4: Not in Queue Yet", False, f"Request failed: {str(e)}")
             return False
     
-    def test_marka_memory_nonexistent_item(self):
+    def test_phase5_gross_weight_entry(self):
         """
-        Test 4: Marka Memory with Non-existent Item
-        Test marka endpoint with invalid item_id
+        Phase 5: GROSS Weight Entry (Loaded Truck)
+        POST /api/weighbridge-entry with weight_type: "gross"
         """
-        print("🔍 Test 4: Marka Memory with Non-existent Item...")
+        print("🔍 Phase 5: GROSS Weight Entry (Loaded Truck)...")
         
         try:
-            # Test with non-existent item ID
-            fake_item_id = "non-existent-item-id"
-            response = requests.get(f"{self.base_url}/sales/marka/{fake_item_id}", timeout=10)
+            payload = {
+                "slip_id": self.target_slip_id,
+                "vehicle_number": self.test_vehicle,
+                "vehicle_type": "Truck",
+                "driver_name": self.test_driver,
+                "driver_mobile": self.test_mobile,
+                "weight": 55000,
+                "weight_type": "gross",
+                "operator_id": self.test_operator,
+                "operator_name": "Test Operator",
+                "shift": "Morning"
+            }
+            
+            response = requests.post(f"{self.base_url}/weighbridge-entry", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
             
             if response.status_code == 200:
-                markas = response.json()
+                data = response.json()
                 
-                # Should return empty array for non-existent item
-                if isinstance(markas, list) and len(markas) == 0:
-                    self.log_test("Marka Memory Non-existent Item", True, 
-                                f"✅ Non-existent item returns empty array correctly")
+                # Verify weighbridge entry created successfully
+                if data.get('weight_type') == 'gross' and data.get('weight') == 55000:
+                    self.log_test("Phase 5: GROSS Weight Entry", True, 
+                                f"✅ GROSS weighbridge entry created successfully, Weight: {data.get('weight')} kg")
                     return True
                 else:
-                    self.log_test("Marka Memory Non-existent Item", False, 
-                                f"❌ Expected empty array, got: {markas}")
+                    self.log_test("Phase 5: GROSS Weight Entry", False, 
+                                f"❌ Unexpected response data: weight_type={data.get('weight_type')}, weight={data.get('weight')}")
                     return False
             else:
-                # 404 is also acceptable for non-existent item
-                if response.status_code == 404:
-                    self.log_test("Marka Memory Non-existent Item", True, 
-                                f"✅ Non-existent item returns 404 correctly")
-                    return True
-                else:
-                    self.log_test("Marka Memory Non-existent Item", False, 
-                                f"HTTP {response.status_code}: {response.text}")
-                    return False
+                self.log_test("Phase 5: GROSS Weight Entry", False, 
+                            f"HTTP {response.status_code}: {response.text}")
+                return False
                 
         except Exception as e:
-            self.log_test("Marka Memory Non-existent Item", False, f"Request failed: {str(e)}")
+            self.log_test("Phase 5: GROSS Weight Entry", False, f"Request failed: {str(e)}")
             return False
     
     def test_validation_missing_required_fields(self):
