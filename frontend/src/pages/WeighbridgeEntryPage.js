@@ -487,45 +487,19 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {transactionType === 'purchase' && (
-                      <div>
-                        <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
-                        <Input
-                          type="number"
-                          value={firstWeightValue}
-                          onChange={(e) => setFirstWeightValue(e.target.value)}
-                          placeholder="Enter loaded weight"
-                          className="mt-1 text-xl font-bold"
-                          min="0"
-                        />
-                      </div>
-                    )}
-                    {transactionType === 'sale' && (
-                      <div>
-                        <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
-                        <Input
-                          type="number"
-                          value={firstWeightValue}
-                          onChange={(e) => setFirstWeightValue(e.target.value)}
-                          placeholder="Enter empty weight"
-                          className="mt-1 text-xl font-bold"
-                          min="0"
-                        />
-                      </div>
-                    )}
-                    {transactionType === 'purchase' && (
-                      <div>
-                        <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
-                        <Input
-                          type="number"
-                          value={secondWeightValue}
-                          onChange={(e) => setSecondWeightValue(e.target.value)}
-                          placeholder="Enter empty weight"
-                          className="mt-1 text-xl font-bold"
-                          min="0"
-                        />
-                      </div>
-                    )}
+                    <div>
+                      <Label className="text-sm font-semibold">
+                        {transactionType === 'purchase' ? 'GROSS Weight (kg) *' : 'TARE Weight (kg) *'}
+                      </Label>
+                      <Input
+                        type="number"
+                        value={firstWeightValue}
+                        onChange={(e) => setFirstWeightValue(e.target.value)}
+                        placeholder={transactionType === 'purchase' ? 'Enter loaded weight' : 'Enter empty weight'}
+                        className="mt-1 text-xl font-bold"
+                        min="0"
+                      />
+                    </div>
                     <Button 
                       onClick={handleCaptureFirstWeight}
                       disabled={loading}
@@ -534,11 +508,6 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                     >
                       {loading ? 'Capturing...' : '📸 Capture Weight'}
                     </Button>
-                    {transactionType === 'purchase' && (
-                      <p className="text-xs text-gray-500 text-center">
-                        Both weights captured together for purchase
-                      </p>
-                    )}
                   </div>
                 )}
               </Card>
