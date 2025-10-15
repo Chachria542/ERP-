@@ -229,12 +229,12 @@ function SalesInvoicePage({ user, onLogout }) {
     invoiceData.rate,
     invoiceData.cgst_rate,
     invoiceData.sgst_rate,
-    invoiceData.igst_rate,
     invoiceData.freight,
     invoiceData.loading_charges,
     invoiceData.other_charges,
     invoiceData.tcs_applicable,
-    invoiceData.tcs_rate
+    invoiceData.tcs_rate,
+    isReturn
   ]);
 
   const handleSubmitInvoice = async () => {
