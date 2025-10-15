@@ -309,8 +309,8 @@ function SalesInvoicePage({ user, onLogout }) {
   const resetInvoiceForm = () => {
     setInvoiceData({
       invoice_date: new Date().toISOString().split('T')[0],
-      customer_invoice_no: '',
-      customer_invoice_date: new Date().toISOString().split('T')[0],
+      weighbridge_slip_no: '',
+      is_entry: false,
       item_id: '',
       item_name: '',
       marka: '',
@@ -324,8 +324,6 @@ function SalesInvoicePage({ user, onLogout }) {
       cgst_amount: 0,
       sgst_rate: '',
       sgst_amount: 0,
-      igst_rate: '',
-      igst_amount: 0,
       freight: '',
       loading_charges: '',
       other_charges: '',
@@ -336,7 +334,6 @@ function SalesInvoicePage({ user, onLogout }) {
       subtotal: 0,
       tax_total: 0,
       grand_total: 0,
-      has_broker: false,
       broker_name: '',
       brokerage_type: 'per_quintal',
       brokerage_rate: '',
