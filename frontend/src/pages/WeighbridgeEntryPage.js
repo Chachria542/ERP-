@@ -328,53 +328,121 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
               {/* Weight Details */}
               <div className="border-t pt-4">
-                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Weight Measurement</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-semibold">Gross Weight (kg) *</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={grossWeight}
-                      onChange={(e) => setGrossWeight(e.target.value)}
-                      placeholder="Weight with load"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Tare Weight (kg) *</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={tareWeight}
-                      onChange={(e) => setTareWeight(e.target.value)}
-                      placeholder="Empty vehicle weight"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Calculated Values */}
-                {netWeight > 0 && (
-                  <div className="mt-6 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
-                    <h4 className="font-bold mb-3" style={{color: '#3E2723'}}>Calculated Values</h4>
-                    <div className="grid grid-cols-3 gap-4">
+                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
+                  Weight Measurement
+                  {weightType === 'tare' && <span className="ml-2 text-blue-600">(Step 1: TARE - Empty Truck)</span>}
+                  {weightType === 'gross' && <span className="ml-2 text-green-600">(Step 2: GROSS - Loaded Truck)</span>}
+                </h3>
+                
+                {weightType === 'single' ? (
+                  // Regular single weighment (Purchase flow)
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm" style={{color: '#6B5846'}}>Net Weight</p>
-                        <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{netWeight.toFixed(2)} kg</p>
+                        <Label className="text-sm font-semibold">Gross Weight (kg) *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={grossWeight}
+                          onChange={(e) => setGrossWeight(e.target.value)}
+                          placeholder="Weight with load"
+                          className="mt-1"
+                          required
+                        />
                       </div>
                       <div>
-                        <p className="text-sm" style={{color: '#6B5846'}}>Bags</p>
-                        <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{bags}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm" style={{color: '#6B5846'}}>Quintals</p>
-                        <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{quintals}</p>
+                        <Label className="text-sm font-semibold">Tare Weight (kg) *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={tareWeight}
+                          onChange={(e) => setTareWeight(e.target.value)}
+                          placeholder="Empty vehicle weight"
+                          className="mt-1"
+                          required
+                        />
                       </div>
                     </div>
-                  </div>
+
+                    {/* Calculated Values */}
+                    {netWeight > 0 && (
+                      <div className="mt-6 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                        <h4 className="font-bold mb-3" style={{color: '#3E2723'}}>Calculated Values</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm" style={{color: '#6B5846'}}>Net Weight</p>
+                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{netWeight.toFixed(2)} kg</p>
+                          </div>
+                          <div>
+                            <p className="text-sm" style={{color: '#6B5846'}}>Bags</p>
+                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{bags}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm" style={{color: '#6B5846'}}>Quintals</p>
+                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{quintals}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : weightType === 'tare' ? (
+                  // TARE weighment (Sales - Step 1)
+                  <>
+                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                      <p className="text-sm text-blue-800">
+                        📦 Record the weight of the <strong>EMPTY</strong> truck before loading.
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={measuredWeight}
+                        onChange={(e) => setMeasuredWeight(e.target.value)}
+                        placeholder="Empty vehicle weight"
+                        className="mt-1 text-2xl"
+                        required
+                      />
+                    </div>
+                  </>
+                ) : (
+                  // GROSS weighment (Sales - Step 2)
+                  <>
+                    <div className="bg-green-50 p-4 rounded-lg mb-4">
+                      <p className="text-sm text-green-800">
+                        🚛 Record the weight of the <strong>LOADED</strong> truck after loading.
+                      </p>
+                      <p className="text-sm text-green-700 mt-2">
+                        <strong>Previous TARE weight:</strong> {existingTareWeight.toFixed(2)} kg
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={measuredWeight}
+                        onChange={(e) => setMeasuredWeight(e.target.value)}
+                        placeholder="Loaded vehicle weight"
+                        className="mt-1 text-2xl"
+                        required
+                      />
+                    </div>
+                    
+                    {/* Calculate and show net weight preview */}
+                    {measuredWeight && parseFloat(measuredWeight) > existingTareWeight && (
+                      <div className="mt-4 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
+                        <h4 className="font-bold mb-2" style={{color: '#3E2723'}}>Net Weight Preview</h4>
+                        <p className="text-3xl font-bold" style={{color: '#6B8E23'}}>
+                          {(parseFloat(measuredWeight) - existingTareWeight).toFixed(2)} kg
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          ({((parseFloat(measuredWeight) - existingTareWeight) / 100).toFixed(2)} quintals)
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
