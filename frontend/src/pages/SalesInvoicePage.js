@@ -868,17 +868,46 @@ function SalesInvoicePage({ user, onLogout }) {
               </Card>
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setShowInvoiceModal(false)}>
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleSubmitInvoice} 
-                  className="btn-primary"
-                  disabled={submitting}
-                >
-                  {submitting ? '💾 Saving...' : `💾 Save ${isReturn ? 'Return' : 'Invoice'}`}
-                </Button>
+              <div className="flex justify-between gap-2">
+                <div className="flex gap-2">
+                  {savedInvoice && (
+                    <>
+                      <Button 
+                        onClick={() => window.open(`${API}/sales/invoice/${savedInvoice.invoice_number}/print`, '_blank')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        🖨️ Print Invoice
+                      </Button>
+                      <Button 
+                        onClick={() => window.open(`${API}/sales/invoice/${savedInvoice.invoice_number}/print-freight-slip`, '_blank')}
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        🖨️ Print Freight Slip
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowInvoiceModal(false);
+                      setSavedInvoice(null);
+                      resetInvoiceForm();
+                    }}
+                  >
+                    {savedInvoice ? 'Close' : 'Cancel'}
+                  </Button>
+                  {!savedInvoice && (
+                    <Button 
+                      onClick={handleSubmitInvoice} 
+                      className="btn-primary"
+                      disabled={submitting}
+                    >
+                      {submitting ? '💾 Saving...' : `💾 Save ${isReturn ? 'Return' : 'Invoice'}`}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </DialogContent>
