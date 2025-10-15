@@ -939,80 +939,14 @@ function PreEntryPage({ user, onLogout }) {
                         step="0.01"
                         value={expectedWeight}
                         onChange={(e) => setExpectedWeight(e.target.value)}
-                        placeholder="e.g., 100"
+                        placeholder="In quintals"
                         className="mt-1"
                       />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-semibold">Expected Kgs</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={expectedKgsSale}
-                        onChange={(e) => setExpectedKgsSale(e.target.value)}
-                        placeholder="e.g., 5000"
-                        className="mt-1"
-                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Enter expected weight in quintals
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                {/* Broker Section for Sale */}
-                <div className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="has_broker_sale"
-                      checked={hasBroker}
-                      onCheckedChange={setHasBroker}
-                    />
-                    <Label htmlFor="has_broker_sale">Has Broker</Label>
-                  </div>
-
-                  {hasBroker && (
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <Label className="text-sm font-semibold">Broker Name</Label>
-                        <Input
-                          value={brokerName}
-                          onChange={(e) => setBrokerName(e.target.value)}
-                          placeholder="Type broker name..."
-                          className="mt-1"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-sm font-semibold">Brokerage Type</Label>
-                        <Select value={brokerageType} onValueChange={setBrokerageType}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BROKERAGE_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {brokerageType !== 'none' && (
-                        <div>
-                          <Label className="text-sm font-semibold">
-                            Brokerage Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
-                          </Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={brokerageRate}
-                            onChange={(e) => setBrokerageRate(e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             ) : (
