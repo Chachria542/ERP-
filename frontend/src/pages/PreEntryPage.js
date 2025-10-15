@@ -182,6 +182,50 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  // Fetch marka options for selected item
+  const fetchMarkaOptions = async (itemId) => {
+    try {
+      const response = await axios.get(`${API}/sales/marka/${itemId}`);
+      setMarkaOptions(response.data);
+    } catch (error) {
+      console.error('Error fetching marka options:', error);
+      setMarkaOptions([]);
+    }
+  };
+
+  // Handle order number auto-fetch
+  const handleOrderNumberBlur = async () => {
+    if (!orderNumber || transactionType !== 'sale') return;
+    
+    try {
+      const response = await axios.get(`${API}/sales/order/${orderNumber}`);
+      if (response.data) {
+        toast.info('Order details loaded');
+        // Auto-fill from order
+        if (response.data.customer_id) {
+          setCustomerId(response.data.customer_id);
+          handleCustomerSelect(response.data.customer_id);
+        }
+        if (response.data.item_id) {
+          setItemId(response.data.item_id);
+          const item = items.find(i => i.id === response.data.item_id);
+          if (item) {
+            setRatePerQtl(item.current_price?.toString() || '');
+          }
+          fetchMarkaOptions(response.data.item_id);
+        }
+        if (response.data.marka) setMarka(response.data.marka);
+        if (response.data.expected_weight) setExpectedWeight(response.data.expected_weight.toString());
+      }
+    } catch (error) {
+      if (error.response?.status === 404) {
+        console.log('Order not found - proceed with manual entry');
+      } else {
+        console.error('Error fetching order:', error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (transactionType === 'bill_purchase') {
       fetchSuppliers();
