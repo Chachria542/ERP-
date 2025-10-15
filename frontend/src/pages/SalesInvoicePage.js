@@ -293,11 +293,19 @@ function SalesInvoicePage({ user, onLogout }) {
       
       const response = await axios.post(`${API}/sales/invoice`, payload);
       
-      toast.success(`${isReturn ? 'Sales Return' : 'Sales Invoice'} created: ${response.data.invoice_number}`);
+      // Store saved invoice data
+      setSavedInvoice({
+        invoice_number: response.data.invoice_number,
+        sale_type: response.data.sale_type,
+        grand_total: response.data.grand_total,
+        status: response.data.status
+      });
       
-      setShowInvoiceModal(false);
+      toast.success(`${isReturn ? 'Sales Return' : 'Sales Invoice'} saved: ${response.data.invoice_number}`);
+      
+      // Don't close modal yet - show the bill number and print buttons
+      // setShowInvoiceModal(false);
       fetchQueue();
-      resetInvoiceForm();
       
     } catch (error) {
       console.error('Error creating invoice:', error);
