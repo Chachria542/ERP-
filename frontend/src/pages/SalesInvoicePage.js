@@ -292,6 +292,8 @@ function SalesInvoicePage({ user, onLogout }) {
         created_by: user.username
       };
       
+      console.log('[FRONTEND] Submitting invoice payload:', JSON.stringify(payload, null, 2));
+      
       const response = await axios.post(`${API}/sales/invoice`, payload);
       
       // Store saved invoice data
@@ -310,6 +312,7 @@ function SalesInvoicePage({ user, onLogout }) {
       
     } catch (error) {
       console.error('Error creating invoice:', error);
+      console.error('Error response:', error.response?.data);
       toast.error(error.response?.data?.detail || 'Failed to create invoice');
     } finally {
       setSubmitting(false);
