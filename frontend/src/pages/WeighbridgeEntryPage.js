@@ -62,6 +62,25 @@ function WeighbridgeEntryPage({ user, onLogout }) {
     }
   }, [existingTareWeight, existingGrossWeight]);
 
+  // Fetch queue on mount and when filter changes
+  useEffect(() => {
+    fetchQueue();
+  }, [filterType]);
+
+  const fetchQueue = async () => {
+    setLoading(true);
+    try {
+      const params = filterType !== 'all' ? `?transaction_type=${filterType}` : '';
+      const response = await axios.get(`${API}/weighbridge/queue${params}`);
+      setQueue(response.data.queue || []);
+    } catch (error) {
+      toast.error('Failed to fetch queue');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFetchSlip = async () => {
     if (!slipId.trim()) {
       toast.error('Please enter a slip ID');
