@@ -144,11 +144,14 @@ async def verify_otp(request: OTPVerifyRequest):
         
         # Check if expired
         expires_at = datetime.fromisoformat(otp_record['expires_at'])
-        if datetime.now(timezone.utc) > expires_at:
+        now = datetime.now(timezone.utc)
+        if now > expires_at:
+            print(f"[OTP VERIFY ERROR] OTP expired - Now: {now}, Expires: {expires_at}")
             raise HTTPException(status_code=400, detail="OTP expired. Please request new OTP.")
         
         # Check max attempts
         if otp_record['attempts'] >= otp_record['max_attempts']:
+            print(f"[OTP VERIFY ERROR] Max attempts exceeded - Attempts: {otp_record['attempts']}/{otp_record['max_attempts']}")
             raise HTTPException(status_code=400, detail="Maximum attempts exceeded. Please request new OTP.")
         
         # Increment attempts
@@ -160,6 +163,7 @@ async def verify_otp(request: OTPVerifyRequest):
         # Verify OTP
         if request.otp != otp_record['otp']:
             remaining_attempts = otp_record['max_attempts'] - (otp_record['attempts'] + 1)
+            print(f"[OTP VERIFY ERROR] Invalid OTP - Expected: {otp_record['otp']}, Received: {request.otp}")
             raise HTTPException(
                 status_code=400,
                 detail=f"Invalid OTP. {remaining_attempts} attempts remaining."
