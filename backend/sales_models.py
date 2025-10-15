@@ -184,10 +184,8 @@ class SalesInvoice(BaseModel):
     round_off: float = 0.0  # Round to nearest ₹1
     grand_total: float = 0.0  # Final amount after round-off
     
-    # Transporter (for freight slip)
-    transporter_name: Optional[str] = None
+    # Vehicle info (from weighbridge)
     vehicle_number: Optional[str] = None
-    route: Optional[str] = None
     
     # Additional
     remarks: Optional[str] = None
