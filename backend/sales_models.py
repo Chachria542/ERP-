@@ -261,12 +261,19 @@ class SalesQueueItem(BaseModel):
     slip_id: str
     date: str
     customer_name: str
+    customer_id: str  # For invoice creation
+    place_of_supply: str  # For invoice creation
+    item_id: Optional[str] = None  # For invoice creation
     item_name: Optional[str] = None
     marka: Optional[str] = None
+    bharti: Optional[int] = 50  # Pack size
     tare_weight: Optional[float] = None
     gross_weight: Optional[float] = None
     net_weight: Optional[float] = None
+    is_entry: Optional[bool] = False  # Godown/Entry toggle from pre-entry
     broker_name: Optional[str] = None
+    brokerage_type: Optional[str] = None  # For broker details
+    brokerage_rate: Optional[float] = None  # For broker details
     status: str
     weighbridge_completed: bool
     created_at: datetime
