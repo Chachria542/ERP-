@@ -309,9 +309,9 @@ def calculate_brokerage_for_sales(
     else:
         return 0.0
 
-@router.post("/sales/invoice", response_model=SalesInvoice)
+@router.post("/sales/invoice", response_model=dict)
 async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
-    """Create sales invoice or sales return"""
+    """Create sales invoice or sales return - Save & Post"""
     try:
         # Get pre-entry
         pre_entry = await db.sales_pre_entries.find_one({"id": invoice_data.pre_entry_id})
@@ -321,110 +321,119 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
         if pre_entry['status'] != "pending":
             raise HTTPException(status_code=400, detail=f"Pre-entry status is {pre_entry['status']}, must be pending")
         
-        # Generate invoice number
+        # Generate invoice number (SAL-YY-######)
         invoice_number = await generate_sales_invoice_number()
         
-        # Calculate totals
-        subtotal = sum(item.amount for item in invoice_data.line_items)
-        total_gst = sum(item.gst_amount for item in invoice_data.line_items)
+        # Process line items
+        line_items_processed = []
+        subtotal = 0.0
+        for item_data in invoice_data.line_items:
+            line_item = {
+                "item_id": item_data.get("item_id"),
+                "item_name": item_data.get("item_name"),
+                "marka": item_data.get("marka"),
+                "bags": item_data.get("bags", 0),
+                "kgs": item_data.get("kgs", 0.0),
+                "bharti": item_data.get("bharti", 50),
+                "actual_qtl": item_data.get("actual_qtl", 0.0),
+                "rate": item_data.get("rate", 0.0),
+                "amount": item_data.get("amount", 0.0)
+            }
+            line_items_processed.append(line_item)
+            subtotal += line_item["amount"]
         
-        # TCS on subtotal
-        tcs_amount = round((subtotal * invoice_data.tcs_rate / 100), 2) if invoice_data.tcs_rate > 0 else 0.0
+        # Calculation order (as per spec):
+        # 1. Subtotal = Amount
+        # 2. TCS = Subtotal × TCS% (BEFORE GST)
+        # 3. CGST/SGST = (Subtotal + TCS) × GST%
+        # 4. Grand Total = Subtotal + TCS + GST + Additional Charges
+        # 5. Round Off
         
-        # Calculate brokerage if applicable
-        brokerage_amount = 0.0
-        if invoice_data.has_broker and invoice_data.broker_name and invoice_data.brokerage_rate:
-            total_bags = sum(item.bags for item in invoice_data.line_items)
-            total_qtls = sum(item.actual_qtl for item in invoice_data.line_items)
-            brokerage_amount = calculate_brokerage_for_sales(
-                invoice_data.brokerage_type,
-                invoice_data.brokerage_rate,
-                total_bags,
-                total_qtls,
-                subtotal
-            )
+        tcs_amount = invoice_data.tcs_amount
+        cgst_amount = invoice_data.cgst_amount
+        sgst_amount = invoice_data.sgst_amount
+        freight = invoice_data.freight or 0.0
+        loading_charges = invoice_data.loading_charges or 0.0
+        other_charges = invoice_data.other_charges or 0.0
         
-        # Gross total
-        gross_total = subtotal + total_gst + tcs_amount + invoice_data.freight_amount
+        # Grand total (already calculated in frontend)
+        grand_total = invoice_data.grand_total
+        round_off = invoice_data.round_off
         
-        # Round-off to nearest ₹1
-        net_amount = round(gross_total)
-        round_off = net_amount - gross_total
-        
-        # For sales return, make amounts negative
-        if invoice_data.sale_type == SaleType.SALES_RETURN:
-            subtotal = -subtotal
-            total_gst = -total_gst
-            tcs_amount = -tcs_amount
-            brokerage_amount = -brokerage_amount
-            gross_total = -gross_total
-            net_amount = -net_amount
-            round_off = -round_off
-        
-        # Create invoice
-        invoice = SalesInvoice(
-            invoice_number=invoice_number,
-            sale_type=invoice_data.sale_type,
-            invoice_date=invoice_data.invoice_date,
-            pre_entry_id=invoice_data.pre_entry_id,
-            pre_entry_number=pre_entry['pre_entry_number'],
-            weighbridge_slip_id=pre_entry.get('weighbridge_slip_id'),
-            order_number=pre_entry.get('order_number'),
-            customer_id=invoice_data.customer_id,
-            customer_name=pre_entry['customer_name'],
-            customer_gstin=invoice_data.customer_gstin,
-            place_of_supply=invoice_data.place_of_supply,
-            is_mandi=invoice_data.is_mandi,
-            location_name=invoice_data.location_name,
-            has_broker=invoice_data.has_broker,
-            broker_id=invoice_data.broker_id,
-            broker_name=invoice_data.broker_name,
-            brokerage_type=invoice_data.brokerage_type,
-            brokerage_rate=invoice_data.brokerage_rate,
-            brokerage_amount=brokerage_amount,
-            freight_amount=invoice_data.freight_amount,
-            freight_advance=invoice_data.freight_advance,
-            line_items=invoice_data.line_items,
-            subtotal=subtotal,
-            total_gst=total_gst,
-            tcs_rate=invoice_data.tcs_rate,
-            tcs_amount=tcs_amount,
-            gross_total=gross_total,
-            round_off=round_off,
-            net_amount=net_amount,
-            transporter_name=invoice_data.transporter_name,
-            vehicle_number=invoice_data.vehicle_number,
-            route=invoice_data.route,
-            remarks=invoice_data.remarks,
-            created_by=invoice_data.created_by
-        )
+        # Create invoice document
+        invoice_doc = {
+            "id": str(uuid.uuid4()),
+            "invoice_number": invoice_number,
+            "sale_type": invoice_data.sale_type.value,
+            "invoice_date": invoice_data.invoice_date,
+            "pre_entry_id": invoice_data.pre_entry_id,
+            "pre_entry_number": pre_entry['pre_entry_number'],
+            "weighbridge_slip_no": invoice_data.weighbridge_slip_no,
+            "customer_id": pre_entry['customer_id'],
+            "customer_name": pre_entry['customer_name'],
+            "customer_gstin": pre_entry.get('customer_gstin'),
+            "place_of_supply": pre_entry['place_of_supply'],
+            "is_entry": invoice_data.is_entry,
+            "broker_name": invoice_data.broker_name,
+            "brokerage_type": invoice_data.brokerage_type,
+            "brokerage_rate": invoice_data.brokerage_rate,
+            "line_items": line_items_processed,
+            "cgst_rate": invoice_data.cgst_rate,
+            "cgst_amount": cgst_amount,
+            "sgst_rate": invoice_data.sgst_rate,
+            "sgst_amount": sgst_amount,
+            "freight": freight,
+            "loading_charges": loading_charges,
+            "other_charges": other_charges,
+            "tcs_applicable": invoice_data.tcs_applicable,
+            "tcs_rate": invoice_data.tcs_rate,
+            "tcs_amount": tcs_amount,
+            "subtotal": subtotal,
+            "round_off": round_off,
+            "grand_total": grand_total,
+            "vehicle_number": pre_entry.get('vehicle_number'),
+            "remarks": invoice_data.remarks,
+            "status": "posted",  # Save = Post
+            "posted_at": datetime.now(timezone.utc).isoformat(),
+            "posted_by": invoice_data.created_by,
+            "created_by": invoice_data.created_by,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": None
+        }
         
         # Save to database
-        doc = invoice.model_dump()
-        doc['created_at'] = doc['created_at'].isoformat()
-        if doc.get('updated_at'):
-            doc['updated_at'] = doc['updated_at'].isoformat()
-        doc['sale_type'] = doc['sale_type'].value
+        await db.sales_invoices.insert_one(invoice_doc)
         
-        await db.sales_invoices.insert_one(doc)
-        
-        # Update pre-entry status
+        # Update pre-entry status to invoice_generated
         await db.sales_pre_entries.update_one(
             {"id": invoice_data.pre_entry_id},
             {"$set": {
                 "status": "invoice_generated",
+                "invoice_number": invoice_number,
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }}
         )
         
-        print(f"[BACKEND] Created {'sales return' if invoice_data.sale_type == SaleType.SALES_RETURN else 'sales invoice'}: {invoice_number}")
+        # Create voucher entries (placeholder for now)
+        await create_sales_voucher(invoice_doc)
         
-        return invoice
+        print(f"[BACKEND] Created & Posted {'sales return' if invoice_data.sale_type == SaleType.SALES_RETURN else 'sales invoice'}: {invoice_number}")
+        
+        return {
+            "id": invoice_doc["id"],
+            "invoice_number": invoice_number,
+            "sale_type": invoice_data.sale_type.value,
+            "grand_total": grand_total,
+            "status": "posted",
+            "message": f"Invoice {invoice_number} created and posted successfully"
+        }
         
     except HTTPException:
         raise
     except Exception as e:
         print(f"[BACKEND] Error creating sales invoice: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/sales/invoice/{invoice_id}/post")
