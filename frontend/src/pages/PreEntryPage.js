@@ -1073,7 +1073,7 @@ function PreEntryPage({ user, onLogout }) {
         </div>
 
         {/* Transaction-Specific Fields */}
-        {(transactionType === 'bill_purchase' || transactionType === 'sale' || transactionType === 'internal_transfer' || transactionType === 'custody_deposit') && (
+        {(transactionType === 'bill_purchase' || transactionType === 'internal_transfer' || transactionType === 'custody_deposit') && (
           <div className="border-t pt-4">
             <h4 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Additional Details</h4>
             <div className="grid grid-cols-3 gap-4">
@@ -1084,17 +1084,6 @@ function PreEntryPage({ user, onLogout }) {
                     value={poNumber}
                     onChange={(e) => setPoNumber(e.target.value)}
                     placeholder="Purchase order number"
-                    className="mt-1"
-                  />
-                </div>
-              )}
-              {transactionType === 'sale' && (
-                <div>
-                  <Label className="text-sm font-semibold">Order Number</Label>
-                  <Input
-                    value={orderNumber}
-                    onChange={(e) => setOrderNumber(e.target.value)}
-                    placeholder="Sales order number"
                     className="mt-1"
                   />
                 </div>
