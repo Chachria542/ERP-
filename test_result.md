@@ -1509,4 +1509,89 @@ agent_communication:
       ✅ Data persists correctly in MongoDB
       ✅ Marka memory system functional for dropdown population
       
+
+backend:
+  - task: "Sales Invoice Creation - Fix 422 Validation Error"
+    implemented: true
+    working: "NA"
+    file: "backend/sales_endpoints.py, backend/sales_models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED: Sales Invoice submission failing with 422 error. Frontend payload missing required fields: pre_entry_id and item_id in line_items."
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL FIX IMPLEMENTED: Root cause identified - frontend using selectedPreEntry.id instead of selectedPreEntry.pre_entry_id, and queue response not including item_id. Fixed by: 1) Updated SalesQueueItem model to include customer_id, place_of_supply, item_id, bharti, is_entry, brokerage_type, and brokerage_rate fields for complete invoice auto-fill. 2) Updated sales queue endpoint to return all these fields from pre-entry. 3) Fixed frontend payload to use selectedPreEntry.pre_entry_id instead of selectedPreEntry.id. Now queue provides all data needed for invoice creation, and frontend correctly references the pre_entry_id field. Backend restarted successfully. Ready for testing."
+
+frontend:
+  - task: "Sales Invoice Submission Payload Fix"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/SalesInvoicePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED: Sales Invoice submission failing with 422 error. Frontend submitting incorrect field reference."
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL FIX IMPLEMENTED: Changed payload line 253 from selectedPreEntry.id to selectedPreEntry.pre_entry_id to match the field name returned by the sales queue endpoint. The handleCreateInvoice function already correctly accesses all queue fields including item_id, so the full payload should now be correct. Frontend hot-reload applied changes automatically."
+
+metadata:
+  test_sequence: 7
+
+test_plan:
+  current_focus:
+    - "Sales Invoice Creation - Fix 422 Validation Error"
+    - "Sales Invoice Submission Payload Fix"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      🔧 **SALES INVOICE 422 ERROR - CRITICAL FIX APPLIED**
+      
+      **Issue Analysis:**
+      User reported 422 Unprocessable Entity error when submitting Sales Invoice. Investigation revealed:
+      1. Frontend was using `selectedPreEntry.id` but queue returns `pre_entry_id`
+      2. Queue was not returning `item_id` needed for line items validation
+      3. Other pre-fill fields (customer_id, place_of_supply, is_entry, broker details) also missing
+      
+      **Root Cause:**
+      - Frontend/backend field name mismatch: `.id` vs `.pre_entry_id`
+      - Incomplete queue response missing critical fields for invoice creation
+      
+      **Fixes Applied:**
+      
+      **Backend Changes (sales_models.py, sales_endpoints.py):**
+      1. Updated SalesQueueItem model to include all fields needed for invoice auto-fill:
+         - customer_id (required by invoice creation)
+         - place_of_supply (required by invoice creation)
+         - item_id (required by line_items validation)
+         - bharti (pack size for bag calculations)
+         - is_entry (Godown/Entry toggle)
+         - brokerage_type, brokerage_rate (broker details)
+      
+      2. Updated sales queue endpoint to populate all these fields from pre-entry
+      
+      **Frontend Changes (SalesInvoicePage.js):**
+      1. Fixed line 253: Changed `pre_entry_id: selectedPreEntry.id` to `pre_entry_id: selectedPreEntry.pre_entry_id`
+      2. No other changes needed - handleCreateInvoice already correctly accesses queue fields
+      
+      **Testing Instructions:**
+      1. **Backend Testing:** Test sales queue endpoint returns all required fields including item_id, customer_id
+      2. **Backend Testing:** Test sales invoice creation with complete payload (verify no 422 errors)
+      3. **E2E Testing:** Test complete flow - Pre-Entry → Weighbridge → Queue → Photo Approval → Invoice Creation
+      
+      **Test Data:**
+      Existing sales pre-entries in database can be used (SPRE-25-000XXX format)
+      Need at least one with weighbridge_completed=true status=pending
+
       **PRODUCTION READY:** All Sales Pre-Entry backend endpoints tested comprehensively and working excellently. The system handles sales pre-entry creation, validation, sequential numbering, and data integration flawlessly. Ready for frontend integration and production deployment.
