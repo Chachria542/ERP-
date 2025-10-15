@@ -131,38 +131,24 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
     setLoading(true);
     try {
-      const weightType = transactionType === 'sale' ? 'tare' : 'single';
-      
       let payload;
+      
       if (transactionType === 'purchase') {
-        // Purchase: Single weighment with both gross and tare
-        const tare = parseFloat(secondWeightValue);
-        if (!secondWeightValue.trim() || tare <= 0) {
-          toast.error('Please enter TARE weight for purchase');
-          setLoading(false);
-          return;
-        }
-        if (weight <= tare) {
-          toast.error('GROSS weight must be greater than TARE weight');
-          setLoading(false);
-          return;
-        }
-        
+        // Purchase: GROSS weight first
         payload = {
           slip_id: slipId,
           vehicle_number: vehicleNumber.toUpperCase(),
           vehicle_type: vehicleType,
           driver_name: driverName || null,
           driver_mobile: driverMobile || null,
-          gross_weight: weight,
-          tare_weight: tare,
-          weight_type: 'single',
+          weight: weight,
+          weight_type: 'gross',
           operator_id: user.id,
           operator_name: user.name,
           shift: shift
         };
       } else {
-        // Sale: TARE only
+        // Sale: TARE weight first
         payload = {
           slip_id: slipId,
           vehicle_number: vehicleNumber.toUpperCase(),
@@ -179,18 +165,14 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
       const response = await axios.post(`${API}/weighbridge-entry`, payload);
       
+      setFirstWeightCaptured(true);
+      
       if (transactionType === 'purchase') {
-        // Purchase completes in one go
-        setFirstWeightCaptured(true);
-        setSecondWeightCaptured(true);
         setExistingGrossWeight(weight);
-        setExistingTareWeight(parseFloat(secondWeightValue));
-        toast.success('✅ Weighbridge entry completed! Net weight calculated.');
+        toast.success('✅ GROSS weight recorded! Vehicle can now proceed for unloading.');
       } else {
-        // Sale: TARE captured
-        setFirstWeightCaptured(true);
         setExistingTareWeight(weight);
-        toast.success('✅ TARE weight recorded! Vehicle can now proceed for loading. Return for GROSS weight.');
+        toast.success('✅ TARE weight recorded! Vehicle can now proceed for loading.');
       }
       
     } catch (error) {
