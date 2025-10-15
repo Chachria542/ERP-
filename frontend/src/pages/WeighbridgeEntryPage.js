@@ -461,11 +461,9 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                   <div className="space-y-3">
                     <div className="text-center py-6">
                       <div className="text-5xl font-bold" style={{color: '#2E7D32'}}>
-                        {existingTareWeight && transactionType === 'sale' 
-                          ? existingTareWeight.toFixed(2)
-                          : existingGrossWeight && transactionType === 'purchase'
+                        {transactionType === 'purchase' 
                           ? existingGrossWeight.toFixed(2)
-                          : parseFloat(firstWeightValue).toFixed(2)
+                          : existingTareWeight.toFixed(2)
                         } kg
                       </div>
                     </div>
@@ -474,14 +472,27 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                         📸 Photo Captured
                       </div>
                     </div>
-                    {transactionType === 'purchase' && (
-                      <div className="text-center text-sm text-gray-600 mt-2">
-                        ✅ Entry complete. Net weight calculated.
-                      </div>
-                    )}
-                    {transactionType === 'sale' && !secondWeightCaptured && (
-                      <div className="text-center text-sm text-blue-600 mt-2 font-semibold">
-                        → Proceed to load vehicle
+                    {!secondWeightCaptured && (
+                      <div className="mt-4">
+                        <Button 
+                          className="w-full"
+                          style={{
+                            backgroundColor: transactionType === 'purchase' ? '#FF9800' : '#2196F3',
+                            color: 'white'
+                          }}
+                          onClick={() => toast.info(transactionType === 'purchase' 
+                            ? '📦 Vehicle proceeding to unloading area. Return for TARE weight after unloading.' 
+                            : '📦 Vehicle proceeding to loading area. Return for GROSS weight after loading.'
+                          )}
+                        >
+                          {transactionType === 'purchase' ? '📦 Proceed to Unloading' : '📦 Proceed to Loading'}
+                        </Button>
+                        <p className="text-xs text-center text-gray-600 mt-2">
+                          {transactionType === 'purchase' 
+                            ? 'Return after unloading to capture TARE weight'
+                            : 'Return after loading to capture GROSS weight'
+                          }
+                        </p>
                       </div>
                     )}
                   </div>
