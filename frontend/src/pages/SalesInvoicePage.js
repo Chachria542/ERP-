@@ -43,6 +43,7 @@ function SalesInvoicePage({ user, onLogout }) {
   // Invoice form modal state
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [isReturn, setIsReturn] = useState(false);
+  const [savedInvoice, setSavedInvoice] = useState(null); // Store saved invoice with bill no
   const [invoiceData, setInvoiceData] = useState({
     invoice_date: new Date().toISOString().split('T')[0],
     weighbridge_slip_no: '',
