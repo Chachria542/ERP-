@@ -185,6 +185,9 @@ function WeighbridgeEntryPage({ user, onLogout }) {
     setDriverMobile('');
     setGrossWeight('');
     setTareWeight('');
+    setMeasuredWeight('');
+    setWeightType('single');
+    setExistingTareWeight(0);
     setPreEntry(null);
   };
 
