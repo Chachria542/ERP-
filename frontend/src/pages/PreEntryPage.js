@@ -753,9 +753,10 @@ function PreEntryPage({ user, onLogout }) {
                     <div>
                       <Label className="text-sm font-semibold">Customer *</Label>
                       <CustomerAutocomplete
-                        value={inputValue}
+                        value={customerName}
                         onSelect={(customer) => {
                           setCustomerId(customer.id);
+                          setCustomerName(customer.name);
                           setCustomerGstin(customer.gstin || '');
                           setPlaceOfSupply(customer.place_of_supply || '');
                         }}
