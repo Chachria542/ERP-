@@ -45,8 +45,8 @@ function SalesInvoicePage({ user, onLogout }) {
   const [isReturn, setIsReturn] = useState(false);
   const [invoiceData, setInvoiceData] = useState({
     invoice_date: new Date().toISOString().split('T')[0],
-    customer_invoice_no: '',
-    customer_invoice_date: new Date().toISOString().split('T')[0],
+    weighbridge_slip_no: '',
+    is_entry: false, // false = Godown (default), true = Entry
     
     // Item details
     item_id: '',
@@ -59,34 +59,29 @@ function SalesInvoicePage({ user, onLogout }) {
     rate: '',
     amount: 0,
     
-    // Taxes
+    // Taxes (CGST + SGST only, no IGST)
     cgst_rate: '',
     cgst_amount: 0,
     sgst_rate: '',
     sgst_amount: 0,
-    igst_rate: '',
-    igst_amount: 0,
     
     // Additional charges
     freight: '',
     loading_charges: '',
     other_charges: '',
     
-    // TCS
+    // TCS (applied before GST)
     tcs_applicable: false,
     tcs_rate: '',
     tcs_amount: 0,
     
     // Rounding
     round_off: 0,
-    
-    // Totals
     subtotal: 0,
     tax_total: 0,
     grand_total: 0,
     
-    // Broker
-    has_broker: false,
+    // Broker (always shown)
     broker_name: '',
     brokerage_type: 'per_quintal',
     brokerage_rate: '',
