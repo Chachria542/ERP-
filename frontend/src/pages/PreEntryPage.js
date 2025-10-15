@@ -501,6 +501,7 @@ function PreEntryPage({ user, onLogout }) {
     
     // Reset Sale fields
     setCustomerId('');
+    setCustomerName('');
     setCustomerGstin('');
     setMarka('');
     setMarkaOptions([]);
