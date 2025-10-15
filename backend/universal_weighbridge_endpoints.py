@@ -322,6 +322,8 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
     - Tare → Gross flow (two separate entries) for sales
     """
     try:
+        print(f"[WEIGHBRIDGE] Received entry request - Slip: {entry_data.slip_id}, Weight Type: {entry_data.weight_type}, Weight: {entry_data.weight if hasattr(entry_data, 'weight') else 'N/A'}")
+        
         # Universal pre-entry lookup
         slip_id = entry_data.slip_id
         pre_entry = None
