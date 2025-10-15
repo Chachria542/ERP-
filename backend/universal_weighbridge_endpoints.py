@@ -359,8 +359,9 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 "slip_id": entry_data.slip_id,
                 "weight_type": entry_data.weight_type
             })
+            print(f"[WEIGHBRIDGE DEBUG] Checking for duplicate {entry_data.weight_type} - Slip: {entry_data.slip_id}, Found existing: {existing_same_type is not None}")
             if existing_same_type:
-                print(f"[WEIGHBRIDGE ERROR] Duplicate {entry_data.weight_type} weight attempt for {entry_data.slip_id}")
+                print(f"[WEIGHBRIDGE ERROR] Duplicate {entry_data.weight_type} weight attempt for {entry_data.slip_id}, Existing ID: {existing_same_type.get('id')}")
                 raise HTTPException(status_code=400, detail=f"{entry_data.weight_type.capitalize()} weight already captured for this slip")
         
         # Calculate weights based on type
