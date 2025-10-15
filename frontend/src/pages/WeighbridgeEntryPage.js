@@ -647,17 +647,18 @@ function WeighbridgeEntryPage({ user, onLogout }) {
             </div>
 
             {/* Contextual Message */}
-            {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) && (
+            {secondWeightCaptured && (
               <Card className="p-4 mb-6" style={{backgroundColor: '#E8F5E9', borderColor: '#4CAF50', borderWidth: 2}}>
                 <div className="flex items-center gap-3">
                   <div className="text-3xl">✅</div>
                   <div>
                     <p className="font-bold text-green-800">Weighbridge Entry Completed!</p>
                     <p className="text-sm text-green-700">
-                      {transactionType === 'purchase' 
-                        ? `Net weight: ${netWeight.toFixed(2)} kg calculated. Entry can now be processed for ${preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment'}.`
-                        : `Net weight: ${netWeight.toFixed(2)} kg calculated. Entry ready for Sales Invoice generation.`
-                      }
+                      Net weight: {netWeight.toFixed(2)} kg ({bags} bags + {(netWeight % 100).toFixed(2)} kg) calculated. 
+                      Entry ready for {transactionType === 'purchase' 
+                        ? (preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment')
+                        : 'Sales Invoice'
+                      } processing.
                     </p>
                   </div>
                 </div>
