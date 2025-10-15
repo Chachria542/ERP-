@@ -343,9 +343,9 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       <div className="p-8 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold" style={{color: '#3E2723'}}>⚖️ Weighbridge Entry</h1>
-          {preEntry && (
+          {showWeightCapture && (
             <Button onClick={resetForm} variant="outline">
-              🔄 New Entry
+              ← Back to Queue
             </Button>
           )}
         </div>
