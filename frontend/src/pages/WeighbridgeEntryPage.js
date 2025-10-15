@@ -541,7 +541,10 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                   <div className="space-y-3">
                     <div className="text-center py-6">
                       <div className="text-5xl font-bold" style={{color: '#2E7D32'}}>
-                        {existingGrossWeight?.toFixed(2) || parseFloat(secondWeightValue).toFixed(2)} kg
+                        {transactionType === 'purchase' 
+                          ? existingTareWeight?.toFixed(2) 
+                          : existingGrossWeight?.toFixed(2)
+                        } kg
                       </div>
                     </div>
                     <div className="text-center">
@@ -550,25 +553,30 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                       </div>
                     </div>
                     <div className="text-center text-sm text-green-600 mt-2 font-semibold">
-                      ✅ Ready for invoice generation
+                      ✅ Ready for {transactionType === 'purchase' ? (preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment') : 'Sales Invoice'}
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {firstWeightCaptured && transactionType === 'sale' ? (
+                    {firstWeightCaptured ? (
                       <>
                         <div>
-                          <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
+                          <Label className="text-sm font-semibold">
+                            {transactionType === 'purchase' ? 'TARE Weight (kg) *' : 'GROSS Weight (kg) *'}
+                          </Label>
                           <Input
                             type="number"
                             value={secondWeightValue}
                             onChange={(e) => setSecondWeightValue(e.target.value)}
-                            placeholder="Enter loaded weight"
+                            placeholder={transactionType === 'purchase' ? 'Enter empty weight' : 'Enter loaded weight'}
                             className="mt-1 text-xl font-bold"
                             min="0"
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            Must be &gt; {existingTareWeight} kg (TARE)
+                            {transactionType === 'purchase' 
+                              ? `Must be < ${existingGrossWeight} kg (GROSS)`
+                              : `Must be > ${existingTareWeight} kg (TARE)`
+                            }
                           </p>
                         </div>
                         <Button 
