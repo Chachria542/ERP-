@@ -383,8 +383,9 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         # Calculate quantities
         quantities = calculate_quantities(net_weight) if net_weight > 0 else {"bags": 0, "rem_kg": 0, "act_qtl": 0.0}
         
-        # Mock photo URL
-        mock_photo = f"https://via.placeholder.com/800x600.png?text={entry_data.weight_type.capitalize()}+Weight"
+        # Mock photo URL - Use data URI instead of external service
+        # Simple 1x1 gray placeholder that works offline
+        mock_photo = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='800' height='600' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='32' fill='%23666'%3E" + entry_data.weight_type.capitalize() + " Weight Photo%3C/text%3E%3C/svg%3E"
         
         # Build weighbridge entry
         wb_entry = WeighbridgeEntry(
