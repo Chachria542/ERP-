@@ -81,6 +81,47 @@ function WeighbridgeEntryPage({ user, onLogout }) {
     }
   };
 
+  const handleProcessEntry = (queueItem, action) => {
+    // Load the queue item data and open weight capture form
+    setSlipId(queueItem.slip_id);
+    setPreEntry({
+      ...queueItem,
+      party_name: queueItem.party_name,
+      customer_name: queueItem.party_name,
+      transaction_type: queueItem.transaction_type
+    });
+    
+    // Set transaction type
+    if (queueItem.transaction_type === 'sale') {
+      setTransactionType('sale');
+    } else {
+      setTransactionType('purchase');
+    }
+    
+    // Set existing weights if any
+    if (queueItem.tare_weight) {
+      setExistingTareWeight(queueItem.tare_weight);
+      setFirstWeightCaptured(true);
+    }
+    if (queueItem.gross_weight) {
+      setExistingGrossWeight(queueItem.gross_weight);
+      if (queueItem.transaction_type !== 'sale') {
+        setFirstWeightCaptured(true);
+      }
+    }
+    
+    // Pre-fill vehicle details if available
+    if (queueItem.vehicle_number) {
+      setVehicleNumber(queueItem.vehicle_number);
+    }
+    if (queueItem.vehicle_type) {
+      setVehicleType(queueItem.vehicle_type);
+    }
+    
+    setShowWeightCapture(true);
+    toast.info(`Processing ${action.toUpperCase()} weight for ${queueItem.slip_id}`);
+  };
+
   const handleFetchSlip = async () => {
     if (!slipId.trim()) {
       toast.error('Please enter a slip ID');
