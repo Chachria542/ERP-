@@ -125,6 +125,8 @@ async def verify_otp(request: OTPVerifyRequest):
     Updates farmer's mobile_verified status on success.
     """
     try:
+        print(f"[OTP VERIFY] Request received - Mobile: {request.mobile}, OTP: {request.otp}")
+        
         # Find latest OTP for this mobile
         otp_record = await db.otp_verifications.find_one(
             {
@@ -135,7 +137,10 @@ async def verify_otp(request: OTPVerifyRequest):
         )
         
         if not otp_record:
+            print(f"[OTP VERIFY ERROR] No OTP found for mobile: {request.mobile}")
             raise HTTPException(status_code=404, detail="No OTP found for this mobile. Please request new OTP.")
+        
+        print(f"[OTP VERIFY] Found OTP record - Stored OTP: {otp_record.get('otp')}, Attempts: {otp_record.get('attempts')}, Expires: {otp_record.get('expires_at')}")
         
         # Check if expired
         expires_at = datetime.fromisoformat(otp_record['expires_at'])
