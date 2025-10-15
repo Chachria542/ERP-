@@ -165,7 +165,7 @@ class SalesInvoice(BaseModel):
     place_of_supply: str
     
     # Location
-    is_mandi: bool = False
+    is_entry: bool = False  # False = Godown (default), True = Entry
     location_name: Optional[str] = None
     
     # Broker details (editable during invoice creation)
@@ -222,7 +222,7 @@ class SalesInvoiceCreate(BaseModel):
     place_of_supply: str
     
     # Location
-    is_mandi: bool = False
+    is_entry: bool = False  # False = Godown (default), True = Entry
     location_name: Optional[str] = None
     
     # Broker (editable)
