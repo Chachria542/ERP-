@@ -204,7 +204,7 @@ async def create_pre_entry_with_farmer_update(entry_data: PreEntryCreate, confir
 async def get_pre_entry_universal(slip_id: str):
     """
     Universal pre-entry lookup by slip ID.
-    Handles both farmer purchase (WB-XX-XXXXXX) and bill purchase (BPRE-XX-XXXXXX) pre-entries.
+    Handles farmer purchase (WB-XX-XXXXXX), bill purchase (BPRE-XX-XXXXXX), and sales (SPRE-XX-XXXXXX) pre-entries.
     """
     # Check if it's a bill purchase pre-entry (starts with BPRE)
     if slip_id.startswith("BPRE-"):
@@ -232,6 +232,39 @@ async def get_pre_entry_universal(slip_id: str):
             "place_of_supply": entry['place_of_supply'],
             "has_broker": entry['has_broker'],
             "broker_name": entry.get('broker_name')
+        }
+    elif slip_id.startswith("SPRE-"):
+        # Sales pre-entry
+        entry = await db.sales_pre_entries.find_one({"pre_entry_number": slip_id}, {"_id": 0})
+        
+        if not entry:
+            raise HTTPException(status_code=404, detail="Sales pre-entry not found")
+        
+        # Convert to universal format for weighbridge
+        return {
+            "id": entry['id'],
+            "slip_id": entry['slip_id'],  # Same as pre_entry_number for sales
+            "transaction_type": "sale",
+            "customer_name": entry['customer_name'],
+            "party_name": entry['customer_name'],  # For backward compatibility
+            "party_mobile": None,
+            "party_gstin": entry.get('customer_gstin'),
+            "item_id": entry.get('item_id'),
+            "item_name": entry.get('item_name'),
+            "from_location": "Warehouse",
+            "to_location": None,
+            "status": entry['status'],
+            "created_at": entry['created_at'],
+            "created_by": entry['created_by'],
+            "place_of_supply": entry['place_of_supply'],
+            "has_broker": entry['has_broker'],
+            "broker_name": entry.get('broker_name'),
+            "marka": entry.get('marka'),
+            "bharti": entry.get('bharti'),
+            "expected_weight": entry.get('expected_weight'),
+            "tare_weight": entry.get('tare_weight', 0),
+            "gross_weight": entry.get('gross_weight', 0),
+            "net_weight": entry.get('net_weight', 0)
         }
     else:
         # Regular farmer purchase pre-entry
