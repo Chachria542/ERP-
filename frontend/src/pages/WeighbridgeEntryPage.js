@@ -465,8 +465,8 @@ function WeighbridgeEntryPage({ user, onLogout }) {
           </>
         )}
 
-        {/* Main Content - Progressive Sections */}
-        {preEntry && (
+        {/* Weight Capture Section - Only shown when processing an entry */}
+        {showWeightCapture && preEntry && (
           <>
             {/* Header: Transaction Overview */}
             <Card className="p-6 mb-6" style={{backgroundColor: '#FFF8E1', borderColor: '#F57C00', borderWidth: 2}}>
