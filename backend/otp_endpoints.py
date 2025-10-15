@@ -192,6 +192,8 @@ async def verify_otp(request: OTPVerifyRequest):
             )
         # If farmer doesn't exist, verification status will be set during creation
         
+        print(f"[OTP VERIFY SUCCESS] OTP verified for mobile: {request.mobile}")
+        
         return {
             "message": "OTP verified successfully",
             "mobile": request.mobile,
@@ -201,6 +203,9 @@ async def verify_otp(request: OTPVerifyRequest):
     except HTTPException:
         raise
     except Exception as e:
+        print(f"[OTP VERIFY ERROR] Exception: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/otp/resend")
