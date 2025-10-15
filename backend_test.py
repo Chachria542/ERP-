@@ -388,6 +388,70 @@ class SalesFlowTester:
             print("❌ Phase 1 failed. Cannot proceed with flow testing.")
             return False
         
+        # Check current weighbridge status first
+        print("\n🔍 Checking current weighbridge status...")
+        try:
+            response = requests.get(f"{self.base_url}/weighbridge-entry/by-slip/{self.target_slip_id}", timeout=10)
+            if response.status_code == 200:
+                wb_data = response.json()
+                current_tare = wb_data.get('tare_weight', 0)
+                current_gross = wb_data.get('gross_weight', 0)
+                print(f"Current weighbridge state: TARE={current_tare} kg, GROSS={current_gross} kg")
+                
+                # If TARE already exists but GROSS doesn't, skip to GROSS entry
+                if current_tare > 0 and current_gross == 0:
+                    print("⚠️  TARE already captured, skipping to GROSS weight entry...")
+                    # Skip phases 2-4, go directly to GROSS entry
+                    success5 = self.test_phase5_gross_weight_entry()
+                    if not success5:
+                        print("❌ Phase 5 (GROSS) failed. Cannot proceed with flow testing.")
+                        return False
+                    
+                    # Continue with remaining phases
+                    success6 = self.test_phase6_verify_pending_status_and_weights()
+                    if not success6:
+                        print("❌ Phase 6 failed. Cannot proceed with flow testing.")
+                        return False
+                    
+                    success7 = self.test_phase7_verify_now_in_queue()
+                    if not success7:
+                        print("❌ Phase 7 failed. Cannot proceed with flow testing.")
+                        return False
+                    
+                    success8 = self.test_phase8_fetch_weighbridge_photos()
+                    if not success8:
+                        print("❌ Phase 8 failed.")
+                        return False
+                    
+                    return True
+                
+                # If both TARE and GROSS exist, skip to verification phases
+                elif current_tare > 0 and current_gross > 0:
+                    print("⚠️  Both TARE and GROSS already captured, skipping to verification phases...")
+                    
+                    success6 = self.test_phase6_verify_pending_status_and_weights()
+                    if not success6:
+                        print("❌ Phase 6 failed. Cannot proceed with flow testing.")
+                        return False
+                    
+                    success7 = self.test_phase7_verify_now_in_queue()
+                    if not success7:
+                        print("❌ Phase 7 failed. Cannot proceed with flow testing.")
+                        return False
+                    
+                    success8 = self.test_phase8_fetch_weighbridge_photos()
+                    if not success8:
+                        print("❌ Phase 8 failed.")
+                        return False
+                    
+                    return True
+                    
+        except Exception as e:
+            print(f"Could not check weighbridge status: {e}")
+        
+        # If no weighbridge entries exist, run full flow
+        print("No existing weighbridge entries found, running full flow...")
+        
         # Phase 2: TARE Weight Entry
         success2 = self.test_phase2_tare_weight_entry()
         if not success2:
