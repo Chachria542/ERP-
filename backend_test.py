@@ -40,46 +40,66 @@ class SalesInvoiceCreationTester:
             "response": response_data
         })
     
-    def test_phase1_verify_pre_entry_status(self):
+    def test_sales_queue_endpoint(self):
         """
-        Phase 1: Verify Pre-Entry Status
-        GET /api/pre-entry/SPRE-25-000014
+        Test 1: Sales Queue Endpoint Testing
+        GET /api/sales/queue?status=pending
+        Verify response includes ALL new fields and at least one entry with weighbridge_completed=true
         """
-        print("🔍 Phase 1: Verify Pre-Entry Status...")
+        print("🔍 Test 1: Sales Queue Endpoint Testing...")
         
         try:
-            response = requests.get(f"{self.base_url}/pre-entry/{self.target_slip_id}", timeout=10)
+            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
             
             if response.status_code == 200:
-                data = response.json()
+                queue_items = response.json()
                 
-                # Verify it returns the sales pre-entry
-                if data.get('slip_id') == self.target_slip_id:
-                    status = data.get('status')
-                    customer_name = data.get('customer_name') or data.get('party_name')
-                    item_name = data.get('item_name')
-                    
-                    # Check status is "weigh_pending"
-                    if status == "weigh_pending":
-                        self.log_test("Phase 1: Pre-Entry Status", True, 
-                                    f"✅ Pre-entry found: {self.target_slip_id}, Status: {status}, Customer: {customer_name}, Item: {item_name}")
-                        return True, customer_name, item_name
-                    else:
-                        self.log_test("Phase 1: Pre-Entry Status", False, 
-                                    f"❌ Expected status 'weigh_pending', got '{status}'")
-                        return False, customer_name, item_name
+                if not queue_items:
+                    self.log_test("Sales Queue Endpoint", False, 
+                                "❌ No pending sales entries found in queue")
+                    return False, None
+                
+                # Check first item for required fields
+                item = queue_items[0]
+                required_fields = [
+                    'pre_entry_id', 'customer_id', 'place_of_supply', 'item_id', 
+                    'bharti', 'is_entry', 'brokerage_type', 'brokerage_rate'
+                ]
+                
+                missing_fields = []
+                for field in required_fields:
+                    if field not in item:
+                        missing_fields.append(field)
+                
+                # Find entry with weighbridge_completed=true
+                completed_entry = None
+                for entry in queue_items:
+                    if entry.get('weighbridge_completed') == True and entry.get('status') == 'pending':
+                        completed_entry = entry
+                        break
+                
+                if missing_fields:
+                    self.log_test("Sales Queue Endpoint", False, 
+                                f"❌ Missing required fields: {missing_fields}")
+                    return False, None
+                elif not completed_entry:
+                    self.log_test("Sales Queue Endpoint", False, 
+                                "❌ No entry found with weighbridge_completed=true and status=pending")
+                    return False, None
                 else:
-                    self.log_test("Phase 1: Pre-Entry Status", False, 
-                                f"❌ Slip ID mismatch. Expected: {self.target_slip_id}, Got: {data.get('slip_id')}")
-                    return False, None, None
+                    self.log_test("Sales Queue Endpoint", True, 
+                                f"✅ Queue endpoint working. Found {len(queue_items)} entries, "
+                                f"completed entry: {completed_entry.get('pre_entry_number')}")
+                    return True, completed_entry
+                    
             else:
-                self.log_test("Phase 1: Pre-Entry Status", False, 
+                self.log_test("Sales Queue Endpoint", False, 
                             f"HTTP {response.status_code}: {response.text}")
-                return False, None, None
+                return False, None
                 
         except Exception as e:
-            self.log_test("Phase 1: Pre-Entry Status", False, f"Request failed: {str(e)}")
-            return False, None, None
+            self.log_test("Sales Queue Endpoint", False, f"Request failed: {str(e)}")
+            return False, None
     
     def test_phase2_tare_weight_entry(self):
         """
