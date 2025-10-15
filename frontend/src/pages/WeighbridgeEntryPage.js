@@ -470,10 +470,13 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                             backgroundColor: transactionType === 'purchase' ? '#FF9800' : '#2196F3',
                             color: 'white'
                           }}
-                          onClick={() => toast.info(transactionType === 'purchase' 
-                            ? '📦 Vehicle proceeding to unloading area. Return for TARE weight after unloading.' 
-                            : '📦 Vehicle proceeding to loading area. Return for GROSS weight after loading.'
-                          )}
+                          onClick={() => {
+                            toast.success(transactionType === 'purchase' 
+                              ? '📦 Vehicle proceeding to unloading area. Return with slip for TARE weight after unloading.' 
+                              : '📦 Vehicle proceeding to loading area. Return with slip for GROSS weight after loading.'
+                            );
+                            resetForm();
+                          }}
                         >
                           {transactionType === 'purchase' ? '📦 Proceed to Unloading' : '📦 Proceed to Loading'}
                         </Button>
