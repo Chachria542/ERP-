@@ -503,7 +503,7 @@ function SalesInvoicePage({ user, onLogout }) {
                     Cancel
                   </Button>
                   <Button onClick={handleApprovePhotos} className="btn-primary">
-                    ✅ Approve & Create Invoice
+                    ✅ Approve & Continue to Invoice
                   </Button>
                 </div>
               </div>
