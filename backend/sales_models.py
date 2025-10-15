@@ -170,14 +170,26 @@ class SalesInvoice(BaseModel):
     # Line items
     line_items: List[SalesInvoiceLineItem] = Field(default_factory=list)
     
+    # Taxes (CGST + SGST only)
+    cgst_rate: Optional[float] = None
+    cgst_amount: float = 0.0
+    sgst_rate: Optional[float] = None
+    sgst_amount: float = 0.0
+    
+    # Additional charges
+    freight: Optional[float] = None
+    loading_charges: Optional[float] = None
+    other_charges: Optional[float] = None
+    
+    # TCS (applied before GST)
+    tcs_applicable: bool = False
+    tcs_rate: Optional[float] = None
+    tcs_amount: float = 0.0
+    
     # Totals
     subtotal: float = 0.0  # Sum of line amounts
-    total_gst: float = 0.0  # Sum of line GST amounts
-    tcs_rate: float = 0.0  # TCS% (configurable per invoice)
-    tcs_amount: float = 0.0  # TCS on subtotal
-    gross_total: float = 0.0  # subtotal + gst + tcs + freight
     round_off: float = 0.0  # Round to nearest ₹1
-    net_amount: float = 0.0  # Final amount after round-off
+    grand_total: float = 0.0  # Final amount after round-off
     
     # Transporter (for freight slip)
     transporter_name: Optional[str] = None
