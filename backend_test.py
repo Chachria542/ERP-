@@ -16,10 +16,12 @@ class SalesFlowTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
-        # Test data
-        self.customers = []
-        self.items = []
-        self.created_pre_entries = []
+        # Test data for the specific flow
+        self.target_slip_id = "SPRE-25-000014"
+        self.test_vehicle = "MP09AB1234"
+        self.test_driver = "Test Driver"
+        self.test_mobile = "9876543210"
+        self.test_operator = "test-operator"
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
