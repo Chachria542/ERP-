@@ -350,27 +350,119 @@ function WeighbridgeEntryPage({ user, onLogout }) {
           )}
         </div>
 
-        {/* Slip ID Input Section */}
-        {!preEntry && (
-          <Card className="p-6 mb-6">
-            <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>📋 Enter Slip ID</h2>
-            <div className="flex gap-4">
-              <Input
-                value={slipId}
-                onChange={(e) => setSlipId(e.target.value)}
-                placeholder="WB-25-000001, BPRE-25-000001, SPRE-25-000001"
-                className="flex-1"
-                onKeyPress={(e) => e.key === 'Enter' && handleFetchSlip()}
-              />
-              <Button 
-                onClick={handleFetchSlip} 
-                disabled={loading}
-                style={{backgroundColor: '#8B4513', color: 'white'}}
-              >
-                {loading ? 'Loading...' : '🔍 Fetch Slip'}
-              </Button>
-            </div>
-          </Card>
+        {/* Queue Display */}
+        {!showWeightCapture && (
+          <>
+            <Card className="p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold" style={{color: '#3E2723'}}>📋 Pending Weighbridge Entries</h2>
+                <div className="flex gap-2">
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Transactions</SelectItem>
+                      <SelectItem value="farmer_purchase">Farmer Purchase</SelectItem>
+                      <SelectItem value="bill_purchase">Bill Purchase</SelectItem>
+                      <SelectItem value="sale">Sales</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={fetchQueue} variant="outline">
+                    🔄 Refresh
+                  </Button>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="text-center py-8 text-gray-500">Loading queue...</div>
+              ) : queue.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-lg mb-2">📭 No pending entries</p>
+                  <p className="text-sm">All weighbridge entries are complete!</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b" style={{backgroundColor: '#F5F5F5'}}>
+                        <th className="text-left p-3 font-semibold">Slip ID</th>
+                        <th className="text-left p-3 font-semibold">Type</th>
+                        <th className="text-left p-3 font-semibold">Party/Customer</th>
+                        <th className="text-left p-3 font-semibold">Item</th>
+                        <th className="text-left p-3 font-semibold">Vehicle</th>
+                        <th className="text-center p-3 font-semibold">Weights (kg)</th>
+                        <th className="text-center p-3 font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {queue.map((item) => (
+                        <tr key={item.pre_entry_id} className="border-b hover:bg-gray-50">
+                          <td className="p-3">
+                            <div className="font-bold text-blue-700">{item.slip_id}</div>
+                            <div className="text-xs text-gray-500">{item.date}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge style={{
+                              backgroundColor: 
+                                item.transaction_type === 'sale' ? '#1976D2' : 
+                                item.transaction_type === 'bill_purchase' ? '#F57C00' : '#388E3C',
+                              color: 'white'
+                            }}>
+                              {item.transaction_type === 'farmer_purchase' ? '🚜 Farmer' : 
+                               item.transaction_type === 'bill_purchase' ? '📦 Bill' : '🚚 Sale'}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            <div className="font-semibold">{item.party_name}</div>
+                            {item.party_mobile && (
+                              <div className="text-xs text-gray-500">{item.party_mobile}</div>
+                            )}
+                          </td>
+                          <td className="p-3 text-sm">{item.item_name || 'N/A'}</td>
+                          <td className="p-3 text-sm">{item.vehicle_number || '-'}</td>
+                          <td className="p-3">
+                            <div className="text-center text-sm">
+                              <div>Gross: <span className="font-semibold text-green-700">{item.gross_weight || '-'}</span></div>
+                              <div>Tare: <span className="font-semibold text-blue-700">{item.tare_weight || '-'}</span></div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex gap-2 justify-center">
+                              <Button
+                                size="sm"
+                                disabled={!item.tare_pending}
+                                onClick={() => handleProcessEntry(item, 'tare')}
+                                style={{
+                                  backgroundColor: item.tare_pending ? '#2196F3' : '#E0E0E0',
+                                  color: item.tare_pending ? 'white' : '#9E9E9E',
+                                  cursor: item.tare_pending ? 'pointer' : 'not-allowed'
+                                }}
+                              >
+                                🚚 TARE
+                              </Button>
+                              <Button
+                                size="sm"
+                                disabled={!item.gross_pending}
+                                onClick={() => handleProcessEntry(item, 'gross')}
+                                style={{
+                                  backgroundColor: item.gross_pending ? '#4CAF50' : '#E0E0E0',
+                                  color: item.gross_pending ? 'white' : '#9E9E9E',
+                                  cursor: item.gross_pending ? 'pointer' : 'not-allowed'
+                                }}
+                              >
+                                🚛 GROSS
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </Card>
+          </>
         )}
 
         {/* Main Content - Progressive Sections */}
