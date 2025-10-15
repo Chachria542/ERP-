@@ -174,6 +174,16 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  // Handle customer selection for sales
+  const handleCustomerSelect = (customerId) => {
+    setCustomerId(customerId);
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      setCustomerGstin(customer.gstin || '');
+      setPlaceOfSupply(customer.place_of_supply || '');
+    }
+  };
+
   useEffect(() => {
     if (transactionType === 'bill_purchase') {
       fetchSuppliers();
