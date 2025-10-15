@@ -229,6 +229,10 @@ function PreEntryPage({ user, onLogout }) {
   useEffect(() => {
     if (transactionType === 'bill_purchase') {
       fetchSuppliers();
+    } else if (transactionType === 'sale') {
+      // Set default for sale
+      setHasBroker(true);
+      setBrokerageType('per_quintal');
     }
   }, [transactionType]);
 
