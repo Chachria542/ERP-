@@ -1006,71 +1006,73 @@ function PreEntryPage({ user, onLogout }) {
           </div>
         )}
 
-        {/* Item Section */}
-        <div className="border-t pt-4">
-          <h4 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Item Details</h4>
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <Label className="text-sm font-semibold">Item *</Label>
-              <select
-                value={itemId}
-                onChange={(e) => {
-                  const selectedItemId = e.target.value;
-                  setItemId(selectedItemId);
-                  
-                  // Auto-fill rate from item master for Bill Purchase
-                  if (transactionType === 'bill_purchase' && selectedItemId) {
-                    const selectedItem = items.find(item => item.id === selectedItemId);
-                    if (selectedItem && selectedItem.rate) {
-                      setRatePerQtl(selectedItem.rate);
-                      console.log('[Pre-Entry] Auto-filled rate:', selectedItem.rate, 'for item:', selectedItem.name);
-                    }
-                  }
-                }}
-                className="erp-select mt-1"
-                required
-              >
-                <option value="">Select Item</option>
-                {items.map(item => (
-                  <option key={item.id} value={item.id}>{item.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label className="text-sm font-semibold">Quality/Grade</Label>
-              <Input
-                value={quality}
-                onChange={(e) => setQuality(e.target.value)}
-                placeholder="Grade A, B, C"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-semibold">Expected Bags</Label>
-              <Input
-                type="number"
-                value={expectedBags}
-                onChange={(e) => setExpectedBags(e.target.value)}
-                placeholder="Estimated quantity"
-                className="mt-1"
-              />
-            </div>
-            {(transactionType === 'farmer_purchase' || transactionType === 'bill_purchase' || transactionType === 'sale') && (
+        {/* Item Section - Hidden for Sale transaction type (has its own Item & Marka section) */}
+        {transactionType !== 'sale' && (
+          <div className="border-t pt-4">
+            <h4 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Item Details</h4>
+            <div className="grid grid-cols-4 gap-4">
               <div>
-                <Label className="text-sm font-semibold">Rate per Qtl {transactionType !== 'sale' ? '*' : ''}</Label>
+                <Label className="text-sm font-semibold">Item *</Label>
+                <select
+                  value={itemId}
+                  onChange={(e) => {
+                    const selectedItemId = e.target.value;
+                    setItemId(selectedItemId);
+                    
+                    // Auto-fill rate from item master for Bill Purchase
+                    if (transactionType === 'bill_purchase' && selectedItemId) {
+                      const selectedItem = items.find(item => item.id === selectedItemId);
+                      if (selectedItem && selectedItem.rate) {
+                        setRatePerQtl(selectedItem.rate);
+                        console.log('[Pre-Entry] Auto-filled rate:', selectedItem.rate, 'for item:', selectedItem.name);
+                      }
+                    }
+                  }}
+                  className="erp-select mt-1"
+                  required
+                >
+                  <option value="">Select Item</option>
+                  {items.map(item => (
+                    <option key={item.id} value={item.id}>{item.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label className="text-sm font-semibold">Quality/Grade</Label>
                 <Input
-                  type="number"
-                  step="0.01"
-                  value={ratePerQtl}
-                  onChange={(e) => setRatePerQtl(e.target.value)}
-                  placeholder="₹ per quintal"
+                  value={quality}
+                  onChange={(e) => setQuality(e.target.value)}
+                  placeholder="Grade A, B, C"
                   className="mt-1"
-                  required={transactionType !== 'sale'}
                 />
               </div>
-            )}
+              <div>
+                <Label className="text-sm font-semibold">Expected Bags</Label>
+                <Input
+                  type="number"
+                  value={expectedBags}
+                  onChange={(e) => setExpectedBags(e.target.value)}
+                  placeholder="Estimated quantity"
+                  className="mt-1"
+                />
+              </div>
+              {(transactionType === 'farmer_purchase' || transactionType === 'bill_purchase') && (
+                <div>
+                  <Label className="text-sm font-semibold">Rate per Qtl *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={ratePerQtl}
+                    onChange={(e) => setRatePerQtl(e.target.value)}
+                    placeholder="₹ per quintal"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Transaction-Specific Fields */}
         {(transactionType === 'bill_purchase' || transactionType === 'internal_transfer' || transactionType === 'custody_deposit') && (
