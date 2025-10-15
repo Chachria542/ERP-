@@ -1609,6 +1609,22 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "CRITICAL FIX IMPLEMENTED: Changed payload line 253 from selectedPreEntry.id to selectedPreEntry.pre_entry_id to match the field name returned by the sales queue endpoint. The handleCreateInvoice function already correctly accesses all queue fields including item_id, so the full payload should now be correct. Frontend hot-reload applied changes automatically."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Frontend fix working correctly. Sales invoice creation successful with proper pre_entry_id reference."
+
+  - task: "Weighbridge Entry UI Redesign - Progressive Sections"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/WeighbridgeEntryPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE: Complete UI redesign of Weighbridge Entry page with progressive sections approach. Implemented features: 1) Header section with transaction overview (Slip ID, Party/Customer, Item, Transaction Type badge), 2) Visual flow indicator showing TARE→GROSS (Sales) or GROSS→TARE (Purchase) with emoji and status badges (✅ Done, ⏳ Current, 🔒 Locked), 3) Vehicle details section (always visible, auto-locked after first weight), 4) Three weight cards layout: First Weight (Blue/Green with status), Second Weight (Green/Blue, disabled until first complete), Net Weight (Orange, auto-calculated), 5) Color coding: Blue=TARE, Green=GROSS, Orange=NET, 6) Smart contextual messages based on transaction type and weight capture status, 7) Real-time net weight calculation with bags/quintals breakdown, 8) Progressive form unlock (second weight unlocks only after first weight captured), 9) Purchase flow: Both GROSS and TARE captured together in first card (single weighment), 10) Sales flow: TARE first, then GROSS second (two separate captures). Old file backed up as WeighbridgeEntryPage.js.backup. Frontend hot-reloaded automatically. Ready for user testing."
+
 
 metadata:
   test_sequence: 7
