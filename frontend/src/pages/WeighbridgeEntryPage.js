@@ -17,6 +17,11 @@ function WeighbridgeEntryPage({ user, onLogout }) {
   const [preEntry, setPreEntry] = useState(null);
   const [transactionType, setTransactionType] = useState(null); // 'purchase' or 'sale'
   
+  // Queue state
+  const [queue, setQueue] = useState([]);
+  const [filterType, setFilterType] = useState('all'); // 'all', 'farmer_purchase', 'bill_purchase', 'sale'
+  const [showWeightCapture, setShowWeightCapture] = useState(false);
+  
   // Form state
   const [slipId, setSlipId] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
