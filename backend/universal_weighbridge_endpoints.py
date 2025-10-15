@@ -240,6 +240,16 @@ async def get_pre_entry_universal(slip_id: str):
         if not entry:
             raise HTTPException(status_code=404, detail="Sales pre-entry not found")
         
+        # If TARE weight exists, fetch vehicle number from TARE weighbridge entry
+        vehicle_number_from_tare = None
+        if entry.get('tare_weight') and entry.get('tare_weight') > 0:
+            tare_wb_entry = await db.weighbridge_entries.find_one(
+                {"slip_id": slip_id, "weight_type": "tare"},
+                {"_id": 0, "vehicle_number": 1}
+            )
+            if tare_wb_entry:
+                vehicle_number_from_tare = tare_wb_entry.get('vehicle_number')
+        
         # Convert to universal format for weighbridge
         return {
             "id": entry['id'],
@@ -264,7 +274,8 @@ async def get_pre_entry_universal(slip_id: str):
             "expected_weight": entry.get('expected_weight'),
             "tare_weight": entry.get('tare_weight', 0),
             "gross_weight": entry.get('gross_weight', 0),
-            "net_weight": entry.get('net_weight', 0)
+            "net_weight": entry.get('net_weight', 0),
+            "vehicle_number_from_tare": vehicle_number_from_tare  # Vehicle number from TARE entry
         }
     else:
         # Regular farmer purchase pre-entry
