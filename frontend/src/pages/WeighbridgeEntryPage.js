@@ -537,23 +537,7 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                   </Badge>
                 </div>
 
-                {transactionType === 'purchase' && firstWeightCaptured ? (
-                  <div className="space-y-3">
-                    <div className="text-center py-6">
-                      <div className="text-5xl font-bold" style={{color: '#1976D2'}}>
-                        {parseFloat(secondWeightValue).toFixed(2)} kg
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="inline-block px-4 py-2 bg-gray-200 rounded text-sm">
-                        📸 Photo Captured
-                      </div>
-                    </div>
-                    <div className="text-center text-sm text-gray-600 mt-2">
-                      ✅ Captured with GROSS weight
-                    </div>
-                  </div>
-                ) : secondWeightCaptured ? (
+                {secondWeightCaptured ? (
                   <div className="space-y-3">
                     <div className="text-center py-6">
                       <div className="text-5xl font-bold" style={{color: '#2E7D32'}}>
