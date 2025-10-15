@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -13,37 +14,48 @@ const API = `${BACKEND_URL}/api`;
 
 function WeighbridgeEntryPage({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
   const [preEntry, setPreEntry] = useState(null);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [createdEntry, setCreatedEntry] = useState(null);
-
+  const [transactionType, setTransactionType] = useState(null); // 'purchase' or 'sale'
+  
   // Form state
   const [slipId, setSlipId] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [vehicleType, setVehicleType] = useState('Truck');
   const [driverName, setDriverName] = useState('');
   const [driverMobile, setDriverMobile] = useState('');
-  const [grossWeight, setGrossWeight] = useState('');
-  const [tareWeight, setTareWeight] = useState('');
   const [shift, setShift] = useState('Morning');
   
-  // For Sales TARE/GROSS flow
-  const [weightType, setWeightType] = useState('single'); // 'single', 'tare', 'gross'
-  const [measuredWeight, setMeasuredWeight] = useState('');
-  const [existingTareWeight, setExistingTareWeight] = useState(0);
-
-  // Calculated fields
+  // Weight capture state
+  const [firstWeightValue, setFirstWeightValue] = useState('');
+  const [secondWeightValue, setSecondWeightValue] = useState('');
+  const [firstWeightCaptured, setFirstWeightCaptured] = useState(false);
+  const [secondWeightCaptured, setSecondWeightCaptured] = useState(false);
+  
+  // Existing weights from database
+  const [existingTareWeight, setExistingTareWeight] = useState(null);
+  const [existingGrossWeight, setExistingGrossWeight] = useState(null);
+  
+  // Calculated net weight
   const [netWeight, setNetWeight] = useState(0);
   const [bags, setBags] = useState(0);
   const [quintals, setQuintals] = useState(0);
 
+  // Calculate net weight whenever weights change
   useEffect(() => {
-    // Calculate net weight and quantities
-    const gross = parseFloat(grossWeight) || 0;
-    const tare = parseFloat(tareWeight) || 0;
+    let gross = 0;
+    let tare = 0;
+
+    if (transactionType === 'purchase') {
+      // Purchase: First=GROSS, Second=TARE
+      gross = existingGrossWeight || parseFloat(firstWeightValue) || 0;
+      tare = existingTareWeight || parseFloat(secondWeightValue) || 0;
+    } else if (transactionType === 'sale') {
+      // Sale: First=TARE, Second=GROSS
+      tare = existingTareWeight || parseFloat(firstWeightValue) || 0;
+      gross = existingGrossWeight || parseFloat(secondWeightValue) || 0;
+    }
+
     const net = gross - tare;
-    
     if (net > 0) {
       setNetWeight(net);
       setBags(Math.floor(net / 100));
@@ -53,108 +65,112 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       setBags(0);
       setQuintals(0);
     }
-  }, [grossWeight, tareWeight]);
+  }, [firstWeightValue, secondWeightValue, existingTareWeight, existingGrossWeight, transactionType]);
 
-  const handleScanQR = async () => {
-    if (!slipId) {
-      toast.error('Please enter Slip ID');
+  const handleFetchSlip = async () => {
+    if (!slipId.trim()) {
+      toast.error('Please enter a slip ID');
       return;
     }
 
     setLoading(true);
     try {
-      // Fetch pre-entry
-      const response = await axios.get(`${API}/pre-entry/${slipId}`);
-      setPreEntry(response.data);
-      
-      // Check if it's a Sales transaction
-      if (response.data.transaction_type === 'sale') {
-        // Check if tare weight already exists
-        if (response.data.tare_weight && response.data.tare_weight > 0) {
-          // Tare already completed, now enter Gross
-          setWeightType('gross');
-          setExistingTareWeight(response.data.tare_weight);
-          
-          // Auto-fill and lock vehicle number from TARE entry
-          if (response.data.vehicle_number_from_tare) {
-            setVehicleNumber(response.data.vehicle_number_from_tare);
-          }
-          
-          toast.info('Tare weight already recorded. Please enter GROSS weight (loaded truck)');
+      const response = await axios.get(`${API}/pre-entry/${slipId.trim()}`);
+      const data = response.data;
+      setPreEntry(data);
+
+      // Determine transaction type
+      const txType = data.transaction_type;
+      if (txType === 'sale') {
+        setTransactionType('sale');
+        
+        // Check if TARE already captured
+        if (data.tare_weight && data.tare_weight > 0) {
+          setExistingTareWeight(data.tare_weight);
+          setFirstWeightCaptured(true);
+          setVehicleNumber(data.vehicle_number_from_tare || '');
+          toast.info('TARE weight already recorded. Please enter GROSS weight (loaded truck)');
         } else {
-          // First weighment - enter Tare
-          setWeightType('tare');
-          toast.info('Please enter TARE weight (empty truck)');
+          toast.info('Sales transaction: First enter TARE weight (empty truck)');
         }
       } else {
-        // Regular transaction - single weighment
-        setWeightType('single');
+        // Farmer purchase or bill purchase
+        setTransactionType('purchase');
+        
+        // Check if already weighed
+        if (data.status === 'weighed' || data.weighbridge_completed) {
+          toast.error('This slip has already been fully weighed');
+          setPreEntry(null);
+          return;
+        }
+        
+        toast.info('Purchase transaction: First enter GROSS weight (loaded truck)');
       }
-      
-      setShowForm(true);
-      toast.success(`Pre-entry loaded: ${response.data.party_name || response.data.customer_name}`);
+
+      toast.success(`Pre-entry loaded: ${data.party_name || data.customer_name}`);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Pre-entry not found');
+      setPreEntry(null);
+      setTransactionType(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validation based on weight type
-    if (weightType === 'single') {
-      // Regular flow - both gross and tare required
-      if (!vehicleNumber || !grossWeight || !tareWeight) {
-        toast.error('Please fill all required fields');
-        return;
-      }
+  const handleCaptureFirstWeight = async () => {
+    if (!vehicleNumber.trim() || !firstWeightValue.trim()) {
+      toast.error('Please fill vehicle number and weight');
+      return;
+    }
 
-      const gross = parseFloat(grossWeight);
-      const tare = parseFloat(tareWeight);
-
-      if (gross <= tare) {
-        toast.error('Gross weight must be greater than tare weight');
-        return;
-      }
-    } else if (weightType === 'tare' || weightType === 'gross') {
-      // Sales flow - only measured weight required
-      if (!vehicleNumber || !measuredWeight) {
-        toast.error('Please fill all required fields');
-        return;
-      }
+    const weight = parseFloat(firstWeightValue);
+    if (weight <= 0) {
+      toast.error('Weight must be greater than 0');
+      return;
     }
 
     setLoading(true);
     try {
-      let payload;
+      const weightType = transactionType === 'sale' ? 'tare' : 'single';
       
-      if (weightType === 'single') {
-        // Regular single weighment
+      let payload;
+      if (transactionType === 'purchase') {
+        // Purchase: Single weighment with both gross and tare
+        const tare = parseFloat(secondWeightValue);
+        if (!secondWeightValue.trim() || tare <= 0) {
+          toast.error('Please enter TARE weight for purchase');
+          setLoading(false);
+          return;
+        }
+        if (weight <= tare) {
+          toast.error('GROSS weight must be greater than TARE weight');
+          setLoading(false);
+          return;
+        }
+        
         payload = {
           slip_id: slipId,
           vehicle_number: vehicleNumber.toUpperCase(),
           vehicle_type: vehicleType,
           driver_name: driverName || null,
           driver_mobile: driverMobile || null,
-          gross_weight: parseFloat(grossWeight),
-          tare_weight: parseFloat(tareWeight),
+          gross_weight: weight,
+          tare_weight: tare,
           weight_type: 'single',
           operator_id: user.id,
           operator_name: user.name,
           shift: shift
         };
       } else {
-        // Sales TARE or GROSS weighment
+        // Sale: TARE only
         payload = {
           slip_id: slipId,
           vehicle_number: vehicleNumber.toUpperCase(),
           vehicle_type: vehicleType,
           driver_name: driverName || null,
           driver_mobile: driverMobile || null,
-          weight: parseFloat(measuredWeight),
-          weight_type: weightType,
+          weight: weight,
+          weight_type: 'tare',
           operator_id: user.id,
           operator_name: user.name,
           shift: shift
@@ -163,21 +179,68 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
       const response = await axios.post(`${API}/weighbridge-entry`, payload);
       
-      setCreatedEntry(response.data);
-      setShowSuccessModal(true);
-      setShowForm(false);
-      resetForm();
-      
-      if (weightType === 'tare') {
-        toast.success('TARE weight recorded! Vehicle can now proceed for loading.');
-      } else if (weightType === 'gross') {
-        toast.success('GROSS weight recorded! Net weight calculated. Ready for invoice.');
+      if (transactionType === 'purchase') {
+        // Purchase completes in one go
+        setFirstWeightCaptured(true);
+        setSecondWeightCaptured(true);
+        setExistingGrossWeight(weight);
+        setExistingTareWeight(parseFloat(secondWeightValue));
+        toast.success('✅ Weighbridge entry completed! Net weight calculated.');
       } else {
-        toast.success('Weighbridge entry created successfully!');
+        // Sale: TARE captured
+        setFirstWeightCaptured(true);
+        setExistingTareWeight(weight);
+        toast.success('✅ TARE weight recorded! Vehicle can now proceed for loading. Return for GROSS weight.');
       }
       
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to create entry');
+      toast.error(error.response?.data?.detail || 'Failed to capture weight');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCaptureSecondWeight = async () => {
+    if (!secondWeightValue.trim()) {
+      toast.error('Please enter weight');
+      return;
+    }
+
+    const weight = parseFloat(secondWeightValue);
+    if (weight <= 0) {
+      toast.error('Weight must be greater than 0');
+      return;
+    }
+
+    // For sales, validate gross > tare
+    if (transactionType === 'sale' && weight <= existingTareWeight) {
+      toast.error(`GROSS weight (${weight} kg) must be greater than TARE weight (${existingTareWeight} kg)`);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        slip_id: slipId,
+        vehicle_number: vehicleNumber.toUpperCase(),
+        vehicle_type: vehicleType,
+        driver_name: driverName || null,
+        driver_mobile: driverMobile || null,
+        weight: weight,
+        weight_type: 'gross',
+        operator_id: user.id,
+        operator_name: user.name,
+        shift: shift
+      };
+
+      const response = await axios.post(`${API}/weighbridge-entry`, payload);
+      
+      setSecondWeightCaptured(true);
+      setExistingGrossWeight(weight);
+      toast.success(`✅ GROSS weight recorded! Net weight: ${(weight - existingTareWeight).toFixed(2)} kg. Ready for invoice!`);
+      
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to capture weight');
     } finally {
       setLoading(false);
     }
@@ -185,372 +248,462 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
   const resetForm = () => {
     setSlipId('');
+    setPreEntry(null);
+    setTransactionType(null);
     setVehicleNumber('');
     setVehicleType('Truck');
     setDriverName('');
     setDriverMobile('');
-    setGrossWeight('');
-    setTareWeight('');
-    setMeasuredWeight('');
-    setWeightType('single');
-    setExistingTareWeight(0);
-    setPreEntry(null);
+    setFirstWeightValue('');
+    setSecondWeightValue('');
+    setFirstWeightCaptured(false);
+    setSecondWeightCaptured(false);
+    setExistingTareWeight(null);
+    setExistingGrossWeight(null);
+    setNetWeight(0);
+    setBags(0);
+    setQuintals(0);
   };
+
+  // Helper function to get weight labels
+  const getWeightLabels = () => {
+    if (transactionType === 'purchase') {
+      return {
+        first: { label: 'GROSS Weight', emoji: '🚛', color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-300' },
+        second: { label: 'TARE Weight', emoji: '🚚', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-300' }
+      };
+    } else {
+      return {
+        first: { label: 'TARE Weight', emoji: '🚚', color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-300' },
+        second: { label: 'GROSS Weight', emoji: '🚛', color: 'text-green-700', bg: 'bg-green-50', border: 'border-green-300' }
+      };
+    }
+  };
+
+  const weightLabels = preEntry ? getWeightLabels() : null;
 
   return (
     <Layout user={user} onLogout={onLogout}>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{color: '#3E2723'}}>Weighbridge Entry</h1>
-          <p className="text-lg" style={{color: '#6B5846'}}>Scan QR and record weights</p>
+      <div className="p-8 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold" style={{color: '#3E2723'}}>⚖️ Weighbridge Entry</h1>
+          {preEntry && (
+            <Button onClick={resetForm} variant="outline">
+              🔄 New Entry
+            </Button>
+          )}
         </div>
 
-        {/* QR Scan Section */}
-        <Card className="p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>
-            📱 Scan QR Code / Enter Slip ID
-          </h2>
-          <div className="flex space-x-4">
-            <div className="flex-1">
-              <Label className="text-sm font-semibold">Slip ID *</Label>
+        {/* Slip ID Input Section */}
+        {!preEntry && (
+          <Card className="p-6 mb-6">
+            <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>📋 Enter Slip ID</h2>
+            <div className="flex gap-4">
               <Input
                 value={slipId}
-                onChange={(e) => setSlipId(e.target.value.toUpperCase())}
-                placeholder="WB-25-000001"
-                className="mt-1"
-                disabled={showForm}
+                onChange={(e) => setSlipId(e.target.value)}
+                placeholder="WB-25-000001, BPRE-25-000001, SPRE-25-000001"
+                className="flex-1"
+                onKeyPress={(e) => e.key === 'Enter' && handleFetchSlip()}
               />
-            </div>
-            <div className="flex items-end">
               <Button 
-                onClick={handleScanQR} 
-                className="btn-primary"
-                disabled={loading || showForm}
+                onClick={handleFetchSlip} 
+                disabled={loading}
+                style={{backgroundColor: '#8B4513', color: 'white'}}
               >
-                {loading ? 'Loading...' : '🔍 Fetch Pre-Entry'}
+                {loading ? 'Loading...' : '🔍 Fetch Slip'}
               </Button>
             </div>
-          </div>
-        </Card>
-
-        {/* Pre-Entry Details (After Scan) */}
-        {preEntry && showForm && (
-          <Card className="p-6 mb-8" style={{background: 'rgba(107, 142, 35, 0.05)'}}>
-            <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
-              ✅ Pre-Entry Details
-            </h3>
-            <div className="grid grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm" style={{color: '#6B5846'}}>Transaction Type</p>
-                <p className="font-bold">{preEntry.transaction_type}</p>
-              </div>
-              <div>
-                <p className="text-sm" style={{color: '#6B5846'}}>
-                  {preEntry.transaction_type === 'sale' ? 'Customer Name' : 'Party Name'}
-                </p>
-                <p className="font-bold">{preEntry.party_name || preEntry.customer_name}</p>
-              </div>
-              <div>
-                <p className="text-sm" style={{color: '#6B5846'}}>Item</p>
-                <p className="font-bold">{preEntry.item_name}</p>
-              </div>
-              <div>
-                <p className="text-sm" style={{color: '#6B5846'}}>Expected Bags</p>
-                <p className="font-bold">{preEntry.expected_bags || 'N/A'}</p>
-              </div>
-            </div>
           </Card>
         )}
 
-        {/* Weighbridge Entry Form */}
-        {showForm && (
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-6" style={{color: '#3E2723'}}>
-              ⚖️ Record Weights
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Vehicle Details */}
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Vehicle Details</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label className="text-sm font-semibold">
-                      Vehicle Number * 
-                      {weightType === 'gross' && (
-                        <span className="ml-2 text-sm text-green-600">🔒 (Auto-filled from TARE entry)</span>
-                      )}
-                    </Label>
-                    <Input
-                      value={vehicleNumber}
-                      onChange={(e) => setVehicleNumber(e.target.value)}
-                      placeholder="MP09AB1234"
-                      className="mt-1"
-                      required
-                      disabled={weightType === 'gross'}
-                      style={weightType === 'gross' ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
-                    />
+        {/* Main Content - Progressive Sections */}
+        {preEntry && (
+          <>
+            {/* Header: Transaction Overview */}
+            <Card className="p-6 mb-6" style={{backgroundColor: '#FFF8E1', borderColor: '#F57C00', borderWidth: 2}}>
+              <h2 className="text-lg font-bold mb-3" style={{color: '#E65100'}}>📋 TRANSACTION OVERVIEW</h2>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Slip ID</p>
+                  <p className="font-bold text-lg">{preEntry.slip_id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Party/Customer</p>
+                  <p className="font-bold text-lg">{preEntry.party_name || preEntry.customer_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Item</p>
+                  <p className="font-bold text-lg">{preEntry.item_name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Transaction Type</p>
+                  <Badge className="text-sm" style={{backgroundColor: transactionType === 'sale' ? '#1976D2' : '#388E3C', color: 'white'}}>
+                    {transactionType === 'sale' ? '🚚 SALE' : '📦 PURCHASE'}
+                  </Badge>
+                </div>
+              </div>
+            </Card>
+
+            {/* Visual Flow Indicator */}
+            <Card className="p-4 mb-6" style={{backgroundColor: '#F5F5F5'}}>
+              <div className="flex items-center justify-center gap-6">
+                <div className="text-center">
+                  <div className={`text-3xl mb-1 ${firstWeightCaptured ? '' : 'opacity-40'}`}>
+                    {weightLabels.first.emoji}
                   </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Vehicle Type *</Label>
-                    <select
-                      value={vehicleType}
-                      onChange={(e) => setVehicleType(e.target.value)}
-                      className="erp-select mt-1"
-                      required
-                    >
-                      <option value="Truck">Truck</option>
-                      <option value="Tractor">Tractor</option>
-                      <option value="Hammali">Hammali</option>
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Shift</Label>
-                    <select
-                      value={shift}
-                      onChange={(e) => setShift(e.target.value)}
-                      className="erp-select mt-1"
-                    >
-                      <option value="Morning">Morning</option>
-                      <option value="Evening">Evening</option>
-                      <option value="Night">Night</option>
-                    </select>
+                  <div className={`font-bold ${weightLabels.first.color}`}>{weightLabels.first.label}</div>
+                  <div className="text-2xl mt-1">
+                    {firstWeightCaptured ? '✅' : '⏳'}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <Label className="text-sm font-semibold">Driver Name</Label>
-                    <Input
-                      value={driverName}
-                      onChange={(e) => setDriverName(e.target.value)}
-                      placeholder="Optional"
-                      className="mt-1"
-                    />
+                
+                <div className="text-4xl text-gray-400">→</div>
+                
+                <div className="text-center">
+                  <div className={`text-3xl mb-1 ${secondWeightCaptured ? '' : 'opacity-40'}`}>
+                    {weightLabels.second.emoji}
                   </div>
-                  <div>
-                    <Label className="text-sm font-semibold">Driver Mobile</Label>
-                    <Input
-                      value={driverMobile}
-                      onChange={(e) => setDriverMobile(e.target.value)}
-                      placeholder="Optional"
-                      maxLength={10}
-                      className="mt-1"
-                    />
+                  <div className={`font-bold ${weightLabels.second.color}`}>{weightLabels.second.label}</div>
+                  <div className="text-2xl mt-1">
+                    {secondWeightCaptured ? '✅' : firstWeightCaptured ? '⏳' : '🔒'}
+                  </div>
+                </div>
+                
+                <div className="text-4xl text-gray-400">=</div>
+                
+                <div className="text-center">
+                  <div className={`text-3xl mb-1 ${secondWeightCaptured ? '' : 'opacity-40'}`}>🎯</div>
+                  <div className="font-bold text-orange-700">NET Weight</div>
+                  <div className="text-2xl mt-1">
+                    {secondWeightCaptured ? '✅' : '🔒'}
                   </div>
                 </div>
               </div>
+            </Card>
 
-              {/* Weight Details */}
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>
-                  Weight Measurement
-                  {weightType === 'tare' && <span className="ml-2 text-blue-600">(Step 1: TARE - Empty Truck)</span>}
-                  {weightType === 'gross' && <span className="ml-2 text-green-600">(Step 2: GROSS - Loaded Truck)</span>}
-                </h3>
-                
-                {weightType === 'single' ? (
-                  // Regular single weighment (Purchase flow)
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-semibold">Gross Weight (kg) *</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={grossWeight}
-                          onChange={(e) => setGrossWeight(e.target.value)}
-                          placeholder="Weight with load"
-                          className="mt-1"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-semibold">Tare Weight (kg) *</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={tareWeight}
-                          onChange={(e) => setTareWeight(e.target.value)}
-                          placeholder="Empty vehicle weight"
-                          className="mt-1"
-                          required
-                        />
+            {/* Section 1: Vehicle Details */}
+            <Card className="p-6 mb-6">
+              <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>🚗 VEHICLE DETAILS</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <Label className="text-sm font-semibold">
+                    Vehicle Number *
+                    {firstWeightCaptured && (
+                      <span className="ml-2 text-xs text-green-600">🔒 Locked</span>
+                    )}
+                  </Label>
+                  <Input
+                    value={vehicleNumber}
+                    onChange={(e) => setVehicleNumber(e.target.value)}
+                    placeholder="MP09AB1234"
+                    className="mt-1"
+                    required
+                    disabled={firstWeightCaptured}
+                    style={firstWeightCaptured ? {backgroundColor: '#f0f0f0'} : {}}
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Vehicle Type *</Label>
+                  <Select value={vehicleType} onValueChange={setVehicleType} disabled={firstWeightCaptured}>
+                    <SelectTrigger className="mt-1" style={firstWeightCaptured ? {backgroundColor: '#f0f0f0'} : {}}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Truck">Truck</SelectItem>
+                      <SelectItem value="Tractor">Tractor</SelectItem>
+                      <SelectItem value="Hammali">Hammali</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Driver Name</Label>
+                  <Input
+                    value={driverName}
+                    onChange={(e) => setDriverName(e.target.value)}
+                    placeholder="Optional"
+                    className="mt-1"
+                    disabled={firstWeightCaptured}
+                    style={firstWeightCaptured ? {backgroundColor: '#f0f0f0'} : {}}
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold">Driver Mobile</Label>
+                  <Input
+                    value={driverMobile}
+                    onChange={(e) => setDriverMobile(e.target.value)}
+                    placeholder="Optional"
+                    className="mt-1"
+                    disabled={firstWeightCaptured}
+                    style={firstWeightCaptured ? {backgroundColor: '#f0f0f0'} : {}}
+                  />
+                </div>
+              </div>
+            </Card>
+
+            {/* Section 2: Weight Capture Flow */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              
+              {/* Card 1: First Weight */}
+              <Card 
+                className={`p-6 border-2 ${firstWeightCaptured ? weightLabels.first.bg : 'bg-white'}`}
+                style={{borderColor: firstWeightCaptured ? '#4CAF50' : weightLabels.first.border.includes('blue') ? '#2196F3' : '#4CAF50'}}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className={`text-lg font-bold ${weightLabels.first.color}`}>
+                    1️⃣ {weightLabels.first.label}
+                  </h3>
+                  <Badge style={{backgroundColor: firstWeightCaptured ? '#4CAF50' : '#FFC107', color: 'white'}}>
+                    {firstWeightCaptured ? '✅ Done' : '⏳ Current'}
+                  </Badge>
+                </div>
+
+                {firstWeightCaptured ? (
+                  <div className="space-y-3">
+                    <div className="text-center py-6">
+                      <div className="text-5xl font-bold" style={{color: '#2E7D32'}}>
+                        {existingTareWeight && transactionType === 'sale' 
+                          ? existingTareWeight.toFixed(2)
+                          : existingGrossWeight && transactionType === 'purchase'
+                          ? existingGrossWeight.toFixed(2)
+                          : parseFloat(firstWeightValue).toFixed(2)
+                        } kg
                       </div>
                     </div>
-
-                    {/* Calculated Values */}
-                    {netWeight > 0 && (
-                      <div className="mt-6 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
-                        <h4 className="font-bold mb-3" style={{color: '#3E2723'}}>Calculated Values</h4>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div>
-                            <p className="text-sm" style={{color: '#6B5846'}}>Net Weight</p>
-                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{netWeight.toFixed(2)} kg</p>
-                          </div>
-                          <div>
-                            <p className="text-sm" style={{color: '#6B5846'}}>Bags</p>
-                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{bags}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm" style={{color: '#6B5846'}}>Quintals</p>
-                            <p className="text-2xl font-bold" style={{color: '#6B8E23'}}>{quintals}</p>
-                          </div>
-                        </div>
+                    <div className="text-center">
+                      <div className="inline-block px-4 py-2 bg-gray-200 rounded text-sm">
+                        📸 Photo Captured
+                      </div>
+                    </div>
+                    {transactionType === 'purchase' && (
+                      <div className="text-center text-sm text-gray-600 mt-2">
+                        ✅ Entry complete. Net weight calculated.
                       </div>
                     )}
-                  </>
-                ) : weightType === 'tare' ? (
-                  // TARE weighment (Sales - Step 1)
-                  <>
-                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                      <p className="text-sm text-blue-800">
-                        📦 Record the weight of the <strong>EMPTY</strong> truck before loading.
-                      </p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={measuredWeight}
-                        onChange={(e) => setMeasuredWeight(e.target.value)}
-                        placeholder="Empty vehicle weight"
-                        className="mt-1 text-2xl"
-                        required
-                      />
-                    </div>
-                  </>
+                    {transactionType === 'sale' && !secondWeightCaptured && (
+                      <div className="text-center text-sm text-blue-600 mt-2 font-semibold">
+                        → Proceed to load vehicle
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  // GROSS weighment (Sales - Step 2)
-                  <>
-                    <div className="bg-green-50 p-4 rounded-lg mb-4">
-                      <p className="text-sm text-green-800">
-                        🚛 Record the weight of the <strong>LOADED</strong> truck after loading.
+                  <div className="space-y-4">
+                    {transactionType === 'purchase' && (
+                      <div>
+                        <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
+                        <Input
+                          type="number"
+                          value={firstWeightValue}
+                          onChange={(e) => setFirstWeightValue(e.target.value)}
+                          placeholder="Enter loaded weight"
+                          className="mt-1 text-xl font-bold"
+                          min="0"
+                        />
+                      </div>
+                    )}
+                    {transactionType === 'sale' && (
+                      <div>
+                        <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
+                        <Input
+                          type="number"
+                          value={firstWeightValue}
+                          onChange={(e) => setFirstWeightValue(e.target.value)}
+                          placeholder="Enter empty weight"
+                          className="mt-1 text-xl font-bold"
+                          min="0"
+                        />
+                      </div>
+                    )}
+                    {transactionType === 'purchase' && (
+                      <div>
+                        <Label className="text-sm font-semibold">TARE Weight (kg) *</Label>
+                        <Input
+                          type="number"
+                          value={secondWeightValue}
+                          onChange={(e) => setSecondWeightValue(e.target.value)}
+                          placeholder="Enter empty weight"
+                          className="mt-1 text-xl font-bold"
+                          min="0"
+                        />
+                      </div>
+                    )}
+                    <Button 
+                      onClick={handleCaptureFirstWeight}
+                      disabled={loading}
+                      className="w-full"
+                      style={{backgroundColor: '#1976D2', color: 'white'}}
+                    >
+                      {loading ? 'Capturing...' : '📸 Capture Weight'}
+                    </Button>
+                    {transactionType === 'purchase' && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Both weights captured together for purchase
                       </p>
-                      <p className="text-sm text-green-700 mt-2">
-                        <strong>Previous TARE weight:</strong> {existingTareWeight.toFixed(2)} kg
-                      </p>
+                    )}
+                  </div>
+                )}
+              </Card>
+
+              {/* Card 2: Second Weight */}
+              <Card 
+                className={`p-6 border-2 ${secondWeightCaptured ? weightLabels.second.bg : 'bg-white'} ${!firstWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured) ? 'opacity-50' : ''}`}
+                style={{borderColor: secondWeightCaptured ? '#4CAF50' : weightLabels.second.border.includes('blue') ? '#2196F3' : '#4CAF50'}}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className={`text-lg font-bold ${weightLabels.second.color}`}>
+                    2️⃣ {weightLabels.second.label}
+                  </h3>
+                  <Badge style={{backgroundColor: secondWeightCaptured ? '#4CAF50' : (!firstWeightCaptured ? '#9E9E9E' : '#FFC107'), color: 'white'}}>
+                    {secondWeightCaptured ? '✅ Done' : (!firstWeightCaptured ? '🔒 Locked' : '⏳ Current')}
+                  </Badge>
+                </div>
+
+                {transactionType === 'purchase' && firstWeightCaptured ? (
+                  <div className="space-y-3">
+                    <div className="text-center py-6">
+                      <div className="text-5xl font-bold" style={{color: '#1976D2'}}>
+                        {parseFloat(secondWeightValue).toFixed(2)} kg
+                      </div>
                     </div>
-                    <div>
-                      <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={measuredWeight}
-                        onChange={(e) => setMeasuredWeight(e.target.value)}
-                        placeholder="Loaded vehicle weight"
-                        className="mt-1 text-2xl"
-                        required
-                      />
+                    <div className="text-center">
+                      <div className="inline-block px-4 py-2 bg-gray-200 rounded text-sm">
+                        📸 Photo Captured
+                      </div>
+                    </div>
+                    <div className="text-center text-sm text-gray-600 mt-2">
+                      ✅ Captured with GROSS weight
+                    </div>
+                  </div>
+                ) : secondWeightCaptured ? (
+                  <div className="space-y-3">
+                    <div className="text-center py-6">
+                      <div className="text-5xl font-bold" style={{color: '#2E7D32'}}>
+                        {existingGrossWeight?.toFixed(2) || parseFloat(secondWeightValue).toFixed(2)} kg
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="inline-block px-4 py-2 bg-gray-200 rounded text-sm">
+                        📸 Photo Captured
+                      </div>
+                    </div>
+                    <div className="text-center text-sm text-green-600 mt-2 font-semibold">
+                      ✅ Ready for invoice generation
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {firstWeightCaptured && transactionType === 'sale' ? (
+                      <>
+                        <div>
+                          <Label className="text-sm font-semibold">GROSS Weight (kg) *</Label>
+                          <Input
+                            type="number"
+                            value={secondWeightValue}
+                            onChange={(e) => setSecondWeightValue(e.target.value)}
+                            placeholder="Enter loaded weight"
+                            className="mt-1 text-xl font-bold"
+                            min="0"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Must be &gt; {existingTareWeight} kg (TARE)
+                          </p>
+                        </div>
+                        <Button 
+                          onClick={handleCaptureSecondWeight}
+                          disabled={loading}
+                          className="w-full"
+                          style={{backgroundColor: '#388E3C', color: 'white'}}
+                        >
+                          {loading ? 'Capturing...' : '📸 Capture Weight'}
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="text-center py-8 text-gray-400">
+                        <div className="text-4xl mb-2">🔒</div>
+                        <p className="text-sm">Complete first weight to unlock</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+
+              {/* Card 3: Net Weight */}
+              <Card 
+                className={`p-6 border-2 ${(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? 'bg-orange-50' : 'bg-white opacity-50'}`}
+                style={{borderColor: (secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '#FF9800' : '#E0E0E0'}}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-orange-700">
+                    3️⃣ NET Weight
+                  </h3>
+                  <Badge style={{backgroundColor: (secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '#FF9800' : '#9E9E9E', color: 'white'}}>
+                    {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '🎯 Result' : '🔒 Locked'}
+                  </Badge>
+                </div>
+
+                {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? (
+                  <div className="space-y-4">
+                    <div className="text-center py-4">
+                      <div className="text-6xl font-bold text-orange-600">
+                        {netWeight.toFixed(2)}
+                      </div>
+                      <div className="text-xl font-semibold text-gray-700 mt-2">kg</div>
                     </div>
                     
-                    {/* Calculate and show net weight preview */}
-                    {measuredWeight && parseFloat(measuredWeight) > existingTareWeight && (
-                      <div className="mt-4 p-4 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
-                        <h4 className="font-bold mb-2" style={{color: '#3E2723'}}>Net Weight Preview</h4>
-                        <p className="text-3xl font-bold" style={{color: '#6B8E23'}}>
-                          {(parseFloat(measuredWeight) - existingTareWeight).toFixed(2)} kg
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          ({((parseFloat(measuredWeight) - existingTareWeight) / 100).toFixed(2)} quintals)
-                        </p>
+                    <div className="border-t pt-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Bags (100kg):</span>
+                        <span className="font-bold">{bags}</span>
                       </div>
-                    )}
-                  </>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Quintals:</span>
+                        <span className="font-bold">{quintals}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Remaining kg:</span>
+                        <span className="font-bold">{(netWeight % 100).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-orange-100 p-3 rounded text-xs text-center">
+                      <p className="font-semibold text-orange-800">Formula:</p>
+                      <p className="text-gray-700">
+                        {transactionType === 'purchase' 
+                          ? `${parseFloat(firstWeightValue).toFixed(2)} (GROSS) - ${parseFloat(secondWeightValue).toFixed(2)} (TARE)`
+                          : `${existingGrossWeight?.toFixed(2) || parseFloat(secondWeightValue).toFixed(2)} (GROSS) - ${existingTareWeight?.toFixed(2) || parseFloat(firstWeightValue).toFixed(2)} (TARE)`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-gray-400">
+                    <div className="text-5xl mb-3">🎯</div>
+                    <p className="text-sm">Complete both weighments</p>
+                    <p className="text-sm">to see net weight</p>
+                  </div>
                 )}
-              </div>
+              </Card>
+            </div>
 
-              {/* Photo Capture (Mock) */}
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Photos</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border-2 border-dashed rounded-lg text-center">
-                    <div className="text-4xl mb-2">📷</div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Gross Weight Photo</p>
-                    <p className="text-xs text-gray-500">(Mock - Will use camera)</p>
-                  </div>
-                  <div className="p-4 border-2 border-dashed rounded-lg text-center">
-                    <div className="text-4xl mb-2">📷</div>
-                    <p className="text-sm" style={{color: '#6B5846'}}>Tare Weight Photo</p>
-                    <p className="text-xs text-gray-500">(Mock - Will use camera)</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex justify-end space-x-2 pt-4 border-t">
-                <Button 
-                  type="button" 
-                  onClick={() => {
-                    setShowForm(false);
-                    resetForm();
-                  }} 
-                  className="btn-secondary"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="btn-primary"
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : 'Save Weighbridge Entry'}
-                </Button>
-              </div>
-            </form>
-          </Card>
-        )}
-
-        {/* Success Modal */}
-        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
-                ✅ Weighbridge Entry Saved!
-              </DialogTitle>
-            </DialogHeader>
-            
-            {createdEntry && (
-              <div className="space-y-4">
-                <div className="text-center p-6 rounded-lg" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
-                  <p className="text-sm mb-2" style={{color: '#6B5846'}}>Slip ID</p>
-                  <p className="text-2xl font-bold mb-4" style={{color: '#6B8E23'}}>{createdEntry.slip_id}</p>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-left">
-                    <div>
-                      <p className="text-xs" style={{color: '#6B5846'}}>Net Weight</p>
-                      <p className="font-bold">{createdEntry.net_weight} kg</p>
-                    </div>
-                    <div>
-                      <p className="text-xs" style={{color: '#6B5846'}}>Quintals</p>
-                      <p className="font-bold">{createdEntry.act_qtl}</p>
-                    </div>
+            {/* Contextual Message */}
+            {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) && (
+              <Card className="p-4 mb-6" style={{backgroundColor: '#E8F5E9', borderColor: '#4CAF50', borderWidth: 2}}>
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">✅</div>
+                  <div>
+                    <p className="font-bold text-green-800">Weighbridge Entry Completed!</p>
+                    <p className="text-sm text-green-700">
+                      {transactionType === 'purchase' 
+                        ? `Net weight: ${netWeight.toFixed(2)} kg calculated. Entry can now be processed for ${preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment'}.`
+                        : `Net weight: ${netWeight.toFixed(2)} kg calculated. Entry ready for Sales Invoice generation.`
+                      }
+                    </p>
                   </div>
                 </div>
-                
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm font-semibold mb-2">✅ Next Step:</p>
-                  <p className="text-sm">
-                    {createdEntry.transaction_type === 'farmer_purchase' 
-                      ? 'Slip ready for Farmer Payment module'
-                      : 'Slip ready for respective module'}
-                  </p>
-                </div>
-                
-                <Button 
-                  onClick={() => {
-                    setShowSuccessModal(false);
-                    setCreatedEntry(null);
-                  }} 
-                  className="btn-primary w-full"
-                >
-                  Done
-                </Button>
-              </div>
+              </Card>
             )}
-          </DialogContent>
-        </Dialog>
+          </>
+        )}
       </div>
     </Layout>
   );
