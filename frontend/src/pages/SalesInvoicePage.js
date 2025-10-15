@@ -514,7 +514,17 @@ function SalesInvoicePage({ user, onLogout }) {
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {isReturn ? '🔄 Sales Return' : '📄 Sales Invoice'} - {selectedPreEntry?.pre_entry_number}
+                {savedInvoice ? (
+                  <div className="flex items-center gap-3">
+                    <span>{isReturn ? '🔄 Sales Return' : '📄 Sales Invoice'}</span>
+                    <Badge className="bg-green-600 text-white text-lg px-3 py-1">
+                      {savedInvoice.invoice_number}
+                    </Badge>
+                    <Badge className="bg-blue-600 text-white">POSTED</Badge>
+                  </div>
+                ) : (
+                  <span>{isReturn ? '🔄 Sales Return' : '📄 Sales Invoice'} - {selectedPreEntry?.pre_entry_number}</span>
+                )}
               </DialogTitle>
             </DialogHeader>
             
