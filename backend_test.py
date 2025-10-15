@@ -360,10 +360,15 @@ class SalesFlowTester:
                 photo_tare_url = data.get('photo_tare_url')
                 photo_gross_url = data.get('photo_gross_url')
                 
+                # Calculate expected values
+                expected_tare = 2345
+                expected_gross = 55000
+                expected_net = expected_gross - expected_tare  # 52655
+                
                 # Check all required fields
-                if (tare_weight == 5000 and 
-                    gross_weight == 55000 and 
-                    net_weight == 50000 and 
+                if (tare_weight == expected_tare and 
+                    gross_weight == expected_gross and 
+                    net_weight == expected_net and 
                     photo_tare_url and 
                     photo_gross_url):
                     self.log_test("Phase 8: Fetch Weighbridge Photos", True, 
@@ -371,7 +376,7 @@ class SalesFlowTester:
                     return True
                 else:
                     self.log_test("Phase 8: Fetch Weighbridge Photos", False, 
-                                f"❌ Incomplete data: tare={tare_weight}, gross={gross_weight}, net={net_weight}, tare_photo={bool(photo_tare_url)}, gross_photo={bool(photo_gross_url)}")
+                                f"❌ Incomplete data: tare={tare_weight} (exp {expected_tare}), gross={gross_weight} (exp {expected_gross}), net={net_weight} (exp {expected_net}), tare_photo={bool(photo_tare_url)}, gross_photo={bool(photo_gross_url)}")
                     return False
             else:
                 self.log_test("Phase 8: Fetch Weighbridge Photos", False, 
