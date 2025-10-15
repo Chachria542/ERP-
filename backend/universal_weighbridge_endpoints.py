@@ -21,6 +21,10 @@ def init_db(database):
     global db
     db = database
 
+# Import queue models
+from weighbridge_queue_models import WeighbridgeQueueItem, WeighbridgeQueueResponse
+
+
 # ============= HELPER FUNCTIONS =============
 
 def get_financial_year() -> int:
