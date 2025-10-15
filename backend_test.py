@@ -235,39 +235,48 @@ class SalesInvoiceCreationTester:
             self.log_test("Missing pre_entry_id Edge Case", False, f"Request failed: {str(e)}")
             return False
     
-    def test_phase4_verify_not_in_queue_yet(self):
+    def test_invalid_pre_entry_id(self):
         """
-        Phase 4: Verify SPRE-25-000014 is NOT in the queue yet
-        GET /api/sales/queue?status=pending (status is tare_completed, not pending)
+        Test 4: Edge Case - Invalid pre_entry_id
+        Should fail with 404 error
         """
-        print("🔍 Phase 4: Verify NOT in Sales Queue Yet...")
+        print("🔍 Test 4: Edge Case - Invalid pre_entry_id...")
         
         try:
-            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
+            payload = {
+                "sale_type": "normal_sale",
+                "invoice_date": datetime.now().strftime("%Y-%m-%d"),
+                "pre_entry_id": "invalid-pre-entry-id-12345",
+                "line_items": [
+                    {
+                        "item_id": "test-item-id",
+                        "item_name": "Test Item",
+                        "bags": 10,
+                        "actual_qtl": 10.0,
+                        "rate": 2500.0,
+                        "amount": 25000.0
+                    }
+                ],
+                "grand_total": 25000.0,
+                "created_by": "test-user"
+            }
             
-            if response.status_code == 200:
-                queue_items = response.json()
-                
-                # Check if our slip is in the queue (it shouldn't be)
-                found_in_queue = any(item.get('slip_id') == self.target_slip_id or 
-                                   item.get('pre_entry_number') == self.target_slip_id 
-                                   for item in queue_items)
-                
-                if not found_in_queue:
-                    self.log_test("Phase 4: Not in Queue Yet", True, 
-                                f"✅ {self.target_slip_id} correctly NOT in pending queue (status is tare_completed)")
-                    return True
-                else:
-                    self.log_test("Phase 4: Not in Queue Yet", False, 
-                                f"❌ {self.target_slip_id} unexpectedly found in pending queue")
-                    return False
+            response = requests.post(f"{self.base_url}/sales/invoice", 
+                                   json=payload,
+                                   headers={'Content-Type': 'application/json'},
+                                   timeout=10)
+            
+            if response.status_code == 404:
+                self.log_test("Invalid pre_entry_id Edge Case", True, 
+                            "✅ Correctly returned 404 error for invalid pre_entry_id")
+                return True
             else:
-                self.log_test("Phase 4: Not in Queue Yet", False, 
-                            f"HTTP {response.status_code}: {response.text}")
+                self.log_test("Invalid pre_entry_id Edge Case", False, 
+                            f"❌ Expected 404, got {response.status_code}: {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_test("Phase 4: Not in Queue Yet", False, f"Request failed: {str(e)}")
+            self.log_test("Invalid pre_entry_id Edge Case", False, f"Request failed: {str(e)}")
             return False
     
     def test_phase5_gross_weight_entry(self):
