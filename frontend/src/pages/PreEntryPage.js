@@ -98,6 +98,7 @@ function PreEntryPage({ user, onLogout }) {
 
   useEffect(() => {
     fetchItems();
+    fetchCustomers();
   }, []);
 
   // OTP Timer countdown
