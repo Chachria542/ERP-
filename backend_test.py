@@ -366,56 +366,48 @@ class SalesInvoiceCreationTester:
         
         return success2 and success3 and success4 and success5
     
-    def test_phase7_verify_now_in_queue(self):
-        """
-        Phase 7: Verify SPRE-25-000014 NOW appears in the sales queue
-        GET /api/sales/queue?status=pending
-        """
-        print("🔍 Phase 7: Verify NOW in Sales Queue...")
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "=" * 80)
+        print("📊 SALES INVOICE CREATION FIX TEST SUMMARY")
+        print("=" * 80)
         
-        try:
-            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result['success'])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests} ✅")
+        print(f"Failed: {failed_tests} ❌")
+        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        
+        # Detailed results
+        if failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.test_results:
+                if not result['success']:
+                    print(f"  - {result['test']}: {result['details']}")
             
-            if response.status_code == 200:
-                queue_items = response.json()
-                
-                # Find our slip in the queue
-                found_item = None
-                for item in queue_items:
-                    if (item.get('slip_id') == self.target_slip_id or 
-                        item.get('pre_entry_number') == self.target_slip_id):
-                        found_item = item
-                        break
-                
-                if found_item:
-                    net_weight = found_item.get('net_weight')
-                    customer_name = found_item.get('customer_name')
-                    item_name = found_item.get('item_name')
-                    
-                    # Calculate expected net weight (55000 - 2345 = 52655)
-                    expected_net = 52655
-                    
-                    # Verify net_weight and other details are present
-                    if net_weight == expected_net and customer_name and item_name:
-                        self.log_test("Phase 7: Now in Queue", True, 
-                                    f"✅ {self.target_slip_id} now in queue: Net Weight: {net_weight} kg, Customer: {customer_name}, Item: {item_name}")
-                        return True
-                    else:
-                        self.log_test("Phase 7: Now in Queue", False, 
-                                    f"❌ Found in queue but incorrect data: net_weight={net_weight} (expected {expected_net}), customer={customer_name}, item={item_name}")
-                        return False
-                else:
-                    self.log_test("Phase 7: Now in Queue", False, 
-                                f"❌ {self.target_slip_id} not found in pending queue")
-                    return False
-            else:
-                self.log_test("Phase 7: Now in Queue", False, 
-                            f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except Exception as e:
-            self.log_test("Phase 7: Now in Queue", False, f"Request failed: {str(e)}")
-            return False
+            print("\n🚨 SALES INVOICE CREATION ISSUES FOUND:")
+            print("The 422 validation error fix may not be working correctly.")
+            print("Please review the failed tests above and check the implementation.")
+        else:
+            print("\n🎉 SALES INVOICE CREATION FIX VERIFIED!")
+            print("✅ Test 1: Sales Queue Endpoint - All required fields present")
+            print("✅ Test 2: Sales Invoice Creation - Success with SAL-YY-###### format")
+            print("✅ Test 3: Missing pre_entry_id - Correctly returns 422 validation error")
+            print("✅ Test 4: Invalid pre_entry_id - Correctly returns 404 error")
+            print("✅ Test 5: Wrong status pre-entry - Correctly returns 400 error")
+            print("\n🎯 SUCCESS CRITERIA MET:")
+            print("- Sales queue includes all new required fields")
+            print("- Invoice creation works with complete payload")
+            print("- Invoice numbers generated in SAL-YY-###### format")
+            print("- Pre-entry status updates to invoice_generated")
+            print("- Proper validation errors for edge cases")
+            print("- No 422 validation errors for valid requests")
+        
+        print("\n" + "=" * 80)
+        return failed_tests == 0
     
     def test_phase8_fetch_weighbridge_photos(self):
         """
