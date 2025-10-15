@@ -74,6 +74,12 @@ function WeighbridgeEntryPage({ user, onLogout }) {
           // Tare already completed, now enter Gross
           setWeightType('gross');
           setExistingTareWeight(response.data.tare_weight);
+          
+          // Auto-fill and lock vehicle number from TARE entry
+          if (response.data.vehicle_number_from_tare) {
+            setVehicleNumber(response.data.vehicle_number_from_tare);
+          }
+          
           toast.info('Tare weight already recorded. Please enter GROSS weight (loaded truck)');
         } else {
           // First weighment - enter Tare
