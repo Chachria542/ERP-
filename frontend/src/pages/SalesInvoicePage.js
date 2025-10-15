@@ -568,22 +568,37 @@ function SalesInvoicePage({ user, onLogout }) {
                   />
                 </div>
                 <div>
-                  <Label>Customer Invoice No. *</Label>
+                  <Label>Weighbridge Slip No.</Label>
                   <Input
-                    value={invoiceData.customer_invoice_no}
-                    onChange={(e) => setInvoiceData({...invoiceData, customer_invoice_no: e.target.value})}
-                    placeholder="Customer's invoice number"
-                    className="mt-1"
+                    value={invoiceData.weighbridge_slip_no}
+                    className="mt-1 bg-gray-100"
+                    disabled
                   />
                 </div>
                 <div>
-                  <Label>Customer Invoice Date</Label>
-                  <Input
-                    type="date"
-                    value={invoiceData.customer_invoice_date}
-                    onChange={(e) => setInvoiceData({...invoiceData, customer_invoice_date: e.target.value})}
-                    className="mt-1"
-                  />
+                  <Label>Location Type</Label>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="godown"
+                        checked={!invoiceData.is_entry}
+                        onChange={() => setInvoiceData({...invoiceData, is_entry: false})}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="godown" className="cursor-pointer">Godown</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="entry"
+                        checked={invoiceData.is_entry}
+                        onChange={() => setInvoiceData({...invoiceData, is_entry: true})}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="entry" className="cursor-pointer">Entry</Label>
+                    </div>
+                  </div>
                 </div>
               </div>
 
