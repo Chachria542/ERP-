@@ -16,12 +16,12 @@ class SalesInvoiceCreationTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
-        # Test data for the specific flow
-        self.target_slip_id = "SPRE-25-000014"
-        self.test_vehicle = "MP09AB1234"
-        self.test_driver = "Test Driver"
-        self.test_mobile = "9876543210"
-        self.test_operator = "test-operator"
+        # Test credentials
+        self.username = "admin"
+        self.password = "admin123"
+        # Test data
+        self.test_pre_entry_id = None
+        self.test_item_id = None
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
