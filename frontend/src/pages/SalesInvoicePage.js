@@ -242,11 +242,6 @@ function SalesInvoicePage({ user, onLogout }) {
       setSubmitting(true);
       
       // Validation
-      if (!invoiceData.customer_invoice_no) {
-        toast.error('Customer Invoice Number is required');
-        return;
-      }
-      
       if (!invoiceData.rate) {
         toast.error('Rate per quintal is required');
         return;
