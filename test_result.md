@@ -863,6 +863,43 @@ test_plan:
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "testing"
+    message: |
+      🎉 **SALES INVOICE CREATION FIX TESTING COMPLETED - 100% SUCCESS RATE**
+      
+      **COMPREHENSIVE TEST RESULTS (5/5 TESTS PASSED):**
+      
+      **✅ TEST 1 - SALES QUEUE ENDPOINT VERIFICATION:**
+      - GET /api/sales/queue?status=pending working perfectly
+      - Response includes ALL new required fields: pre_entry_id, customer_id, place_of_supply, item_id, bharti, is_entry, brokerage_type, brokerage_rate
+      - Found 1 entry with weighbridge_completed=true and status=pending (SPRE-25-000014)
+      - Queue endpoint fully operational and ready for frontend integration
+      
+      **✅ TEST 2 - SALES INVOICE CREATION SUCCESS:**
+      - POST /api/sales/invoice with complete payload working correctly
+      - Invoice created successfully with number: SAL-25-000002
+      - Invoice number format verified: SAL-YY-###### (correct format)
+      - Pre-entry status successfully updated from 'pending' to 'invoice_generated'
+      - NO 422 validation errors encountered with valid payload
+      - Complete line_items with pre_entry_id and item_id processed correctly
+      
+      **✅ TEST 3-5 - EDGE CASE VALIDATION:**
+      - Missing pre_entry_id: Correctly returns 422 validation error ✅
+      - Invalid pre_entry_id: Correctly returns 404 error ✅  
+      - Wrong status pre-entry: Correctly returns 400 error ✅
+      - All validation logic working as expected
+      
+      **🎯 CRITICAL SUCCESS CRITERIA VERIFIED:**
+      ✅ Sales queue includes all new fields required for invoice creation
+      ✅ Invoice creation works with complete payload including pre_entry_id and item_id
+      ✅ Invoice numbers generated in SAL-YY-###### format
+      ✅ Pre-entry status updates to invoice_generated after successful creation
+      ✅ Proper validation errors for edge cases (422/404/400)
+      ✅ NO 422 validation errors for valid requests
+      
+      **CRITICAL FIX CONFIRMED:** The 422 validation error that was preventing sales invoice creation has been completely resolved. The sales invoice creation flow is now working excellently with proper validation and error handling.
+      
+      **PRODUCTION READY:** All tests pass, confirming the 422 error is fixed and sales invoice creation works correctly as requested in the review.
   - agent: "main"
     message: |
       🔧 **SALES MODULE PHASE 1 & 2 IMPLEMENTATION STATUS**
