@@ -391,21 +391,18 @@ function PreEntryPage({ user, onLogout }) {
         
         endpoint = `${API}/bill-purchase/pre-entry`;
       } else if (transactionType === 'sale') {
-        // Sale payload
+        // Sale payload - Updated for new design
         payload = {
           date: new Date().toISOString().split('T')[0],
           order_number: orderNumber || null,
           customer_id: customerId,
           customer_gstin: customerGstin || null,
           place_of_supply: placeOfSupply,
-          is_mandi: isMandi,
-          location_name: locationName || null,
           item_id: itemId || null,
           item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
           marka: marka || null,
           bharti: bharti,
-          expected_bags: expectedBagsSale ? parseInt(expectedBagsSale) : null,
-          expected_kgs: expectedKgsSale ? parseFloat(expectedKgsSale) : null,
+          expected_weight: expectedWeight ? parseFloat(expectedWeight) : null,
           has_broker: hasBroker,
           broker_id: null,
           broker_name: brokerName || null,
