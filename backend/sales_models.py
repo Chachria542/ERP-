@@ -122,21 +122,8 @@ class SalesInvoiceLineItem(BaseModel):
     actual_qtl: float  # (bags × bharti + kgs) / 100
     
     # Pricing
-    rate_per_qtl: float  # Exclusive of tax
-    amount: float  # actual_qtl × rate_per_qtl
-    
-    # GST (CGST + SGST only, no IGST)
-    gst_rate: float = 0.0  # Total GST% (e.g., 18 means 9% CGST + 9% SGST)
-    cgst_rate: float = 0.0  # Half of gst_rate
-    sgst_rate: float = 0.0  # Half of gst_rate
-    gst_amount: float = 0.0  # amount × gst_rate / 100
-    cgst_amount: float = 0.0
-    sgst_amount: float = 0.0
-    
-    # Line total
-    line_total: float  # amount + gst_amount
-    
-    sort_order: int = 0
+    rate: float  # Rate per quintal (exclusive of tax)
+    amount: float  # actual_qtl × rate
 
 class SalesInvoice(BaseModel):
     """
