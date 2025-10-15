@@ -276,13 +276,20 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                 <h3 className="text-lg font-bold mb-4" style={{color: '#3E2723'}}>Vehicle Details</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label className="text-sm font-semibold">Vehicle Number *</Label>
+                    <Label className="text-sm font-semibold">
+                      Vehicle Number * 
+                      {weightType === 'gross' && (
+                        <span className="ml-2 text-sm text-green-600">🔒 (Auto-filled from TARE entry)</span>
+                      )}
+                    </Label>
                     <Input
                       value={vehicleNumber}
                       onChange={(e) => setVehicleNumber(e.target.value)}
                       placeholder="MP09AB1234"
                       className="mt-1"
                       required
+                      disabled={weightType === 'gross'}
+                      style={weightType === 'gross' ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
                     />
                   </div>
                   <div>
