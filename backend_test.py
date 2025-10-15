@@ -10,7 +10,7 @@ import time
 from datetime import datetime, timezone, timedelta
 
 # Backend URL from frontend/.env
-BASE_URL = "https://trade-flow-17.preview.emergentagent.com/api"
+BASE_URL = "https://erp-sales-invoice.preview.emergentagent.com/api"
 
 class SalesFlowTester:
     def __init__(self):
