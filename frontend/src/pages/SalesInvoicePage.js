@@ -137,6 +137,7 @@ function SalesInvoicePage({ user, onLogout }) {
 
   const handleCreateInvoice = (preEntry) => {
     setSelectedPreEntry(preEntry);
+    setSavedInvoice(null); // Reset saved invoice state
     
     // Pre-fill invoice data from pre-entry
     setInvoiceData({
