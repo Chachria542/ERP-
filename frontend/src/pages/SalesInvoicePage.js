@@ -251,8 +251,8 @@ function SalesInvoicePage({ user, onLogout }) {
         pre_entry_id: selectedPreEntry.id,
         sale_type: isReturn ? 'sales_return' : 'normal_sale',
         invoice_date: invoiceData.invoice_date,
-        customer_invoice_no: invoiceData.customer_invoice_no,
-        customer_invoice_date: invoiceData.customer_invoice_date,
+        weighbridge_slip_no: invoiceData.weighbridge_slip_no,
+        is_entry: invoiceData.is_entry,
         
         line_items: [{
           item_id: invoiceData.item_id,
@@ -270,8 +270,6 @@ function SalesInvoicePage({ user, onLogout }) {
         cgst_amount: parseFloat(invoiceData.cgst_amount),
         sgst_rate: invoiceData.sgst_rate ? parseFloat(invoiceData.sgst_rate) : null,
         sgst_amount: parseFloat(invoiceData.sgst_amount),
-        igst_rate: invoiceData.igst_rate ? parseFloat(invoiceData.igst_rate) : null,
-        igst_amount: parseFloat(invoiceData.igst_amount),
         
         freight: invoiceData.freight ? parseFloat(invoiceData.freight) : null,
         loading_charges: invoiceData.loading_charges ? parseFloat(invoiceData.loading_charges) : null,
@@ -284,9 +282,8 @@ function SalesInvoicePage({ user, onLogout }) {
         round_off: parseFloat(invoiceData.round_off),
         grand_total: parseFloat(invoiceData.grand_total),
         
-        has_broker: invoiceData.has_broker,
         broker_name: invoiceData.broker_name || null,
-        brokerage_type: invoiceData.brokerage_type,
+        brokerage_type: invoiceData.brokerage_type !== 'none' ? invoiceData.brokerage_type : null,
         brokerage_rate: invoiceData.brokerage_rate ? parseFloat(invoiceData.brokerage_rate) : null,
         
         remarks: invoiceData.remarks || null,
