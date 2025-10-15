@@ -444,22 +444,13 @@ function SalesInvoicePage({ user, onLogout }) {
                       <td className="p-3">{getStatusBadge(item.status)}</td>
                       <td className="p-3 text-center">
                         {item.status === 'pending' && (
-                          <div className="flex gap-2 justify-center">
-                            <Button
-                              size="sm"
-                              onClick={() => handleViewPhotos(item)}
-                              className="btn-secondary"
-                            >
-                              📷 Photos
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handleCreateInvoice(item)}
-                              className="btn-primary"
-                            >
-                              📄 Invoice
-                            </Button>
-                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => handleViewPhotos(item)}
+                            className="btn-primary"
+                          >
+                            ⚙️ Process
+                          </Button>
                         )}
                       </td>
                     </tr>
