@@ -97,34 +97,63 @@ function WeighbridgeEntryPage({ user, onLogout }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
-    if (!vehicleNumber || !grossWeight || !tareWeight) {
-      toast.error('Please fill all required fields');
-      return;
-    }
+    // Validation based on weight type
+    if (weightType === 'single') {
+      // Regular flow - both gross and tare required
+      if (!vehicleNumber || !grossWeight || !tareWeight) {
+        toast.error('Please fill all required fields');
+        return;
+      }
 
-    const gross = parseFloat(grossWeight);
-    const tare = parseFloat(tareWeight);
+      const gross = parseFloat(grossWeight);
+      const tare = parseFloat(tareWeight);
 
-    if (gross <= tare) {
-      toast.error('Gross weight must be greater than tare weight');
-      return;
+      if (gross <= tare) {
+        toast.error('Gross weight must be greater than tare weight');
+        return;
+      }
+    } else if (weightType === 'tare' || weightType === 'gross') {
+      // Sales flow - only measured weight required
+      if (!vehicleNumber || !measuredWeight) {
+        toast.error('Please fill all required fields');
+        return;
+      }
     }
 
     setLoading(true);
     try {
-      const payload = {
-        slip_id: slipId,
-        vehicle_number: vehicleNumber.toUpperCase(),
-        vehicle_type: vehicleType,
-        driver_name: driverName || null,
-        driver_mobile: driverMobile || null,
-        gross_weight: gross,
-        tare_weight: tare,
-        operator_id: user.id,
-        operator_name: user.name,
-        shift: shift
-      };
+      let payload;
+      
+      if (weightType === 'single') {
+        // Regular single weighment
+        payload = {
+          slip_id: slipId,
+          vehicle_number: vehicleNumber.toUpperCase(),
+          vehicle_type: vehicleType,
+          driver_name: driverName || null,
+          driver_mobile: driverMobile || null,
+          gross_weight: parseFloat(grossWeight),
+          tare_weight: parseFloat(tareWeight),
+          weight_type: 'single',
+          operator_id: user.id,
+          operator_name: user.name,
+          shift: shift
+        };
+      } else {
+        // Sales TARE or GROSS weighment
+        payload = {
+          slip_id: slipId,
+          vehicle_number: vehicleNumber.toUpperCase(),
+          vehicle_type: vehicleType,
+          driver_name: driverName || null,
+          driver_mobile: driverMobile || null,
+          weight: parseFloat(measuredWeight),
+          weight_type: weightType,
+          operator_id: user.id,
+          operator_name: user.name,
+          shift: shift
+        };
+      }
 
       const response = await axios.post(`${API}/weighbridge-entry`, payload);
       
@@ -132,7 +161,14 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       setShowSuccessModal(true);
       setShowForm(false);
       resetForm();
-      toast.success('Weighbridge entry created successfully!');
+      
+      if (weightType === 'tare') {
+        toast.success('TARE weight recorded! Vehicle can now proceed for loading.');
+      } else if (weightType === 'gross') {
+        toast.success('GROSS weight recorded! Net weight calculated. Ready for invoice.');
+      } else {
+        toast.success('Weighbridge entry created successfully!');
+      }
       
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create entry');
