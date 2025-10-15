@@ -482,7 +482,12 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         
         return wb_entry
         
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"[BACKEND ERROR] Weighbridge entry creation failed: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/weighbridge-entry/by-slip/{slip_id}")
