@@ -66,8 +66,27 @@ function WeighbridgeEntryPage({ user, onLogout }) {
       // Fetch pre-entry
       const response = await axios.get(`${API}/pre-entry/${slipId}`);
       setPreEntry(response.data);
+      
+      // Check if it's a Sales transaction
+      if (response.data.transaction_type === 'sale') {
+        // Check if tare weight already exists
+        if (response.data.tare_weight && response.data.tare_weight > 0) {
+          // Tare already completed, now enter Gross
+          setWeightType('gross');
+          setExistingTareWeight(response.data.tare_weight);
+          toast.info('Tare weight already recorded. Please enter GROSS weight (loaded truck)');
+        } else {
+          // First weighment - enter Tare
+          setWeightType('tare');
+          toast.info('Please enter TARE weight (empty truck)');
+        }
+      } else {
+        // Regular transaction - single weighment
+        setWeightType('single');
+      }
+      
       setShowForm(true);
-      toast.success(`Pre-entry loaded: ${response.data.party_name}`);
+      toast.success(`Pre-entry loaded: ${response.data.party_name || response.data.customer_name}`);
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Pre-entry not found');
     } finally {
