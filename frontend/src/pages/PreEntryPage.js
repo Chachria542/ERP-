@@ -441,6 +441,28 @@ function PreEntryPage({ user, onLogout }) {
     setChallanNumber('');
     setPledgeRate('');
     setRemarks('');
+    
+    // Reset Bill Purchase fields
+    setSupplierId('');
+    setPlaceOfSupply('');
+    setHasBroker(false);
+    setBrokerName('');
+    setBrokerageType('none');
+    setBrokerageRate('');
+    setEwayBillNo('');
+    setExpectedQuantityBags('');
+    setExpectedQuantityKgs('');
+    setExpectedQuantityQtls('');
+    
+    // Reset Sale fields
+    setCustomerId('');
+    setCustomerGstin('');
+    setIsMandi(false);
+    setLocationName('');
+    setMarka('');
+    setBharti(50);
+    setExpectedBagsSale('');
+    setExpectedKgsSale('');
   };
 
   const renderDynamicFields = () => {
