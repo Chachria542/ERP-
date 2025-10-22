@@ -622,41 +622,78 @@ async def get_weighbridge_entry(slip_id: str):
     """
     Fetch weighbridge entry by slip ID.
     Used by downstream modules (Farmer Payment, Bill Purchase, etc.)
+    Returns consolidated weight data from pre-entry.
     """
-    # Fetch weighbridge entry
-    wb_entry = await db.weighbridge_entries.find_one({"slip_id": slip_id}, {"_id": 0})
+    # Fetch weighbridge entries (may have multiple: GROSS and TARE)
+    wb_entries = await db.weighbridge_entries.find({"slip_id": slip_id}, {"_id": 0}).to_list(10)
     
-    if not wb_entry:
+    if not wb_entries:
         raise HTTPException(status_code=404, detail="Weighbridge entry not found")
+    
+    # Get the first entry for basic details
+    wb_entry = wb_entries[0]
     
     # Fetch linked pre-entry (check both collections)
     pre_entry = None
     if slip_id.startswith("BPRE-"):
         pre_entry = await db.bill_purchase_pre_entries.find_one({"pre_entry_number": slip_id}, {"_id": 0})
         if pre_entry:
-            # Convert to universal format
+            # Get weights from pre-entry (updated after weighbridge completion)
+            net_weight = pre_entry.get('net_weight', 0) or 0
+            gross_weight = pre_entry.get('gross_weight', 0) or 0
+            tare_weight = pre_entry.get('tare_weight', 0) or 0
+            
+            # Convert to universal format with calculated weights
             pre_entry = {
                 "party_name": pre_entry['supplier_name'],
                 "party_mobile": None,
                 "party_gstin": pre_entry.get('supplier_gstin'),
                 "transaction_type": "bill_purchase",
                 "eway_bill_no": pre_entry.get('eway_bill_no'),
-                "place_of_supply": pre_entry['place_of_supply']
+                "place_of_supply": pre_entry['place_of_supply'],
+                "gross_weight": gross_weight,
+                "tare_weight": tare_weight,
+                "net_weight": net_weight,
+                "bags": int(net_weight / 100) if net_weight > 0 else 0,
+                "act_qtl": round(net_weight / 100, 2) if net_weight > 0 else 0
             }
     else:
+        # Farmer purchase (WB-)
         pre_entry = await db.pre_entries.find_one({"slip_id": slip_id}, {"_id": 0})
+        if pre_entry:
+            # Get weights from pre-entry (updated after weighbridge completion)
+            net_weight = pre_entry.get('net_weight', 0) or 0
+            gross_weight = pre_entry.get('gross_weight', 0) or 0
+            tare_weight = pre_entry.get('tare_weight', 0) or 0
+            
+            # Calculate bags and quintals
+            bags = int(net_weight / 100) if net_weight > 0 else 0
+            act_qtl = round(net_weight / 100, 2) if net_weight > 0 else 0
+            
+            # Add calculated fields to pre_entry
+            pre_entry['gross_weight'] = gross_weight
+            pre_entry['tare_weight'] = tare_weight
+            pre_entry['net_weight'] = net_weight
+            pre_entry['bags'] = bags
+            pre_entry['act_qtl'] = act_qtl
     
     # Combine data for auto-fill
     combined = {
         **wb_entry,
-        "party_name": pre_entry.get('party_name'),
-        "party_mobile": pre_entry.get('party_mobile'),
-        "item_id": pre_entry.get('item_id'),
-        "item_name": pre_entry.get('item_name'),
-        "quality": pre_entry.get('quality'),
-        "rate_per_qtl": pre_entry.get('rate_per_qtl'),
-        "from_location": pre_entry.get('from_location'),
-        "to_location": pre_entry.get('to_location'),
+        "slip_id": slip_id,
+        "party_name": pre_entry.get('party_name') if pre_entry else None,
+        "party_mobile": pre_entry.get('party_mobile') if pre_entry else None,
+        "item_id": pre_entry.get('item_id') if pre_entry else None,
+        "item_name": pre_entry.get('item_name') if pre_entry else None,
+        "quality": pre_entry.get('quality') if pre_entry else None,
+        "rate_per_qtl": pre_entry.get('rate_per_qtl') if pre_entry else None,
+        "from_location": pre_entry.get('from_location') if pre_entry else None,
+        "to_location": pre_entry.get('to_location') if pre_entry else None,
+        "gross_weight": pre_entry.get('gross_weight', 0) if pre_entry else 0,
+        "tare_weight": pre_entry.get('tare_weight', 0) if pre_entry else 0,
+        "net_weight": pre_entry.get('net_weight', 0) if pre_entry else 0,
+        "bags": pre_entry.get('bags', 0) if pre_entry else 0,
+        "act_qtl": pre_entry.get('act_qtl', 0) if pre_entry else 0,
     }
     
     # Convert datetime strings
