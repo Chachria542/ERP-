@@ -139,6 +139,13 @@ function SalesInvoicePage({ user, onLogout }) {
     setSelectedPreEntry(preEntry);
     setSavedInvoice(null); // Reset saved invoice state
     
+    // Calculate bags and kgs from net_weight
+    const netWeight = preEntry.net_weight || 0;
+    const bharti = preEntry.bharti || 50; // Pack size from pre-entry
+    const bags = Math.floor(netWeight / bharti);
+    const kgs = netWeight % bharti;
+    const actualQtl = (netWeight / 100).toFixed(2);
+    
     // Pre-fill invoice data from pre-entry
     setInvoiceData({
       ...invoiceData,
@@ -148,10 +155,11 @@ function SalesInvoicePage({ user, onLogout }) {
       item_id: preEntry.item_id,
       item_name: preEntry.item_name,
       marka: preEntry.marka || '',
-      bharti: preEntry.bharti || 50,
-      bags: Math.floor(preEntry.net_weight / (preEntry.bharti || 50)),
-      kgs: preEntry.net_weight % (preEntry.bharti || 50),
-      actual_qtl: (preEntry.net_weight / 100).toFixed(2),
+      bharti: bharti, // From pre-entry (NOT auto-calculated)
+      bags: bags,
+      kgs: kgs,
+      actual_qtl: actualQtl,
+      rate: preEntry.rate || '', // Rate from pre-entry
       broker_name: preEntry.broker_name || '',
       brokerage_type: preEntry.brokerage_type || 'per_quintal',
       brokerage_rate: preEntry.brokerage_rate || ''
