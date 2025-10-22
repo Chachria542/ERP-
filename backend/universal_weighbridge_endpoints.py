@@ -517,9 +517,19 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 update_data["status"] = "pending"
                 print(f"[BACKEND] Updated sales pre-entry to PENDING (ready for invoice), net_weight: {net_weight} kg")
             elif is_bill_purchase:
+                # Bill purchase: Update all weights
+                update_data["gross_weight"] = measured_weight if entry_data.weight_type == "gross" else entry_data.gross_weight
+                update_data["tare_weight"] = tare_entry['weight'] if entry_data.weight_type == "gross" else entry_data.tare_weight
+                update_data["net_weight"] = net_weight
                 update_data["status"] = "pending"
+                print(f"[BACKEND] Updated bill purchase pre-entry to PENDING (ready for bill creation), net_weight: {net_weight} kg")
             else:
+                # Farmer purchase
+                update_data["gross_weight"] = measured_weight if entry_data.weight_type == "gross" else entry_data.gross_weight
+                update_data["tare_weight"] = tare_entry['weight'] if entry_data.weight_type == "gross" else entry_data.tare_weight
+                update_data["net_weight"] = net_weight
                 update_data["status"] = PreEntryStatus.WEIGHED.value
+                print(f"[BACKEND] Updated farmer purchase pre-entry to WEIGHED, net_weight: {net_weight} kg")
             
             await getattr(db, collection_name).update_one(
                 {"id": pre_entry['id']},
