@@ -267,6 +267,7 @@ class SalesQueueItem(BaseModel):
     item_name: Optional[str] = None
     marka: Optional[str] = None
     bharti: Optional[int] = 50  # Pack size
+    rate: Optional[float] = None  # Rate per quintal for auto-fill
     tare_weight: Optional[float] = None
     gross_weight: Optional[float] = None
     net_weight: Optional[float] = None
