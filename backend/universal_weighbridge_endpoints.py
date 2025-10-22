@@ -475,10 +475,10 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                         "tare_weight": measured_weight,
                         "net_weight": calc_net_weight,
                         "weighbridge_completed": True,
-                        "status": "weighed",
+                        "status": "pending" if is_bill_purchase else "weighed",
                         "updated_at": datetime.now(timezone.utc).isoformat()
                     }
-                    print(f"[BACKEND] Bill/Farmer purchase complete - TARE: {measured_weight} kg, NET: {calc_net_weight} kg")
+                    print(f"[BACKEND] Bill/Farmer purchase complete - TARE: {measured_weight} kg, NET: {calc_net_weight} kg, Status: {'pending (ready for bill)' if is_bill_purchase else 'weighed'}")
                 else:
                     # Just TARE, no GROSS yet (shouldn't happen for purchase flow)
                     update_data = {
