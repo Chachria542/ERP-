@@ -436,9 +436,15 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         doc['transaction_type'] = doc['transaction_type'].value
         doc['status'] = doc['status'].value
         doc['photo_upload_status'] = doc['photo_upload_status'].value
-        await db.weighbridge_entries.insert_one(doc)
         
-        print(f"[BACKEND] Created {entry_data.weight_type} weighbridge entry for {slip_id}, weight: {measured_weight} kg")
+        try:
+            result = await db.weighbridge_entries.insert_one(doc)
+            print(f"[BACKEND] Created {entry_data.weight_type} weighbridge entry for {slip_id}, weight: {measured_weight} kg, DB ID: {result.inserted_id}")
+        except Exception as insert_error:
+            print(f"[BACKEND ERROR] Failed to insert weighbridge entry: {insert_error}")
+            import traceback
+            print(traceback.format_exc())
+            raise HTTPException(status_code=500, detail=f"Failed to save weighbridge entry: {str(insert_error)}")
         
         # Update pre-entry status based on type
         if entry_data.weight_type == "tare":
