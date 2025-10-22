@@ -499,14 +499,15 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
-            if is_bill_purchase:
+            # Update status for purchase flows (both bill and farmer)
+            if is_bill_purchase or not is_sales:
                 update_data["status"] = "gross_completed"
             
             await getattr(db, collection_name).update_one(
                 {"id": pre_entry['id']},
                 {"$set": update_data}
             )
-            print(f"[BACKEND] Updated pre-entry with gross_weight: {measured_weight} kg, waiting for TARE")
+            print(f"[BACKEND] Updated pre-entry with gross_weight: {measured_weight} kg, status: gross_completed, waiting for TARE")
         
         elif entry_data.weight_type == "single" or (entry_data.weight_type == "gross" and net_weight > 0):
             # Mark as completed (both weights captured)
