@@ -295,7 +295,7 @@ async def get_sales_queue(
             item_name=entry.get('item_name'),
             marka=entry.get('marka'),
             bharti=entry.get('bharti', 50),  # Pack size
-            rate=entry.get('rate'),  # Rate per quintal for auto-fill
+            rate=entry.get('item_rate'),  # Rate per quintal for auto-fill (stored as item_rate in DB)
             tare_weight=entry.get('tare_weight'),
             gross_weight=entry.get('gross_weight'),
             net_weight=entry.get('net_weight'),
