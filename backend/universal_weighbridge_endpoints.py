@@ -442,8 +442,9 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
         
         # Update pre-entry status based on type
         if entry_data.weight_type == "tare":
-            # TARE weighment - update status to tare_completed for sales
+            # TARE weighment
             if is_sales:
+                # Sales: TARE first, then GROSS
                 update_data = {
                     "tare_weight": measured_weight,
                     "status": "tare_completed",
@@ -454,6 +455,36 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                     {"$set": update_data}
                 )
                 print(f"[BACKEND] Updated sales pre-entry status to tare_completed, tare_weight: {measured_weight} kg")
+            elif is_bill_purchase or not is_sales:
+                # Bill Purchase / Farmer Purchase: GROSS first, then TARE
+                # Check if GROSS already exists to calculate net weight
+                gross_entry = await db.weighbridge_entries.find_one({
+                    "slip_id": entry_data.slip_id,
+                    "weight_type": "gross"
+                })
+                if gross_entry:
+                    # Both weights captured, mark as complete
+                    calc_net_weight = gross_entry['weight'] - measured_weight
+                    update_data = {
+                        "tare_weight": measured_weight,
+                        "net_weight": calc_net_weight,
+                        "weighbridge_completed": True,
+                        "status": "weighed",
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    print(f"[BACKEND] Bill/Farmer purchase complete - TARE: {measured_weight} kg, NET: {calc_net_weight} kg")
+                else:
+                    # Just TARE, no GROSS yet (shouldn't happen for purchase flow)
+                    update_data = {
+                        "tare_weight": measured_weight,
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }
+                    print(f"[BACKEND] Updated pre-entry with tare_weight: {measured_weight} kg")
+                
+                await getattr(db, collection_name).update_one(
+                    {"id": pre_entry['id']},
+                    {"$set": update_data}
+                )
         
         elif entry_data.weight_type == "gross" and net_weight == 0:
             # GROSS weight captured, but TARE not yet captured
