@@ -407,6 +407,15 @@ async def get_pre_entry_by_number(pre_entry_number: str):
         if isinstance(weighbridge_entry.get('created_at'), str):
             weighbridge_entry['created_at'] = datetime.fromisoformat(weighbridge_entry['created_at'])
         
+        # Get weights from pre-entry (updated after weighbridge completion)
+        net_weight = pre_entry.get('net_weight', 0) or 0
+        gross_weight = pre_entry.get('gross_weight', 0) or 0
+        tare_weight = pre_entry.get('tare_weight', 0) or 0
+        
+        # Calculate bags and quintals from net weight
+        bags = int(net_weight / 100) if net_weight > 0 else 0
+        act_qtl = round(net_weight / 100, 2) if net_weight > 0 else 0
+        
         return {
             "pre_entry": pre_entry,
             "weighbridge_entry": weighbridge_entry,
@@ -419,13 +428,13 @@ async def get_pre_entry_by_number(pre_entry_number: str):
                 "eway_bill_no": pre_entry.get('eway_bill_no'),
                 "vehicle_number": weighbridge_entry.get('vehicle_number'),
                 "vehicle_type": weighbridge_entry.get('vehicle_type'),
-                "gross_weight": weighbridge_entry.get('gross_weight'),
-                "tare_weight": weighbridge_entry.get('tare_weight'),
-                "net_weight": weighbridge_entry.get('net_weight'),
-                "bags": weighbridge_entry.get('bags'),
-                "act_qtl": weighbridge_entry.get('act_qtl'),
-                "photo_gross_url": weighbridge_entry.get('photo_gross_url'),
-                "photo_tare_url": weighbridge_entry.get('photo_tare_url'),
+                "gross_weight": gross_weight,
+                "tare_weight": tare_weight,
+                "net_weight": net_weight,
+                "bags": bags,
+                "act_qtl": act_qtl,
+                "photo_gross_url": weighbridge_entry.get('photo_url'),  # Generic photo field
+                "photo_tare_url": weighbridge_entry.get('photo_url'),  # Generic photo field
                 "payment_status": weighbridge_entry.get('payment_status', 'pending'),
                 "status": pre_entry['status'],
                 "created_at": pre_entry['created_at'],
