@@ -619,10 +619,29 @@ function SalesInvoicePage({ user, onLogout }) {
                 <tbody>
                   {queue.map((item) => (
                     <tr key={item.id} className="border-b hover:bg-gray-50">
-                      <td className="p-3 font-medium">{item.pre_entry_number}</td>
+                      <td className="p-3 font-medium">
+                        {item.pre_entry_number}
+                        {item.is_mixed_load && (
+                          <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-700 border-purple-300">
+                            📦 Mixed Load
+                          </Badge>
+                        )}
+                      </td>
                       <td className="p-3">{new Date(item.date).toLocaleDateString()}</td>
-                      <td className="p-3">{item.customer_name}</td>
-                      <td className="p-3">{item.item_name}</td>
+                      <td className="p-3">
+                        {item.is_mixed_load ? (
+                          <span className="text-purple-700 font-semibold">Multiple Customers</span>
+                        ) : (
+                          item.customer_name
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {item.is_mixed_load ? (
+                          <span className="text-purple-700 font-semibold">Multiple Items</span>
+                        ) : (
+                          item.item_name
+                        )}
+                      </td>
                       <td className="p-3">{item.marka || '-'}</td>
                       <td className="p-3 text-right">{item.net_weight?.toFixed(2) || '-'}</td>
                       <td className="p-3 text-right">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
@@ -633,9 +652,9 @@ function SalesInvoicePage({ user, onLogout }) {
                           <Button
                             size="sm"
                             onClick={() => handleViewPhotos(item)}
-                            className="btn-primary"
+                            className={item.is_mixed_load ? "bg-purple-600 hover:bg-purple-700" : "btn-primary"}
                           >
-                            ⚙️ Process
+                            {item.is_mixed_load ? '📦 Split Load' : '⚙️ Process'}
                           </Button>
                         )}
                       </td>
