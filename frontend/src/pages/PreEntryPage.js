@@ -1691,6 +1691,9 @@ function PreEntryPage({ user, onLogout }) {
               <DialogTitle className="text-2xl" style={{color: '#3E2723'}}>
                 Create Pre-Entry
               </DialogTitle>
+              <DialogDescription>
+                Fill in the details to create a new pre-entry for weighbridge processing
+              </DialogDescription>
             </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-6">
