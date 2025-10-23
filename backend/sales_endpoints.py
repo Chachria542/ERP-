@@ -562,3 +562,219 @@ async def get_sales_invoice(invoice_id: str):
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
     return invoice
+
+# ============= MIXED LOAD INVOICE ENDPOINTS =============
+
+@router.post("/sales/mixed-load-invoice/bulk", response_model=dict)
+async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, created_by: str):
+    """
+    Create multiple sales invoices from a single mixed load pre-entry.
+    - Validates total allocated weight is within ±100 kg of actual net weight
+    - Generates one invoice per line item
+    - Distributes broker commission proportionally across invoices
+    """
+    try:
+        # 1. Fetch the mixed load pre-entry
+        pre_entry = await db.sales_pre_entries.find_one({"id": invoice_data.pre_entry_id})
+        if not pre_entry:
+            raise HTTPException(status_code=404, detail="Sales pre-entry not found")
+        
+        # 2. Verify it's a mixed load
+        if not pre_entry.get('is_mixed_load', False):
+            raise HTTPException(status_code=400, detail="Pre-entry is not a mixed load")
+        
+        # 3. Verify pre-entry status
+        if pre_entry['status'] != "pending":
+            raise HTTPException(status_code=400, detail=f"Pre-entry status is {pre_entry['status']}, must be pending")
+        
+        # 4. Verify weighbridge data exists
+        if not pre_entry.get('weighbridge_completed') or not pre_entry.get('net_weight'):
+            raise HTTPException(status_code=400, detail="Weighbridge data not completed for this pre-entry")
+        
+        actual_net_weight = pre_entry['net_weight']  # In kg
+        
+        # 5. Validate total allocated weight (±100 kg variance allowed)
+        total_allocated_weight = sum(item.actual_weight for item in invoice_data.line_items)
+        weight_variance = abs(total_allocated_weight - actual_net_weight)
+        
+        if weight_variance > 100:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Total allocated weight ({total_allocated_weight} kg) differs from actual net weight ({actual_net_weight} kg) by {weight_variance} kg. Maximum allowed variance is ±100 kg."
+            )
+        
+        # 6. Map line_items by line_id for easy access
+        line_item_dict = {}
+        for pre_entry_line in pre_entry.get('line_items', []):
+            line_item_dict[pre_entry_line['line_id']] = pre_entry_line
+        
+        # 7. Calculate total broker commission and proportional distribution
+        total_commission = 0.0
+        if invoice_data.broker_name and invoice_data.brokerage_rate:
+            brokerage_type = invoice_data.brokerage_type or "per_quintal"
+            
+            if brokerage_type == "per_quintal":
+                total_qtl = sum(item.actual_qtl for item in invoice_data.line_items)
+                total_commission = total_qtl * invoice_data.brokerage_rate
+            elif brokerage_type == "per_bag":
+                total_bags = sum(item.actual_bags for item in invoice_data.line_items)
+                total_commission = total_bags * invoice_data.brokerage_rate
+            elif brokerage_type == "percentage":
+                # Will calculate per invoice based on invoice amount
+                pass
+        
+        # 8. Create invoices for each line item
+        created_invoices = []
+        
+        for invoice_line in invoice_data.line_items:
+            # Get corresponding pre-entry line item
+            pre_line = line_item_dict.get(invoice_line.line_id)
+            if not pre_line:
+                raise HTTPException(status_code=400, detail=f"Line item {invoice_line.line_id} not found in pre-entry")
+            
+            # Generate invoice number
+            invoice_number = await generate_sales_invoice_number()
+            
+            # Calculate line item amount
+            item_rate = pre_line.get('item_rate', 0.0)
+            line_amount = invoice_line.actual_qtl * item_rate
+            subtotal = line_amount
+            
+            # Calculate proportional broker commission
+            proportional_commission = 0.0
+            if invoice_data.broker_name and invoice_data.brokerage_rate:
+                brokerage_type = invoice_data.brokerage_type or "per_quintal"
+                
+                if brokerage_type == "per_quintal":
+                    proportional_commission = invoice_line.actual_qtl * invoice_data.brokerage_rate
+                elif brokerage_type == "per_bag":
+                    proportional_commission = invoice_line.actual_bags * invoice_data.brokerage_rate
+                elif brokerage_type == "percentage":
+                    proportional_commission = (subtotal * invoice_data.brokerage_rate) / 100
+            
+            # GST calculation (assuming 5% CGST + 5% SGST = 10% total GST)
+            cgst_rate = 2.5  # 2.5% CGST
+            sgst_rate = 2.5  # 2.5% SGST
+            cgst_amount = (subtotal * cgst_rate) / 100
+            sgst_amount = (subtotal * sgst_rate) / 100
+            
+            # Calculate grand total
+            grand_total = subtotal + cgst_amount + sgst_amount
+            
+            # Round off to nearest rupee
+            rounded_total = round(grand_total)
+            round_off = rounded_total - grand_total
+            
+            # Prepare line item for invoice
+            invoice_line_item = {
+                "item_id": pre_line['item_id'],
+                "item_name": pre_line['item_name'],
+                "marka": pre_line.get('marka'),
+                "bags": invoice_line.actual_bags,
+                "kgs": invoice_line.actual_kgs,
+                "bharti": pre_line.get('bharti', 50),
+                "actual_qtl": invoice_line.actual_qtl,
+                "rate": item_rate,
+                "amount": line_amount
+            }
+            
+            # Create invoice document
+            invoice_doc = {
+                "id": str(uuid.uuid4()),
+                "invoice_number": invoice_number,
+                "sale_type": "normal_sale",
+                "invoice_date": invoice_data.invoice_date,
+                "pre_entry_id": invoice_data.pre_entry_id,
+                "pre_entry_number": pre_entry['pre_entry_number'],
+                "pre_entry_line_id": invoice_line.line_id,  # Link back to line item
+                "weighbridge_slip_no": invoice_data.weighbridge_slip_no,
+                "customer_id": pre_line['customer_id'],
+                "customer_name": pre_line['customer_name'],
+                "customer_gstin": pre_line.get('customer_gstin'),
+                "place_of_supply": pre_line['place_of_supply'],
+                "is_entry": invoice_data.is_entry,
+                "broker_name": invoice_data.broker_name,
+                "brokerage_type": invoice_data.brokerage_type,
+                "brokerage_rate": invoice_data.brokerage_rate,
+                "broker_commission": proportional_commission,
+                "line_items": [invoice_line_item],
+                "cgst_rate": cgst_rate,
+                "cgst_amount": cgst_amount,
+                "sgst_rate": sgst_rate,
+                "sgst_amount": sgst_amount,
+                "freight": 0.0,  # Can be distributed if needed
+                "loading_charges": 0.0,
+                "other_charges": 0.0,
+                "tcs_applicable": False,
+                "tcs_rate": None,
+                "tcs_amount": 0.0,
+                "subtotal": subtotal,
+                "round_off": round_off,
+                "grand_total": rounded_total,
+                "vehicle_number": pre_entry.get('vehicle_number'),
+                "remarks": invoice_data.remarks,
+                "status": "posted",
+                "posted_at": datetime.now(timezone.utc).isoformat(),
+                "posted_by": created_by,
+                "created_by": created_by,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": None
+            }
+            
+            # Save invoice to database
+            await db.sales_invoices.insert_one(invoice_doc)
+            
+            # Update line item in pre-entry with invoice_id
+            await db.sales_pre_entries.update_one(
+                {"id": invoice_data.pre_entry_id, "line_items.line_id": invoice_line.line_id},
+                {"$set": {
+                    "line_items.$.invoice_id": invoice_doc["id"],
+                    "line_items.$.actual_weight": invoice_line.actual_weight
+                }}
+            )
+            
+            # Create voucher entries
+            await create_sales_voucher(invoice_doc)
+            
+            created_invoices.append({
+                "invoice_id": invoice_doc["id"],
+                "invoice_number": invoice_number,
+                "customer_name": pre_line['customer_name'],
+                "item_name": pre_line['item_name'],
+                "actual_qtl": invoice_line.actual_qtl,
+                "grand_total": rounded_total,
+                "broker_commission": proportional_commission
+            })
+            
+            print(f"[BACKEND] Created invoice {invoice_number} for customer {pre_line['customer_name']}")
+        
+        # 9. Update pre-entry status to invoice_generated
+        await db.sales_pre_entries.update_one(
+            {"id": invoice_data.pre_entry_id},
+            {"$set": {
+                "status": "invoice_generated",
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        print(f"[BACKEND] Created {len(created_invoices)} invoices from mixed load pre-entry {pre_entry['pre_entry_number']}")
+        
+        return {
+            "success": True,
+            "pre_entry_number": pre_entry['pre_entry_number'],
+            "total_invoices_created": len(created_invoices),
+            "total_weight_allocated": total_allocated_weight,
+            "actual_net_weight": actual_net_weight,
+            "weight_variance": weight_variance,
+            "total_broker_commission": sum(inv['broker_commission'] for inv in created_invoices),
+            "invoices": created_invoices,
+            "message": f"Successfully created {len(created_invoices)} invoices from mixed load"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error creating mixed load invoices: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
