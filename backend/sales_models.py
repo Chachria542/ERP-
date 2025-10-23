@@ -112,13 +112,33 @@ class SalesPreEntry(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
 
+class SalesPreEntryLineItemCreate(BaseModel):
+    """Request model for creating a line item in mixed load pre-entry"""
+    customer_id: str
+    customer_name: str
+    customer_gstin: Optional[str] = None
+    place_of_supply: str
+    item_id: str
+    item_name: str
+    marka: Optional[str] = None
+    bharti: int = 50
+    expected_bags: int
+    expected_weight: float
+    item_rate: float
+
 class SalesPreEntryCreate(BaseModel):
     """Request model for creating sales pre-entry"""
     date: str
     order_number: Optional[str] = None
-    customer_id: str
+    
+    # Mixed Load Support
+    is_mixed_load: bool = False
+    line_items: List[SalesPreEntryLineItemCreate] = []  # For mixed load
+    
+    # Single Item Fields (for backward compatibility)
+    customer_id: Optional[str] = None
     customer_gstin: Optional[str] = None
-    place_of_supply: str
+    place_of_supply: Optional[str] = None
     item_id: Optional[str] = None
     item_rate: Optional[float] = None
     marka: Optional[str] = None
