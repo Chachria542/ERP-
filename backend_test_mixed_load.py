@@ -139,6 +139,7 @@ class MixedLoadInvoiceTester:
                 "broker_name": "Test Broker",
                 "brokerage_type": "per_quintal",
                 "brokerage_rate": 5.0,
+                "expected_weight": sum(item["expected_weight"] for item in line_items) / 100,  # Total in quintals
                 "remarks": "Test mixed load pre-entry for invoice processing",
                 "created_by": "test-user"
             }
