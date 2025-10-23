@@ -913,7 +913,7 @@ function PreEntryPage({ user, onLogout }) {
                 </div>
               </div>
             ) : transactionType === 'sale' ? (
-              // Sale specific fields - NEW SIMPLIFIED DESIGN
+              // Sale specific fields - WITH MIXED LOAD SUPPORT
               <div className="space-y-4">
                 {/* Order Number Section */}
                 <div className="border rounded-lg p-4">
@@ -930,208 +930,514 @@ function PreEntryPage({ user, onLogout }) {
                   </p>
                 </div>
 
-                {/* Customer Details Section */}
-                <div className="border rounded-lg p-4 space-y-4">
-                  <h5 className="font-medium">Customer Details</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold">Customer *</Label>
-                      <CustomerAutocomplete
-                        value={customerName}
-                        onSelect={(customer) => {
-                          setCustomerId(customer.id);
-                          setCustomerName(customer.name);
-                          setCustomerGstin(customer.gstin || '');
-                          setPlaceOfSupply(customer.place_of_supply || '');
-                        }}
-                        placeholder="Type customer name..."
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">GSTIN</Label>
-                      <Input
-                        value={customerGstin}
-                        onChange={(e) => setCustomerGstin(e.target.value)}
-                        placeholder="Auto-filled"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-semibold">Place of Supply *</Label>
-                    <Input
-                      value={placeOfSupply}
-                      onChange={(e) => setPlaceOfSupply(e.target.value)}
-                      placeholder="e.g., Mumbai, Maharashtra"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Broker Section */}
-                <div className="border rounded-lg p-4 space-y-4">
+                {/* Mixed Load Toggle */}
+                <div className="border rounded-lg p-4 bg-purple-50">
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="has_broker_sale"
-                      checked={hasBroker}
-                      onCheckedChange={setHasBroker}
+                      id="is_mixed_load"
+                      checked={isMixedLoad}
+                      onCheckedChange={(checked) => {
+                        setIsMixedLoad(checked);
+                        if (!checked) {
+                          // Reset mixed load state when toggling off
+                          setMixedLoadCustomers([
+                            {
+                              id: Date.now(),
+                              customer_id: '',
+                              customer_name: '',
+                              customer_gstin: '',
+                              place_of_supply: '',
+                              line_items: [
+                                {
+                                  id: Date.now(),
+                                  item_id: '',
+                                  item_name: '',
+                                  marka: '',
+                                  bharti: 50,
+                                  expected_bags: '',
+                                  expected_weight: '',
+                                  item_rate: ''
+                                }
+                              ]
+                            }
+                          ]);
+                        }
+                      }}
                     />
-                    <Label htmlFor="has_broker_sale" className="font-medium">Has Broker</Label>
+                    <Label htmlFor="is_mixed_load" className="font-semibold text-purple-700">
+                      📦 Mixed Load (Multiple Customers/Items)
+                    </Label>
                   </div>
+                  <p className="text-xs text-purple-600 mt-2">
+                    Enable this for orders with multiple customers and/or multiple items in one vehicle
+                  </p>
+                </div>
 
-                  {hasBroker && (
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <Label className="text-sm font-semibold">Broker Name</Label>
-                        <Input
-                          value={brokerName}
-                          onChange={(e) => setBrokerName(e.target.value)}
-                          placeholder="Type name..."
-                          className="mt-1"
+                {isMixedLoad ? (
+                  // MIXED LOAD MODE
+                  <div className="space-y-4">
+                    {/* Broker Section (Common for all) */}
+                    <div className="border rounded-lg p-4 space-y-4 bg-blue-50">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="has_broker_mixed"
+                          checked={hasBroker}
+                          onCheckedChange={setHasBroker}
                         />
+                        <Label htmlFor="has_broker_mixed" className="font-medium">Has Broker (Common for all customers)</Label>
                       </div>
 
-                      <div>
-                        <Label className="text-sm font-semibold">Brokerage Type</Label>
-                        <Select value={brokerageType} onValueChange={setBrokerageType}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {BROKERAGE_TYPES.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {hasBroker && (
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <Label className="text-sm font-semibold">Broker Name</Label>
+                            <Input
+                              value={brokerName}
+                              onChange={(e) => setBrokerName(e.target.value)}
+                              placeholder="Type name..."
+                              className="mt-1"
+                            />
+                          </div>
 
-                      {brokerageType !== 'none' && (
-                        <div>
-                          <Label className="text-sm font-semibold">
-                            Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
-                          </Label>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={brokerageRate}
-                            onChange={(e) => setBrokerageRate(e.target.value)}
-                            placeholder="0.00"
-                            className="mt-1"
-                          />
+                          <div>
+                            <Label className="text-sm font-semibold">Brokerage Type</Label>
+                            <Select value={brokerageType} onValueChange={setBrokerageType}>
+                              <SelectTrigger className="mt-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {BROKERAGE_TYPES.map((type) => (
+                                  <SelectItem key={type.value} value={type.value}>
+                                    {type.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {brokerageType !== 'none' && (
+                            <div>
+                              <Label className="text-sm font-semibold">
+                                Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
+                              </Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={brokerageRate}
+                                onChange={(e) => setBrokerageRate(e.target.value)}
+                                placeholder="0.00"
+                                className="mt-1"
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
 
-                {/* Item & Marka Section */}
-                <div className="border rounded-lg p-4 space-y-4">
-                  <h5 className="font-medium">Item & Marka</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold">Item *</Label>
-                      <select
-                        value={itemId}
-                        onChange={(e) => {
-                          const selectedItemId = e.target.value;
-                          setItemId(selectedItemId);
-                          const selectedItem = items.find(item => item.id === selectedItemId);
-                          if (selectedItem && selectedItem.current_price) {
-                            setRatePerQtl(selectedItem.current_price.toString());
-                          }
-                          fetchMarkaOptions(selectedItemId);
-                        }}
-                        className="erp-select mt-1"
-                        required
-                      >
-                        <option value="">Select Item</option>
-                        {items.map(item => (
-                          <option key={item.id} value={item.id}>{item.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold">Rate per Qtl (₹)</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={ratePerQtl}
-                        onChange={(e) => setRatePerQtl(e.target.value)}
-                        placeholder="Auto-filled"
-                        className="mt-1"
-                      />
-                    </div>
+                    {/* Customer Sections */}
+                    {mixedLoadCustomers.map((customer, customerIndex) => (
+                      <div key={customer.id} className="border-2 border-purple-300 rounded-lg p-4 space-y-4 bg-white">
+                        <div className="flex justify-between items-center">
+                          <h5 className="font-semibold text-purple-700">
+                            👤 Customer {customerIndex + 1}
+                          </h5>
+                          {mixedLoadCustomers.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeMixedLoadCustomer(customerIndex)}
+                            >
+                              ❌ Remove Customer
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Customer Details */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm font-semibold">Customer *</Label>
+                            <CustomerAutocomplete
+                              value={customer.customer_name}
+                              onSelect={(selectedCustomer) => {
+                                updateMixedLoadCustomer(customerIndex, 'customer_id', selectedCustomer.id);
+                                updateMixedLoadCustomer(customerIndex, 'customer_name', selectedCustomer.name);
+                                updateMixedLoadCustomer(customerIndex, 'customer_gstin', selectedCustomer.gstin || '');
+                                updateMixedLoadCustomer(customerIndex, 'place_of_supply', selectedCustomer.place_of_supply || '');
+                              }}
+                              placeholder="Type customer name..."
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-sm font-semibold">GSTIN</Label>
+                            <Input
+                              value={customer.customer_gstin}
+                              onChange={(e) => updateMixedLoadCustomer(customerIndex, 'customer_gstin', e.target.value)}
+                              placeholder="Auto-filled"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-sm font-semibold">Place of Supply *</Label>
+                          <Input
+                            value={customer.place_of_supply}
+                            onChange={(e) => updateMixedLoadCustomer(customerIndex, 'place_of_supply', e.target.value)}
+                            placeholder="e.g., Mumbai, Maharashtra"
+                            className="mt-1"
+                            required
+                          />
+                        </div>
+
+                        {/* Line Items for this Customer */}
+                        <div className="border-l-4 border-green-500 pl-4 space-y-3">
+                          <h6 className="font-medium text-green-700">📦 Line Items</h6>
+                          
+                          {customer.line_items.map((lineItem, lineIndex) => (
+                            <div key={lineItem.id} className="border border-green-200 rounded-lg p-3 space-y-3 bg-green-50">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm font-semibold text-green-700">Item {lineIndex + 1}</span>
+                                {customer.line_items.length > 1 && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => removeLineItem(customerIndex, lineIndex)}
+                                    className="text-red-600 border-red-300"
+                                  >
+                                    🗑️ Remove
+                                  </Button>
+                                )}
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <Label className="text-xs font-semibold">Item *</Label>
+                                  <select
+                                    value={lineItem.item_id}
+                                    onChange={(e) => {
+                                      const selectedItemId = e.target.value;
+                                      updateLineItem(customerIndex, lineIndex, 'item_id', selectedItemId);
+                                      const selectedItem = items.find(item => item.id === selectedItemId);
+                                      if (selectedItem) {
+                                        updateLineItem(customerIndex, lineIndex, 'item_name', selectedItem.name);
+                                        if (selectedItem.current_price) {
+                                          updateLineItem(customerIndex, lineIndex, 'item_rate', selectedItem.current_price.toString());
+                                        }
+                                      }
+                                    }}
+                                    className="erp-select mt-1"
+                                    required
+                                  >
+                                    <option value="">Select Item</option>
+                                    {items.map(item => (
+                                      <option key={item.id} value={item.id}>{item.name}</option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                <div>
+                                  <Label className="text-xs font-semibold">Marka</Label>
+                                  <Input
+                                    value={lineItem.marka}
+                                    onChange={(e) => updateLineItem(customerIndex, lineIndex, 'marka', e.target.value)}
+                                    placeholder="Brand"
+                                    className="mt-1"
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label className="text-xs font-semibold">Pack Size</Label>
+                                  <Select 
+                                    value={lineItem.bharti.toString()} 
+                                    onValueChange={(val) => updateLineItem(customerIndex, lineIndex, 'bharti', parseInt(val))}
+                                  >
+                                    <SelectTrigger className="mt-1">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="100">100 kg</SelectItem>
+                                      <SelectItem value="50">50 kg</SelectItem>
+                                      <SelectItem value="30">30 kg</SelectItem>
+                                      <SelectItem value="25">25 kg</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <Label className="text-xs font-semibold">Expected Bags</Label>
+                                  <Input
+                                    type="number"
+                                    value={lineItem.expected_bags}
+                                    onChange={(e) => updateLineItem(customerIndex, lineIndex, 'expected_bags', e.target.value)}
+                                    placeholder="No. of bags"
+                                    className="mt-1"
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label className="text-xs font-semibold">Expected Weight (kg) *</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    value={lineItem.expected_weight}
+                                    onChange={(e) => updateLineItem(customerIndex, lineIndex, 'expected_weight', e.target.value)}
+                                    placeholder="In kg"
+                                    className="mt-1"
+                                    required
+                                  />
+                                </div>
+
+                                <div>
+                                  <Label className="text-xs font-semibold">Rate/Qtl (₹) *</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    value={lineItem.item_rate}
+                                    onChange={(e) => updateLineItem(customerIndex, lineIndex, 'item_rate', e.target.value)}
+                                    placeholder="Rate"
+                                    className="mt-1"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Add Line Item Button */}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addLineItem(customerIndex)}
+                            className="w-full border-green-300 text-green-700 hover:bg-green-100"
+                          >
+                            ➕ Add Line Item
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add Customer Button */}
+                    <Button
+                      type="button"
+                      onClick={addMixedLoadCustomer}
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                    >
+                      ➕ Add Customer
+                    </Button>
                   </div>
+                ) : (
+                  // SINGLE LOAD MODE (Original form)
+                  <>
+                    {/* Customer Details Section */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h5 className="font-medium">Customer Details</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-semibold">Customer *</Label>
+                          <CustomerAutocomplete
+                            value={customerName}
+                            onSelect={(customer) => {
+                              setCustomerId(customer.id);
+                              setCustomerName(customer.name);
+                              setCustomerGstin(customer.gstin || '');
+                              setPlaceOfSupply(customer.place_of_supply || '');
+                            }}
+                            placeholder="Type customer name..."
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold">GSTIN</Label>
+                          <Input
+                            value={customerGstin}
+                            onChange={(e) => setCustomerGstin(e.target.value)}
+                            placeholder="Auto-filled"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
 
-                  <div>
-                    <Label className="text-sm font-semibold">Marka (Brand)</Label>
-                    {markaOptions.length > 0 ? (
-                      <select
-                        value={marka}
-                        onChange={(e) => setMarka(e.target.value)}
-                        className="erp-select mt-1"
-                      >
-                        <option value="">Type or select...</option>
-                        {markaOptions.map((m, idx) => (
-                          <option key={idx} value={m.marka}>
-                            {m.marka}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <Input
-                        value={marka}
-                        onChange={(e) => setMarka(e.target.value)}
-                        placeholder="Enter marka"
-                        className="mt-1"
-                      />
-                    )}
-                    <p className="text-xs text-gray-500 mt-1">
-                      💡 Dropdown shows previously used markas
-                    </p>
-                  </div>
-                </div>
-
-                {/* Pack Size & Expected Weight Section */}
-                <div className="border rounded-lg p-4 space-y-4">
-                  <h5 className="font-medium">Pack Size & Expected Weight</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold">Pack Size (Bharti) *</Label>
-                      <Select value={bharti.toString()} onValueChange={(val) => setBharti(parseInt(val))}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="100">100 kg</SelectItem>
-                          <SelectItem value="50">50 kg</SelectItem>
-                          <SelectItem value="30">30 kg</SelectItem>
-                          <SelectItem value="25">25 kg</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div>
+                        <Label className="text-sm font-semibold">Place of Supply *</Label>
+                        <Input
+                          value={placeOfSupply}
+                          onChange={(e) => setPlaceOfSupply(e.target.value)}
+                          placeholder="e.g., Mumbai, Maharashtra"
+                          className="mt-1"
+                          required
+                        />
+                      </div>
                     </div>
 
-                    <div>
-                      <Label className="text-sm font-semibold">Expected Weight (Optional)</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={expectedWeight}
-                        onChange={(e) => setExpectedWeight(e.target.value)}
-                        placeholder="In quintals"
-                        className="mt-1"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Enter expected weight in quintals
-                      </p>
+                    {/* Broker Section */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="has_broker_sale"
+                          checked={hasBroker}
+                          onCheckedChange={setHasBroker}
+                        />
+                        <Label htmlFor="has_broker_sale" className="font-medium">Has Broker</Label>
+                      </div>
+
+                      {hasBroker && (
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <Label className="text-sm font-semibold">Broker Name</Label>
+                            <Input
+                              value={brokerName}
+                              onChange={(e) => setBrokerName(e.target.value)}
+                              placeholder="Type name..."
+                              className="mt-1"
+                            />
+                          </div>
+
+                          <div>
+                            <Label className="text-sm font-semibold">Brokerage Type</Label>
+                            <Select value={brokerageType} onValueChange={setBrokerageType}>
+                              <SelectTrigger className="mt-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {BROKERAGE_TYPES.map((type) => (
+                                  <SelectItem key={type.value} value={type.value}>
+                                    {type.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {brokerageType !== 'none' && (
+                            <div>
+                              <Label className="text-sm font-semibold">
+                                Rate {brokerageType === 'percentage' ? '(%)' : '(₹)'}
+                              </Label>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                value={brokerageRate}
+                                onChange={(e) => setBrokerageRate(e.target.value)}
+                                placeholder="0.00"
+                                className="mt-1"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+
+                    {/* Item & Marka Section */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h5 className="font-medium">Item & Marka</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-semibold">Item *</Label>
+                          <select
+                            value={itemId}
+                            onChange={(e) => {
+                              const selectedItemId = e.target.value;
+                              setItemId(selectedItemId);
+                              const selectedItem = items.find(item => item.id === selectedItemId);
+                              if (selectedItem && selectedItem.current_price) {
+                                setRatePerQtl(selectedItem.current_price.toString());
+                              }
+                              fetchMarkaOptions(selectedItemId);
+                            }}
+                            className="erp-select mt-1"
+                            required
+                          >
+                            <option value="">Select Item</option>
+                            {items.map(item => (
+                              <option key={item.id} value={item.id}>{item.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-semibold">Rate per Qtl (₹)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={ratePerQtl}
+                            onChange={(e) => setRatePerQtl(e.target.value)}
+                            placeholder="Auto-filled"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm font-semibold">Marka (Brand)</Label>
+                        {markaOptions.length > 0 ? (
+                          <select
+                            value={marka}
+                            onChange={(e) => setMarka(e.target.value)}
+                            className="erp-select mt-1"
+                          >
+                            <option value="">Type or select...</option>
+                            {markaOptions.map((m, idx) => (
+                              <option key={idx} value={m.marka}>
+                                {m.marka}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <Input
+                            value={marka}
+                            onChange={(e) => setMarka(e.target.value)}
+                            placeholder="Enter marka"
+                            className="mt-1"
+                          />
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          💡 Dropdown shows previously used markas
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pack Size & Expected Weight Section */}
+                    <div className="border rounded-lg p-4 space-y-4">
+                      <h5 className="font-medium">Pack Size & Expected Weight</h5>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-semibold">Pack Size (Bharti) *</Label>
+                          <Select value={bharti.toString()} onValueChange={(val) => setBharti(parseInt(val))}>
+                            <SelectTrigger className="mt-1">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="100">100 kg</SelectItem>
+                              <SelectItem value="50">50 kg</SelectItem>
+                              <SelectItem value="30">30 kg</SelectItem>
+                              <SelectItem value="25">25 kg</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <Label className="text-sm font-semibold">Expected Weight (Optional)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={expectedWeight}
+                            onChange={(e) => setExpectedWeight(e.target.value)}
+                            placeholder="In quintals"
+                            className="mt-1"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Enter expected weight in quintals
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ) : (
               // Farmer Purchase fields (existing logic)
