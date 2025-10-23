@@ -1667,13 +1667,25 @@ backend:
 
 
 frontend:
-  - task: "Sales Invoice Submission Payload Fix"
+  - task: "Mixed Load Invoice Split UI - Weight Allocation Modal"
     implemented: true
     working: "NA"
     file: "frontend/src/pages/SalesInvoicePage.js"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE IMPLEMENTED - Phase 3 of Mixed Load Sales Pre-Entry & Processing. Created comprehensive Mixed Load Split UI with weight allocation interface. Implementation includes: 1) Queue Detection - Modified sales queue table to detect and display mixed load entries with purple '📦 Mixed Load' badge, shows 'Multiple Customers' and 'Multiple Items' for mixed loads, special purple '📦 Split Load' button for processing. 2) Mixed Load Split Modal - Full-screen modal (max-w-6xl) with comprehensive features: Summary section showing Total Net Weight, Total Allocated, Weight Variance with real-time color coding (green if ≤100 kg, red if >100 kg), Auto-Allocate button for proportional distribution by expected weights, Line Items table with columns for Customer, Item, Marka, Expected Weight, Allocated Weight (editable input), Bags, Kgs, Qtl, Rate, Amount, Real-time calculations for bags/kgs/qtl when weight changes, Footer totals row, Broker commission summary section when broker assigned, showing commission distribution info. 3) Functionality - handleMixedLoadProcess: Fetches full pre-entry with line items, initializes allocation state, handleAutoAllocate: Proportional weight distribution based on expected weights, handleAllocationChange: Manual weight input with real-time recalculation, calculateWeightVariance: Real-time validation of ±100 kg limit, handleCreateAllInvoices: Validates variance, calls bulk endpoint, shows success message. 4) Backend Integration - Updated SalesQueueItem model to include is_mixed_load flag, Updated sales queue endpoint to populate is_mixed_load from pre-entry. Frontend compiled successfully with no errors. Ready for comprehensive frontend testing."
+
+  - task: "Sales Invoice Submission Payload Fix"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/SalesInvoicePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
