@@ -1752,6 +1752,9 @@ function PreEntryPage({ user, onLogout }) {
               <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
                 ✅ Pre-Entry Created!
               </DialogTitle>
+              <DialogDescription className="text-center">
+                Scan the QR code below for quick access
+              </DialogDescription>
             </DialogHeader>
             
             {createdSlip && (
