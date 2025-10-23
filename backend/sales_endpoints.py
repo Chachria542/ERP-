@@ -82,56 +82,122 @@ def generate_qr_code_data(slip_id: str, transaction_type: str = "sale") -> str:
 
 @router.post("/sales/pre-entry", response_model=SalesPreEntry)
 async def create_sales_pre_entry(pre_entry_data: SalesPreEntryCreate):
-    """Create sales pre-entry"""
+    """
+    Create sales pre-entry.
+    Supports both single-item and mixed-load scenarios.
+    """
     try:
-        # Get customer details
-        customer = await db.parties.find_one({"id": pre_entry_data.customer_id})
-        if not customer:
-            raise HTTPException(status_code=404, detail="Customer not found")
-        
-        # Get item details if item_id provided
-        item_name = None
-        item_rate = pre_entry_data.item_rate
-        
-        if pre_entry_data.item_id:
-            item = await db.items.find_one({"id": pre_entry_data.item_id})
-            if item:
-                item_name = item['name']
-                # Auto-fill rate from item master if not provided
-                if item_rate is None:
-                    item_rate = item.get('rate', 0.0)
-        
         # Generate pre-entry number
         pre_entry_number = await generate_sales_pre_entry_number()
         
         # Generate QR code data
         qr_data = generate_qr_code_data(pre_entry_number, "sale")
         
-        # Create pre-entry
-        pre_entry = SalesPreEntry(
-            pre_entry_number=pre_entry_number,
-            slip_id=pre_entry_number,
-            qr_code=qr_data,
-            date=pre_entry_data.date,
-            order_number=pre_entry_data.order_number,
-            customer_id=pre_entry_data.customer_id,
-            customer_name=customer['name'],
-            customer_gstin=pre_entry_data.customer_gstin or customer.get('gstin'),
-            place_of_supply=pre_entry_data.place_of_supply,
-            item_id=pre_entry_data.item_id,
-            item_name=item_name,
-            item_rate=item_rate,
-            marka=pre_entry_data.marka,
-            bharti=pre_entry_data.bharti,
-            expected_weight=pre_entry_data.expected_weight,
-            has_broker=pre_entry_data.has_broker,
-            broker_id=pre_entry_data.broker_id,
-            broker_name=pre_entry_data.broker_name,
-            brokerage_type=pre_entry_data.brokerage_type,
-            brokerage_rate=pre_entry_data.brokerage_rate,
-            remarks=pre_entry_data.remarks,
-            created_by=pre_entry_data.created_by
-        )
+        # Handle Mixed Load
+        if pre_entry_data.is_mixed_load:
+            if not pre_entry_data.line_items or len(pre_entry_data.line_items) == 0:
+                raise HTTPException(status_code=400, detail="Mixed load requires at least one line item")
+            
+            # Process line items
+            processed_line_items = []
+            total_expected_weight = 0
+            
+            for line_item_data in pre_entry_data.line_items:
+                line_item = SalesPreEntryLineItem(
+                    customer_id=line_item_data.customer_id,
+                    customer_name=line_item_data.customer_name,
+                    customer_gstin=line_item_data.customer_gstin,
+                    place_of_supply=line_item_data.place_of_supply,
+                    item_id=line_item_data.item_id,
+                    item_name=line_item_data.item_name,
+                    marka=line_item_data.marka,
+                    bharti=line_item_data.bharti,
+                    expected_bags=line_item_data.expected_bags,
+                    expected_weight=line_item_data.expected_weight,
+                    item_rate=line_item_data.item_rate
+                )
+                processed_line_items.append(line_item)
+                total_expected_weight += line_item_data.expected_weight
+            
+            # Create mixed load pre-entry
+            pre_entry = SalesPreEntry(
+                pre_entry_number=pre_entry_number,
+                slip_id=pre_entry_number,
+                qr_code=qr_data,
+                date=pre_entry_data.date,
+                order_number=pre_entry_data.order_number,
+                is_mixed_load=True,
+                line_items=processed_line_items,
+                customer_id=processed_line_items[0].customer_id,  # First customer for reference
+                customer_name="MIXED LOAD",  # Indicator
+                customer_gstin=None,
+                place_of_supply=processed_line_items[0].place_of_supply,
+                item_id=None,
+                item_name=f"{len(processed_line_items)} Items",
+                expected_weight=f"{total_expected_weight} kg total",
+                has_broker=pre_entry_data.has_broker,
+                broker_id=pre_entry_data.broker_id,
+                broker_name=pre_entry_data.broker_name,
+                brokerage_type=pre_entry_data.brokerage_type,
+                brokerage_rate=pre_entry_data.brokerage_rate,
+                remarks=pre_entry_data.remarks,
+                created_by=pre_entry_data.created_by
+            )
+            
+            print(f"[BACKEND] Created mixed load sales pre-entry: {pre_entry_number} with {len(processed_line_items)} line items")
+            
+        else:
+            # Single Item Pre-Entry (backward compatibility)
+            # Get customer details
+            customer = await db.parties.find_one({"id": pre_entry_data.customer_id})
+            if not customer:
+                raise HTTPException(status_code=404, detail="Customer not found")
+            
+            # Get item details if item_id provided
+            item_name = None
+            item_rate = pre_entry_data.item_rate
+            
+            if pre_entry_data.item_id:
+                item = await db.items.find_one({"id": pre_entry_data.item_id})
+                if item:
+                    item_name = item['name']
+                    # Auto-fill rate from item master if not provided
+                    if item_rate is None:
+                        item_rate = item.get('rate', 0.0)
+            
+            # Create single-item pre-entry
+            pre_entry = SalesPreEntry(
+                pre_entry_number=pre_entry_number,
+                slip_id=pre_entry_number,
+                qr_code=qr_data,
+                date=pre_entry_data.date,
+                order_number=pre_entry_data.order_number,
+                is_mixed_load=False,
+                line_items=[],
+                customer_id=pre_entry_data.customer_id,
+                customer_name=customer['name'],
+                customer_gstin=pre_entry_data.customer_gstin or customer.get('gstin'),
+                place_of_supply=pre_entry_data.place_of_supply,
+                item_id=pre_entry_data.item_id,
+                item_name=item_name,
+                item_rate=item_rate,
+                marka=pre_entry_data.marka,
+                bharti=pre_entry_data.bharti,
+                expected_weight=pre_entry_data.expected_weight,
+                has_broker=pre_entry_data.has_broker,
+                broker_id=pre_entry_data.broker_id,
+                broker_name=pre_entry_data.broker_name,
+                brokerage_type=pre_entry_data.brokerage_type,
+                brokerage_rate=pre_entry_data.brokerage_rate,
+                remarks=pre_entry_data.remarks,
+                created_by=pre_entry_data.created_by
+            )
+            
+            # Update marka memory if provided
+            if pre_entry_data.marka and pre_entry_data.item_id:
+                await update_marka_memory(pre_entry_data.item_id, item_name, pre_entry_data.marka)
+            
+            print(f"[BACKEND] Created single-item sales pre-entry: {pre_entry_number}")
         
         # Save to database
         doc = pre_entry.model_dump()
@@ -139,19 +205,20 @@ async def create_sales_pre_entry(pre_entry_data: SalesPreEntryCreate):
         if doc.get('updated_at'):
             doc['updated_at'] = doc['updated_at'].isoformat()
         
+        # Convert line_items to dict if present
+        if doc.get('line_items'):
+            doc['line_items'] = [item.model_dump() if hasattr(item, 'model_dump') else item for item in pre_entry.line_items]
+        
         await db.sales_pre_entries.insert_one(doc)
         
-        # Update marka memory if provided
-        if pre_entry_data.marka and pre_entry_data.item_id:
-            await update_marka_memory(pre_entry_data.item_id, item_name, pre_entry_data.marka)
-        
-        print(f"[BACKEND] Created sales pre-entry: {pre_entry_number}")
         return pre_entry
         
     except HTTPException:
         raise
     except Exception as e:
         print(f"[BACKEND] Error creating sales pre-entry: {e}")
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.get("/sales/pre-entries", response_model=List[SalesPreEntry])
