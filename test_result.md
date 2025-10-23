@@ -1638,15 +1638,18 @@ backend:
 
   - task: "Mixed Load Invoice Processing - Bulk Creation Endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/sales_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE IMPLEMENTED - Phase 2 of Mixed Load Sales Pre-Entry & Processing. Created two new endpoints for mixed load invoice processing: 1) POST /api/sales/mixed-load-invoice/bulk - Manual weight allocation endpoint that accepts line items with manually allocated weights, validates total allocated weight is within ±100 kg of actual net weight, generates one invoice per line item (one per customer-item combination), distributes total broker commission proportionally across invoices based on quantity/amount, updates pre-entry status to invoice_generated. 2) POST /api/sales/mixed-load-invoice/create-all - Auto weight allocation endpoint that automatically distributes actual net weight proportionally based on expected_weight from pre-entry line items, calculates bags/quintals for each allocation, calls bulk endpoint internally. Implementation includes: Weight variance validation (±100 kg max), proportional broker commission calculation (per_quintal, per_bag, percentage types supported), automatic invoice number generation (SAL-YY-######), GST calculation (CGST+SGST), voucher entry creation, line item tracking (links invoice back to pre-entry line item), status management. Backend server restarted successfully. Ready for comprehensive backend testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - 100% SUCCESS RATE (12/12 tests passed). All endpoint structures verified and working correctly. Validation logic confirmed (weight variance, status checks, pre-entry validation). Error handling tested (404 for invalid IDs, 400 for wrong status, 422 for missing fields). Integration with sales queue confirmed."
   - task: "Weighbridge Photo Placeholder Fix - External Service Dependency"
     implemented: true
     working: true
