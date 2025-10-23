@@ -1794,6 +1794,9 @@ function PreEntryPage({ user, onLogout }) {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Farmer Name Conflict</DialogTitle>
+              <DialogDescription>
+                Multiple farmers found with similar names. Please select the correct one.
+              </DialogDescription>
             </DialogHeader>
             
             {farmerConflict && (
