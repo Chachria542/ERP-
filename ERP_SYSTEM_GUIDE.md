@@ -365,8 +365,8 @@ yarn start
 ```
 
 ### Access:
-- Frontend: https://erp-sales-invoice.preview.emergentagent.com
-- Backend API: https://erp-sales-invoice.preview.emergentagent.com/api
+- Frontend: https://grain-tracker-erp.preview.emergentagent.com
+- Backend API: https://grain-tracker-erp.preview.emergentagent.com/api
 
 ## Testing Recommendations
 

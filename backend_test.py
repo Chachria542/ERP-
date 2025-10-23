@@ -10,7 +10,7 @@ import time
 from datetime import datetime, timezone, timedelta
 
 # Backend URL from frontend/.env
-BASE_URL = "https://erp-sales-invoice.preview.emergentagent.com/api"
+BASE_URL = "https://grain-tracker-erp.preview.emergentagent.com/api"
 
 class SalesInvoiceCreationTester:
     def __init__(self):
