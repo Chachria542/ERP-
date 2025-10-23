@@ -83,6 +83,30 @@ function PreEntryPage({ user, onLogout }) {
   const [bharti, setBharti] = useState(50);
   const [expectedWeight, setExpectedWeight] = useState('');
   
+  // Mixed Load state
+  const [isMixedLoad, setIsMixedLoad] = useState(false);
+  const [mixedLoadCustomers, setMixedLoadCustomers] = useState([
+    {
+      id: Date.now(),
+      customer_id: '',
+      customer_name: '',
+      customer_gstin: '',
+      place_of_supply: '',
+      line_items: [
+        {
+          id: Date.now(),
+          item_id: '',
+          item_name: '',
+          marka: '',
+          bharti: 50,
+          expected_bags: '',
+          expected_weight: '',
+          item_rate: ''
+        }
+      ]
+    }
+  ]);
+  
   // Item details
   const [itemId, setItemId] = useState('');
   const [quality, setQuality] = useState('');
