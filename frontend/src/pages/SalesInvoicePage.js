@@ -155,7 +155,13 @@ function SalesInvoicePage({ user, onLogout }) {
     // Fetch full pre-entry details with line items
     try {
       const response = await axios.get(`${API}/sales/pre-entry/by-number/${preEntry.pre_entry_number}`);
-      const fullPreEntry = response.data;
+      const fullPreEntry = response.data.pre_entry; // Access nested pre_entry
+      
+      // Check if line_items exists
+      if (!fullPreEntry.line_items || fullPreEntry.line_items.length === 0) {
+        toast.error('No line items found in this mixed load pre-entry');
+        return;
+      }
       
       // Initialize allocations from line items
       const initialAllocations = fullPreEntry.line_items.map(item => ({
