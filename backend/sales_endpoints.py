@@ -135,7 +135,7 @@ async def create_sales_pre_entry(pre_entry_data: SalesPreEntryCreate):
                 place_of_supply=processed_line_items[0].place_of_supply,
                 item_id=None,
                 item_name=f"{len(processed_line_items)} Items",
-                expected_weight=f"{total_expected_weight} kg total",
+                expected_weight=total_expected_weight,  # Store as number (kg)
                 has_broker=pre_entry_data.has_broker,
                 broker_id=pre_entry_data.broker_id,
                 broker_name=pre_entry_data.broker_name,
