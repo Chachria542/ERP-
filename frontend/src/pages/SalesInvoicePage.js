@@ -1127,6 +1127,9 @@ function SalesInvoicePage({ user, onLogout }) {
               <DialogTitle className="text-2xl">
                 📦 Mixed Load Invoice Split - {mixedLoadPreEntry?.pre_entry_number}
               </DialogTitle>
+              <DialogDescription>
+                Allocate weights to each customer-item combination and create separate invoices
+              </DialogDescription>
             </DialogHeader>
             
             {/* Summary Section */}
