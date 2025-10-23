@@ -20,8 +20,10 @@ class MixedLoadInvoiceTester:
         self.username = "admin"
         self.password = "admin123"
         # Test data
-        self.test_pre_entry_id = None
-        self.test_item_id = None
+        self.test_mixed_load_pre_entry_id = None
+        self.test_customers = []
+        self.test_items = []
+        self.created_pre_entry_number = None
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
