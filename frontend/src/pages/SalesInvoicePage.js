@@ -736,6 +736,9 @@ function SalesInvoicePage({ user, onLogout }) {
                   <span>{isReturn ? '🔄 Sales Return' : '📄 Sales Invoice'} - {selectedPreEntry?.pre_entry_number}</span>
                 )}
               </DialogTitle>
+              <DialogDescription>
+                {savedInvoice ? 'Invoice has been saved. You can print or close this window.' : 'Fill in the invoice details and save'}
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
