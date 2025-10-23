@@ -3,10 +3,11 @@ Sales Module - API Endpoints
 """
 from fastapi import APIRouter, HTTPException
 from sales_models import (
-    SalesPreEntry, SalesPreEntryCreate,
+    SalesPreEntry, SalesPreEntryCreate, SalesPreEntryLineItem,
     SalesInvoice, SalesInvoiceCreate,
     SalesQueueItem, Marka,
-    SalesStatus, SaleType
+    SalesStatus, SaleType,
+    MixedLoadInvoiceCreate, MixedLoadInvoiceLineItem
 )
 from typing import List, Optional
 from datetime import datetime, timezone
