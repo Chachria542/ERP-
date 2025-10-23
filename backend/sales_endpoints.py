@@ -778,3 +778,112 @@ async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, 
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/sales/mixed-load-invoice/create-all", response_model=dict)
+async def create_all_mixed_load_invoices(
+    pre_entry_id: str,
+    invoice_date: str,
+    weighbridge_slip_no: str,
+    is_entry: bool = False,
+    remarks: Optional[str] = None,
+    created_by: str = "system"
+):
+    """
+    Create All invoices with auto weight allocation based on pre-entry expected weights.
+    - Automatically distributes actual net weight proportionally across line items
+    - Based on expected_weight in each line item
+    """
+    try:
+        # 1. Fetch the mixed load pre-entry
+        pre_entry = await db.sales_pre_entries.find_one({"id": pre_entry_id})
+        if not pre_entry:
+            raise HTTPException(status_code=404, detail="Sales pre-entry not found")
+        
+        # 2. Verify it's a mixed load
+        if not pre_entry.get('is_mixed_load', False):
+            raise HTTPException(status_code=400, detail="Pre-entry is not a mixed load")
+        
+        # 3. Verify pre-entry status
+        if pre_entry['status'] != "pending":
+            raise HTTPException(status_code=400, detail=f"Pre-entry status is {pre_entry['status']}, must be pending")
+        
+        # 4. Verify weighbridge data exists
+        if not pre_entry.get('weighbridge_completed') or not pre_entry.get('net_weight'):
+            raise HTTPException(status_code=400, detail="Weighbridge data not completed for this pre-entry")
+        
+        actual_net_weight = pre_entry['net_weight']  # In kg
+        line_items = pre_entry.get('line_items', [])
+        
+        if not line_items:
+            raise HTTPException(status_code=400, detail="No line items found in pre-entry")
+        
+        # 5. Calculate total expected weight
+        total_expected_weight = sum(item.get('expected_weight', 0) for item in line_items)
+        
+        if total_expected_weight <= 0:
+            raise HTTPException(status_code=400, detail="Total expected weight is zero, cannot auto-allocate")
+        
+        # 6. Auto-allocate weights proportionally
+        allocated_line_items = []
+        total_allocated = 0
+        
+        for i, line_item in enumerate(line_items):
+            expected_weight = line_item.get('expected_weight', 0)
+            
+            # For the last item, allocate remaining weight to avoid rounding errors
+            if i == len(line_items) - 1:
+                actual_weight = actual_net_weight - total_allocated
+            else:
+                # Proportional allocation
+                proportion = expected_weight / total_expected_weight
+                actual_weight = actual_net_weight * proportion
+                total_allocated += actual_weight
+            
+            # Calculate bags and remainder kg
+            bharti = line_item.get('bharti', 50)
+            actual_bags = int(actual_weight // bharti)
+            actual_kgs = actual_weight % bharti
+            actual_qtl = actual_weight / 100  # Convert kg to quintals
+            
+            allocated_line_items.append(
+                MixedLoadInvoiceLineItem(
+                    line_id=line_item['line_id'],
+                    actual_weight=actual_weight,
+                    actual_bags=actual_bags,
+                    actual_kgs=actual_kgs,
+                    actual_qtl=actual_qtl
+                )
+            )
+        
+        # 7. Create MixedLoadInvoiceCreate object
+        mixed_load_invoice_data = MixedLoadInvoiceCreate(
+            pre_entry_id=pre_entry_id,
+            invoice_date=invoice_date,
+            weighbridge_slip_no=weighbridge_slip_no,
+            is_entry=is_entry,
+            line_items=allocated_line_items,
+            broker_id=pre_entry.get('broker_id'),
+            broker_name=pre_entry.get('broker_name'),
+            brokerage_type=pre_entry.get('brokerage_type', 'per_quintal'),
+            brokerage_rate=pre_entry.get('brokerage_rate'),
+            freight=0.0,
+            remarks=remarks
+        )
+        
+        # 8. Call the bulk invoice creation endpoint
+        result = await create_mixed_load_invoices_bulk(mixed_load_invoice_data, created_by)
+        
+        result['auto_allocated'] = True
+        result['allocation_method'] = "proportional_by_expected_weight"
+        
+        print(f"[BACKEND] Auto-allocated and created {result['total_invoices_created']} invoices for pre-entry {pre_entry['pre_entry_number']}")
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error in create-all mixed load invoices: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
