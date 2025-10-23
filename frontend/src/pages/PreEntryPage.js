@@ -495,6 +495,85 @@ function PreEntryPage({ user, onLogout }) {
     handleSubmit({ preventDefault: () => {} }, true);
   };
 
+  // Mixed Load Handlers
+  const addMixedLoadCustomer = () => {
+    setMixedLoadCustomers([
+      ...mixedLoadCustomers,
+      {
+        id: Date.now(),
+        customer_id: '',
+        customer_name: '',
+        customer_gstin: '',
+        place_of_supply: '',
+        line_items: [
+          {
+            id: Date.now(),
+            item_id: '',
+            item_name: '',
+            marka: '',
+            bharti: 50,
+            expected_bags: '',
+            expected_weight: '',
+            item_rate: ''
+          }
+        ]
+      }
+    ]);
+  };
+
+  const removeMixedLoadCustomer = (customerIndex) => {
+    if (mixedLoadCustomers.length === 1) {
+      toast.error('At least one customer is required');
+      return;
+    }
+    setMixedLoadCustomers(mixedLoadCustomers.filter((_, index) => index !== customerIndex));
+  };
+
+  const updateMixedLoadCustomer = (customerIndex, field, value) => {
+    const updated = [...mixedLoadCustomers];
+    updated[customerIndex][field] = value;
+    setMixedLoadCustomers(updated);
+  };
+
+  const addLineItem = (customerIndex) => {
+    const updated = [...mixedLoadCustomers];
+    updated[customerIndex].line_items.push({
+      id: Date.now(),
+      item_id: '',
+      item_name: '',
+      marka: '',
+      bharti: 50,
+      expected_bags: '',
+      expected_weight: '',
+      item_rate: ''
+    });
+    setMixedLoadCustomers(updated);
+  };
+
+  const removeLineItem = (customerIndex, lineIndex) => {
+    const updated = [...mixedLoadCustomers];
+    if (updated[customerIndex].line_items.length === 1) {
+      toast.error('At least one line item is required per customer');
+      return;
+    }
+    updated[customerIndex].line_items = updated[customerIndex].line_items.filter((_, index) => index !== lineIndex);
+    setMixedLoadCustomers(updated);
+  };
+
+  const updateLineItem = (customerIndex, lineIndex, field, value) => {
+    const updated = [...mixedLoadCustomers];
+    updated[customerIndex].line_items[lineIndex][field] = value;
+    
+    // Auto-calculate expected_weight if bags and bharti are provided
+    if (field === 'expected_bags' || field === 'bharti') {
+      const bags = parseFloat(updated[customerIndex].line_items[lineIndex].expected_bags) || 0;
+      const bharti = parseFloat(updated[customerIndex].line_items[lineIndex].bharti) || 50;
+      updated[customerIndex].line_items[lineIndex].expected_weight = (bags * bharti).toString();
+    }
+    
+    setMixedLoadCustomers(updated);
+  };
+
   const resetForm = () => {
     setFromLocation('Sanawad Mandi');
     setToLocation('');
@@ -522,6 +601,38 @@ function PreEntryPage({ user, onLogout }) {
     setExpectedQuantityBags('');
     setExpectedQuantityKgs('');
     setExpectedQuantityQtls('');
+    
+    // Reset Sale fields
+    setCustomerId('');
+    setCustomerName('');
+    setCustomerGstin('');
+    setMarka('');
+    setBharti(50);
+    setExpectedWeight('');
+    
+    // Reset Mixed Load
+    setIsMixedLoad(false);
+    setMixedLoadCustomers([
+      {
+        id: Date.now(),
+        customer_id: '',
+        customer_name: '',
+        customer_gstin: '',
+        place_of_supply: '',
+        line_items: [
+          {
+            id: Date.now(),
+            item_id: '',
+            item_name: '',
+            marka: '',
+            bharti: 50,
+            expected_bags: '',
+            expected_weight: '',
+            item_rate: ''
+          }
+        ]
+      }
+    ]);
     
     // Reset Sale fields
     setCustomerId('');
