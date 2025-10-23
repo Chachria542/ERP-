@@ -30,10 +30,31 @@ class BrokerageType(str, Enum):
 
 # ============= SALES PRE-ENTRY MODELS =============
 
+class SalesPreEntryLineItem(BaseModel):
+    """
+    Individual line item in a mixed load sales pre-entry.
+    Each line represents one customer-item combination.
+    """
+    line_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    customer_id: str
+    customer_name: str
+    customer_gstin: Optional[str] = None
+    place_of_supply: str
+    item_id: str
+    item_name: str
+    marka: Optional[str] = None
+    bharti: int = 50  # Pack size in kg
+    expected_bags: int
+    expected_weight: float  # In kg
+    item_rate: float  # Rate per quintal
+    invoice_id: Optional[str] = None  # Populated after invoice creation
+    actual_weight: Optional[float] = None  # Allocated actual weight after weighbridge
+
 class SalesPreEntry(BaseModel):
     """
     Sales Pre-Entry created after order confirmation, before loading.
     Generates QR slip for driver to take to weighbridge for tare weight.
+    Supports both single-customer and mixed-load scenarios.
     """
     model_config = ConfigDict(extra="ignore")
     
@@ -41,6 +62,10 @@ class SalesPreEntry(BaseModel):
     pre_entry_number: str  # SPRE-YY-######
     slip_id: str  # Same as pre_entry_number, used for weighbridge integration
     qr_code: str  # QR code data for scanning
+    
+    # Mixed Load Support
+    is_mixed_load: bool = False  # NEW: Flag for mixed load orders
+    line_items: List[SalesPreEntryLineItem] = []  # NEW: Multiple customer-item combinations
     
     # Basic details
     date: str  # ISO date string (auto-filled with today)
