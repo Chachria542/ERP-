@@ -1711,16 +1711,92 @@ frontend:
 
 
 metadata:
-  test_sequence: 8
+  test_sequence: 9
 
 test_plan:
   current_focus:
-    - "Mixed Load Invoice Processing - Bulk Creation Endpoint"
+    - "Mixed Load Invoice Split UI - Weight Allocation Modal"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: |
+      🎨 **PHASE 3: MIXED LOAD INVOICE SPLIT UI - FRONTEND COMPLETE**
+      
+      **Implementation Summary:**
+      Successfully implemented the complete frontend UI for mixed load invoice processing with weight allocation interface.
+      
+      **Key Features Implemented:**
+      
+      1. **Queue Detection & Display:**
+         - Mixed load entries show purple '📦 Mixed Load' badge
+         - Display 'Multiple Customers' and 'Multiple Items' instead of single values
+         - Special purple '📦 Split Load' button for mixed load entries
+      
+      2. **Mixed Load Split Modal (Full-Featured):**
+         - Large modal (max-w-6xl) for comprehensive data display
+         - **Summary Dashboard:**
+           * Total Net Weight (from weighbridge)
+           * Total Allocated Weight (live update)
+           * Weight Variance with color coding (green ≤100kg, red >100kg)
+         
+         - **Auto-Allocate Functionality:**
+           * One-click proportional distribution
+           * Based on expected weights from pre-entry
+           * Automatically calculates bags/kgs/qtl for each line
+         
+         - **Line Items Table:**
+           * Shows all customer-item combinations
+           * Editable weight allocation inputs
+           * Real-time calculation of bags, kgs, quintals
+           * Rate and amount display per line
+           * Footer with totals
+         
+         - **Broker Commission Summary:**
+           * Displays broker details when applicable
+           * Shows commission will be split proportionally
+           * Supports all brokerage types (per_quintal, per_bag, percentage)
+         
+         - **Smart Validation:**
+           * Real-time weight variance checking
+           * "Create All Invoices" button disabled if variance >100 kg
+           * Validation for zero allocations
+      
+      3. **Backend Integration:**
+         - Calls POST /api/sales/mixed-load-invoice/bulk
+         - Sends complete payload with line item allocations
+         - Shows loading state during creation
+         - Success toast with count of invoices created
+         - Auto-refreshes queue after successful creation
+      
+      4. **User Experience:**
+         - Smooth modal transitions
+         - Real-time feedback on weight allocations
+         - Color-coded validation indicators
+         - Loading states on buttons
+         - Clear error messages
+      
+      **Testing Requirements:**
+      
+      **Prerequisites:**
+      - Need a mixed load sales pre-entry in queue (is_mixed_load=true)
+      - Pre-entry must have completed weighbridge (tare + gross)
+      - Status must be 'pending'
+      
+      **Test Scenarios:**
+      1. Mixed load detection in queue (badge and button display)
+      2. Click "Split Load" button - modal opens with line items
+      3. Auto-allocate button - weights distributed proportionally
+      4. Manual weight input - real-time recalculation
+      5. Weight variance indicator - color changes based on variance
+      6. Create All Invoices - validates and creates multiple invoices
+      7. Success handling - modal closes, queue refreshes
+      8. Edge cases - zero allocations, excessive variance
+      
+      **Ready for Frontend Testing**
+  
   - agent: "main"
     message: |
       🚀 **PHASE 2: MIXED LOAD INVOICE PROCESSING - BACKEND COMPLETE**
