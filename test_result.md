@@ -1638,17 +1638,67 @@ frontend:
 
 
 metadata:
-  test_sequence: 7
+  test_sequence: 8
 
 test_plan:
   current_focus:
-    - "Sales Invoice Creation - Fix 422 Validation Error"
-    - "Sales Invoice Submission Payload Fix"
+    - "Mixed Load Invoice Processing - Bulk Creation Endpoint"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+  - agent: "main"
+    message: |
+      🚀 **PHASE 2: MIXED LOAD INVOICE PROCESSING - BACKEND COMPLETE**
+      
+      **Implementation Summary:**
+      Successfully implemented the backend API for creating multiple sales invoices from a single mixed load pre-entry.
+      
+      **New Endpoints Created:**
+      
+      1. **POST /api/sales/mixed-load-invoice/bulk**
+         - Manual weight allocation
+         - Accepts: pre_entry_id, invoice_date, weighbridge_slip_no, line_items with allocated weights
+         - Validates: Total allocated weight within ±100 kg of actual net weight
+         - Generates: One invoice per line item (customer-item combination)
+         - Calculates: Proportional broker commission distribution
+         - Returns: Summary with all created invoices and commission details
+      
+      2. **POST /api/sales/mixed-load-invoice/create-all**
+         - Auto weight allocation
+         - Automatically distributes actual net weight proportionally based on expected_weight
+         - Calculates bags/quintals for each line item
+         - Internally calls bulk endpoint
+         - Returns: Same summary structure with auto_allocated flag
+      
+      **Key Features Implemented:**
+      ✅ Weight variance validation (±100 kg maximum)
+      ✅ Proportional broker commission calculation (supports per_quintal, per_bag, percentage)
+      ✅ Automatic invoice number generation (SAL-YY-######)
+      ✅ GST calculation (CGST 2.5% + SGST 2.5%)
+      ✅ Line item tracking (invoice_id linked back to pre-entry line item)
+      ✅ Pre-entry status update to 'invoice_generated'
+      ✅ Voucher entry creation (placeholder)
+      ✅ Comprehensive error handling and validation
+      
+      **Testing Requirements:**
+      
+      **Prerequisites:**
+      - Need a mixed load pre-entry (is_mixed_load=true) with weighbridge_completed=true
+      - Pre-entry must have multiple line_items with different customer-item combinations
+      - Status must be 'pending'
+      
+      **Test Scenarios:**
+      1. Test manual weight allocation with valid weights (within ±100 kg)
+      2. Test weight variance validation (should reject if >100 kg difference)
+      3. Test auto-allocation proportional distribution
+      4. Test broker commission distribution across invoices
+      5. Test invoice number generation (SAL-25-######)
+      6. Test pre-entry status update after invoice creation
+      7. Test edge cases (missing pre-entry, wrong status, no weighbridge data)
+      
+      **Ready for Backend Testing via deep_testing_backend_v2**
   - agent: "main"
     message: |
       🔧 **SALES INVOICE 422 ERROR - CRITICAL FIX APPLIED**
