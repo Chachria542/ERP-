@@ -199,16 +199,19 @@ function SalesInvoicePage({ user, onLogout }) {
       return;
     }
     
+    // Track allocated weight as we go
+    let allocatedSoFar = 0;
+    
     const updatedAllocations = mixedLoadAllocations.map((item, index) => {
       const proportion = item.expected_weight / totalExpected;
       let actualWeight = 0;
       
       // For last item, allocate remaining to avoid rounding errors
       if (index === mixedLoadAllocations.length - 1) {
-        const allocatedSoFar = updatedAllocations.slice(0, index).reduce((sum, a) => sum + a.actual_weight, 0);
         actualWeight = netWeight - allocatedSoFar;
       } else {
         actualWeight = netWeight * proportion;
+        allocatedSoFar += actualWeight;
       }
       
       const bharti = item.bharti || 50;
