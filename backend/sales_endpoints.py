@@ -368,6 +368,7 @@ async def get_sales_queue(
             gross_weight=entry.get('gross_weight'),
             net_weight=entry.get('net_weight'),
             is_entry=entry.get('is_entry', False),  # Godown/Entry toggle
+            is_mixed_load=entry.get('is_mixed_load', False),  # Mixed load indicator
             broker_name=entry.get('broker_name') if entry.get('has_broker') else None,
             brokerage_type=entry.get('brokerage_type'),  # For broker details
             brokerage_rate=entry.get('brokerage_rate'),  # For broker details
