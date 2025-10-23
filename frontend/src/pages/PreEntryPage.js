@@ -1837,6 +1837,9 @@ function PreEntryPage({ user, onLogout }) {
               <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
                 📱 Mobile Verification
               </DialogTitle>
+              <DialogDescription className="text-center">
+                Enter the OTP sent to verify the mobile number
+              </DialogDescription>
             </DialogHeader>
             
             <div className="space-y-6">
