@@ -1562,11 +1562,11 @@ agent_communication:
 backend:
   - task: "Sales Invoice Creation - Fix 422 Validation Error"
     implemented: true
-    working: "NA"
-    file: "backend/sales_endpoints.py, backend/sales_models.py"
+    working: true
+    file: "backend/sales_endpoints.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
