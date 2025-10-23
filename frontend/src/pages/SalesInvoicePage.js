@@ -671,6 +671,9 @@ function SalesInvoicePage({ user, onLogout }) {
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle>Photo Approval - {selectedPreEntry?.pre_entry_number}</DialogTitle>
+              <DialogDescription>
+                Review and approve weighbridge photos before creating invoice
+              </DialogDescription>
             </DialogHeader>
             
             {weighbridgeData && (
