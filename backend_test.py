@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Sales Invoice Creation Fix
-Tests the Sales Invoice Creation fix for 422 validation error as requested in review
+Backend API Testing for Mixed Load Invoice Processing Endpoints
+Tests the new Mixed Load Sales Pre-Entry & Processing endpoints as requested in review
 """
 import requests
 import json
@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://grain-tracker-erp.preview.emergentagent.com/api"
 
-class SalesInvoiceCreationTester:
+class MixedLoadInvoiceTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
