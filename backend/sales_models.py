@@ -317,6 +317,7 @@ class SalesQueueItem(BaseModel):
     gross_weight: Optional[float] = None
     net_weight: Optional[float] = None
     is_entry: Optional[bool] = False  # Godown/Entry toggle from pre-entry
+    is_mixed_load: Optional[bool] = False  # Mixed load indicator
     broker_name: Optional[str] = None
     brokerage_type: Optional[str] = None  # For broker details
     brokerage_rate: Optional[float] = None  # For broker details
