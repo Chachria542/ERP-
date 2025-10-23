@@ -1119,6 +1119,183 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
           </DialogContent>
         </Dialog>
+        
+        {/* Mixed Load Split Modal */}
+        <Dialog open={showMixedLoadModal} onOpenChange={setShowMixedLoadModal}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                📦 Mixed Load Invoice Split - {mixedLoadPreEntry?.pre_entry_number}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {/* Summary Section */}
+            <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+              <div>
+                <label className="text-sm text-gray-600">Total Net Weight</label>
+                <div className="text-2xl font-bold text-blue-600">
+                  {mixedLoadPreEntry?.net_weight?.toFixed(2) || 0} kg
+                </div>
+                <div className="text-sm text-gray-500">
+                  {mixedLoadPreEntry?.net_weight ? (mixedLoadPreEntry.net_weight / 100).toFixed(2) : 0} qtl
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm text-gray-600">Total Allocated</label>
+                <div className="text-2xl font-bold text-green-600">
+                  {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0).toFixed(2)} kg
+                </div>
+                <div className="text-sm text-gray-500">
+                  {(mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0) / 100).toFixed(2)} qtl
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm text-gray-600">Weight Variance</label>
+                <div className={`text-2xl font-bold ${calculateWeightVariance() <= 100 ? 'text-green-600' : 'text-red-600'}`}>
+                  {calculateWeightVariance().toFixed(2)} kg
+                </div>
+                <div className={`text-sm ${calculateWeightVariance() <= 100 ? 'text-green-600' : 'text-red-600'}`}>
+                  {calculateWeightVariance() <= 100 ? '✓ Within ±100 kg limit' : '✗ Exceeds ±100 kg limit'}
+                </div>
+              </div>
+            </div>
+            
+            {/* Auto-Allocate Button */}
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={handleAutoAllocate}
+                variant="outline"
+                className="btn-secondary"
+                disabled={autoAllocating}
+              >
+                🔄 Auto-Allocate (Proportional)
+              </Button>
+            </div>
+            
+            {/* Line Items Table */}
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="text-left p-3 text-sm font-medium">Customer</th>
+                    <th className="text-left p-3 text-sm font-medium">Item</th>
+                    <th className="text-left p-3 text-sm font-medium">Marka</th>
+                    <th className="text-right p-3 text-sm font-medium">Expected (kg)</th>
+                    <th className="text-right p-3 text-sm font-medium">Allocated (kg)</th>
+                    <th className="text-right p-3 text-sm font-medium">Bags</th>
+                    <th className="text-right p-3 text-sm font-medium">Kgs</th>
+                    <th className="text-right p-3 text-sm font-medium">Qtl</th>
+                    <th className="text-right p-3 text-sm font-medium">Rate/Qtl</th>
+                    <th className="text-right p-3 text-sm font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mixedLoadAllocations.map((item, index) => (
+                    <tr key={item.line_id} className="border-b hover:bg-gray-50">
+                      <td className="p-3 text-sm">{item.customer_name}</td>
+                      <td className="p-3 text-sm">{item.item_name}</td>
+                      <td className="p-3 text-sm">{item.marka || '-'}</td>
+                      <td className="p-3 text-right text-sm text-gray-500">
+                        {item.expected_weight?.toFixed(2) || 0}
+                      </td>
+                      <td className="p-3">
+                        <Input
+                          type="number"
+                          value={item.actual_weight || ''}
+                          onChange={(e) => handleAllocationChange(index, 'actual_weight', parseFloat(e.target.value) || 0)}
+                          className="text-right"
+                          step="0.01"
+                          min="0"
+                        />
+                      </td>
+                      <td className="p-3 text-right text-sm font-medium">{item.actual_bags}</td>
+                      <td className="p-3 text-right text-sm font-medium">{item.actual_kgs?.toFixed(2)}</td>
+                      <td className="p-3 text-right text-sm font-medium">{item.actual_qtl?.toFixed(2)}</td>
+                      <td className="p-3 text-right text-sm">₹{item.item_rate?.toFixed(2)}</td>
+                      <td className="p-3 text-right text-sm font-bold text-green-600">
+                        ₹{item.amount?.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-gray-50 font-bold">
+                  <tr>
+                    <td colSpan="4" className="p-3 text-right">Total:</td>
+                    <td className="p-3 text-right">
+                      {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0).toFixed(2)} kg
+                    </td>
+                    <td className="p-3 text-right">
+                      {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_bags || 0), 0)}
+                    </td>
+                    <td className="p-3 text-right">
+                      {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_kgs || 0), 0).toFixed(2)}
+                    </td>
+                    <td className="p-3 text-right">
+                      {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_qtl || 0), 0).toFixed(2)}
+                    </td>
+                    <td className="p-3"></td>
+                    <td className="p-3 text-right text-green-600">
+                      ₹{mixedLoadAllocations.reduce((sum, item) => sum + (item.amount || 0), 0).toFixed(2)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            
+            {/* Broker Commission Summary */}
+            {mixedLoadPreEntry?.broker_name && (
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 className="font-semibold text-blue-900 mb-2">Broker Commission Summary</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Broker:</span>
+                    <div className="font-medium">{mixedLoadPreEntry.broker_name}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Type:</span>
+                    <div className="font-medium capitalize">{mixedLoadPreEntry.brokerage_type?.replace('_', ' ')}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Rate:</span>
+                    <div className="font-medium">
+                      {mixedLoadPreEntry.brokerage_type === 'percentage' ? 
+                        `${mixedLoadPreEntry.brokerage_rate}%` : 
+                        `₹${mixedLoadPreEntry.brokerage_rate}`
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-2 text-sm text-gray-600">
+                  ℹ️ Commission will be distributed proportionally across {mixedLoadAllocations.length} invoices
+                </div>
+              </div>
+            )}
+            
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+              <Button
+                onClick={() => setShowMixedLoadModal(false)}
+                variant="outline"
+                disabled={creatingInvoices}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateAllInvoices}
+                className="btn-primary bg-purple-600 hover:bg-purple-700"
+                disabled={creatingInvoices || calculateWeightVariance() > 100}
+              >
+                {creatingInvoices ? (
+                  <>⏳ Creating Invoices...</>
+                ) : (
+                  <>✅ Create All Invoices ({mixedLoadAllocations.length})</>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
