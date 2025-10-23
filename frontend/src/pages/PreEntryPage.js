@@ -421,26 +421,74 @@ function PreEntryPage({ user, onLogout }) {
         
         endpoint = `${API}/bill-purchase/pre-entry`;
       } else if (transactionType === 'sale') {
-        // Sale payload - Updated for new design
-        payload = {
-          date: new Date().toISOString().split('T')[0],
-          order_number: orderNumber || null,
-          customer_id: customerId,
-          customer_gstin: customerGstin || null,
-          place_of_supply: placeOfSupply,
-          item_id: itemId || null,
-          item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
-          marka: marka || null,
-          bharti: bharti,
-          expected_weight: expectedWeight ? parseFloat(expectedWeight) : null,
-          has_broker: hasBroker,
-          broker_id: null,
-          broker_name: brokerName || null,
-          brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
-          brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
-          remarks: remarks || null,
-          created_by: user.username
-        };
+        // Sale payload
+        if (isMixedLoad) {
+          // Mixed Load payload
+          const processedLineItems = [];
+          
+          for (const customer of mixedLoadCustomers) {
+            if (!customer.customer_id || !customer.place_of_supply) {
+              toast.error('Please fill all customer details');
+              return;
+            }
+            
+            for (const lineItem of customer.line_items) {
+              if (!lineItem.item_id || !lineItem.expected_weight || !lineItem.item_rate) {
+                toast.error('Please fill all line item details (Item, Expected Weight, Rate)');
+                return;
+              }
+              
+              processedLineItems.push({
+                customer_id: customer.customer_id,
+                customer_name: customer.customer_name,
+                customer_gstin: customer.customer_gstin || null,
+                place_of_supply: customer.place_of_supply,
+                item_id: lineItem.item_id,
+                item_name: lineItem.item_name,
+                marka: lineItem.marka || null,
+                bharti: lineItem.bharti || 50,
+                expected_bags: lineItem.expected_bags ? parseInt(lineItem.expected_bags) : Math.floor(parseFloat(lineItem.expected_weight) / lineItem.bharti),
+                expected_weight: parseFloat(lineItem.expected_weight),
+                item_rate: parseFloat(lineItem.item_rate)
+              });
+            }
+          }
+          
+          payload = {
+            date: new Date().toISOString().split('T')[0],
+            order_number: orderNumber || null,
+            is_mixed_load: true,
+            line_items: processedLineItems,
+            has_broker: hasBroker,
+            broker_id: null,
+            broker_name: brokerName || null,
+            brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
+            brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
+            remarks: remarks || null,
+            created_by: user.username
+          };
+        } else {
+          // Single Load payload
+          payload = {
+            date: new Date().toISOString().split('T')[0],
+            order_number: orderNumber || null,
+            customer_id: customerId,
+            customer_gstin: customerGstin || null,
+            place_of_supply: placeOfSupply,
+            item_id: itemId || null,
+            item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
+            marka: marka || null,
+            bharti: bharti,
+            expected_weight: expectedWeight ? parseFloat(expectedWeight) : null,
+            has_broker: hasBroker,
+            broker_id: null,
+            broker_name: brokerName || null,
+            brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
+            brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
+            remarks: remarks || null,
+            created_by: user.username
+          };
+        }
         
         endpoint = `${API}/sales/pre-entry`;
       } else {
