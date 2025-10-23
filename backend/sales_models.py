@@ -324,3 +324,37 @@ class SalesQueueItem(BaseModel):
     weighbridge_completed: bool
     created_at: datetime
     weighed_at: Optional[datetime] = None
+
+
+# ============= MIXED LOAD INVOICE MODELS =============
+
+class MixedLoadInvoiceLineItem(BaseModel):
+    """Individual invoice creation request for mixed load"""
+    line_id: str  # Links back to pre-entry line item
+    actual_weight: float  # Allocated weight in kg
+    actual_bags: int
+    actual_kgs: float  # Remainder kg
+    actual_qtl: float
+
+class MixedLoadInvoiceCreate(BaseModel):
+    """Request model for creating all invoices from mixed load at once"""
+    pre_entry_id: str
+    invoice_date: str
+    weighbridge_slip_no: str
+    is_entry: bool = False
+    
+    # Line items with allocated weights
+    line_items: List[MixedLoadInvoiceLineItem]
+    
+    # Broker details (applies to entire load)
+    broker_id: Optional[str] = None
+    broker_name: Optional[str] = None
+    brokerage_type: Optional[str] = "per_quintal"
+    brokerage_rate: Optional[float] = None
+    
+    # Freight
+    freight: float = 0
+    
+    # Common fields
+    remarks: Optional[str] = None
+
