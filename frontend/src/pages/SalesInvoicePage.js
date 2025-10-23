@@ -40,6 +40,13 @@ function SalesInvoicePage({ user, onLogout }) {
   const [selectedPreEntry, setSelectedPreEntry] = useState(null);
   const [weighbridgeData, setWeighbridgeData] = useState(null);
   
+  // Mixed Load modal state
+  const [showMixedLoadModal, setShowMixedLoadModal] = useState(false);
+  const [mixedLoadPreEntry, setMixedLoadPreEntry] = useState(null);
+  const [mixedLoadAllocations, setMixedLoadAllocations] = useState([]);
+  const [autoAllocating, setAutoAllocating] = useState(false);
+  const [creatingInvoices, setCreatingInvoices] = useState(false);
+  
   // Invoice form modal state
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [isReturn, setIsReturn] = useState(false);
