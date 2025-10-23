@@ -139,7 +139,176 @@ function SalesInvoicePage({ user, onLogout }) {
 
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
-    handleCreateInvoice(selectedPreEntry);
+    
+    // Check if this is a mixed load
+    if (selectedPreEntry?.is_mixed_load) {
+      handleMixedLoadProcess(selectedPreEntry);
+    } else {
+      handleCreateInvoice(selectedPreEntry);
+    }
+  };
+  
+  // Handle mixed load processing
+  const handleMixedLoadProcess = async (preEntry) => {
+    setMixedLoadPreEntry(preEntry);
+    
+    // Fetch full pre-entry details with line items
+    try {
+      const response = await axios.get(`${API}/sales/pre-entry/by-number/${preEntry.pre_entry_number}`);
+      const fullPreEntry = response.data;
+      
+      // Initialize allocations from line items
+      const initialAllocations = fullPreEntry.line_items.map(item => ({
+        line_id: item.line_id,
+        customer_name: item.customer_name,
+        item_name: item.item_name,
+        marka: item.marka,
+        expected_weight: item.expected_weight,
+        bharti: item.bharti || 50,
+        actual_weight: 0,
+        actual_bags: 0,
+        actual_kgs: 0,
+        actual_qtl: 0,
+        item_rate: item.item_rate || 0,
+        amount: 0
+      }));
+      
+      setMixedLoadAllocations(initialAllocations);
+      setShowMixedLoadModal(true);
+    } catch (error) {
+      console.error('Error fetching pre-entry details:', error);
+      toast.error('Failed to load mixed load details');
+    }
+  };
+  
+  // Auto-allocate weights proportionally
+  const handleAutoAllocate = () => {
+    if (!mixedLoadPreEntry) return;
+    
+    const netWeight = mixedLoadPreEntry.net_weight || 0;
+    const totalExpected = mixedLoadAllocations.reduce((sum, item) => sum + (item.expected_weight || 0), 0);
+    
+    if (totalExpected === 0) {
+      toast.error('Cannot auto-allocate: total expected weight is zero');
+      return;
+    }
+    
+    const updatedAllocations = mixedLoadAllocations.map((item, index) => {
+      const proportion = item.expected_weight / totalExpected;
+      let actualWeight = 0;
+      
+      // For last item, allocate remaining to avoid rounding errors
+      if (index === mixedLoadAllocations.length - 1) {
+        const allocatedSoFar = updatedAllocations.slice(0, index).reduce((sum, a) => sum + a.actual_weight, 0);
+        actualWeight = netWeight - allocatedSoFar;
+      } else {
+        actualWeight = netWeight * proportion;
+      }
+      
+      const bharti = item.bharti || 50;
+      const actual_bags = Math.floor(actualWeight / bharti);
+      const actual_kgs = parseFloat((actualWeight % bharti).toFixed(2));
+      const actual_qtl = parseFloat((actualWeight / 100).toFixed(2));
+      const amount = parseFloat((actual_qtl * item.item_rate).toFixed(2));
+      
+      return {
+        ...item,
+        actual_weight: parseFloat(actualWeight.toFixed(2)),
+        actual_bags,
+        actual_kgs,
+        actual_qtl,
+        amount
+      };
+    });
+    
+    setMixedLoadAllocations(updatedAllocations);
+    toast.success('Weights auto-allocated proportionally');
+  };
+  
+  // Update manual allocation for a line item
+  const handleAllocationChange = (index, field, value) => {
+    const updatedAllocations = [...mixedLoadAllocations];
+    updatedAllocations[index][field] = value;
+    
+    // Recalculate bags, kgs, qtl if weight changed
+    if (field === 'actual_weight') {
+      const actualWeight = parseFloat(value) || 0;
+      const bharti = updatedAllocations[index].bharti || 50;
+      updatedAllocations[index].actual_bags = Math.floor(actualWeight / bharti);
+      updatedAllocations[index].actual_kgs = parseFloat((actualWeight % bharti).toFixed(2));
+      updatedAllocations[index].actual_qtl = parseFloat((actualWeight / 100).toFixed(2));
+      updatedAllocations[index].amount = parseFloat((updatedAllocations[index].actual_qtl * updatedAllocations[index].item_rate).toFixed(2));
+    }
+    
+    setMixedLoadAllocations(updatedAllocations);
+  };
+  
+  // Calculate weight variance
+  const calculateWeightVariance = () => {
+    if (!mixedLoadPreEntry) return 0;
+    
+    const netWeight = mixedLoadPreEntry.net_weight || 0;
+    const totalAllocated = mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0);
+    
+    return Math.abs(netWeight - totalAllocated);
+  };
+  
+  // Create all invoices
+  const handleCreateAllInvoices = async () => {
+    if (!mixedLoadPreEntry) return;
+    
+    const variance = calculateWeightVariance();
+    if (variance > 100) {
+      toast.error(`Weight variance (${variance.toFixed(2)} kg) exceeds ±100 kg limit`);
+      return;
+    }
+    
+    // Validate all allocations have weights
+    const hasZeroAllocations = mixedLoadAllocations.some(item => !item.actual_weight || item.actual_weight === 0);
+    if (hasZeroAllocations) {
+      toast.error('All line items must have allocated weights');
+      return;
+    }
+    
+    setCreatingInvoices(true);
+    
+    try {
+      const payload = {
+        pre_entry_id: mixedLoadPreEntry.pre_entry_id,
+        invoice_date: new Date().toISOString().split('T')[0],
+        weighbridge_slip_no: mixedLoadPreEntry.pre_entry_number,
+        is_entry: mixedLoadPreEntry.is_entry || false,
+        line_items: mixedLoadAllocations.map(item => ({
+          line_id: item.line_id,
+          actual_weight: item.actual_weight,
+          actual_bags: item.actual_bags,
+          actual_kgs: item.actual_kgs,
+          actual_qtl: item.actual_qtl
+        })),
+        broker_name: mixedLoadPreEntry.broker_name,
+        brokerage_type: mixedLoadPreEntry.brokerage_type || 'per_quintal',
+        brokerage_rate: mixedLoadPreEntry.brokerage_rate || 0,
+        freight: 0,
+        remarks: ''
+      };
+      
+      const response = await axios.post(`${API}/sales/mixed-load-invoice/bulk?created_by=${user?.username || 'admin'}`, payload);
+      
+      toast.success(`Successfully created ${response.data.total_invoices_created} invoices!`);
+      
+      // Close modal and refresh queue
+      setShowMixedLoadModal(false);
+      fetchQueue();
+      
+      // Show summary
+      console.log('Invoice Creation Summary:', response.data);
+      
+    } catch (error) {
+      console.error('Error creating invoices:', error);
+      toast.error(error.response?.data?.detail || 'Failed to create invoices');
+    } finally {
+      setCreatingInvoices(false);
+    }
   };
 
   const handleCreateInvoice = (preEntry) => {
