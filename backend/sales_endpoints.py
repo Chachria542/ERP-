@@ -466,6 +466,16 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "customer_gstin": pre_entry.get('customer_gstin'),
             "place_of_supply": pre_entry['place_of_supply'],
             "is_entry": invoice_data.is_entry,
+            
+            # Consignee details (for freight/delivery)
+            "consignee_same_as_customer": invoice_data.consignee_same_as_customer,
+            "consignee_id": invoice_data.consignee_id,
+            "consignee_name": invoice_data.consignee_name,
+            "consignee_address": invoice_data.consignee_address,
+            "consignee_city": invoice_data.consignee_city,
+            "consignee_state": invoice_data.consignee_state,
+            "consignee_pin_code": invoice_data.consignee_pin_code,
+            
             "broker_name": invoice_data.broker_name,
             "brokerage_type": invoice_data.brokerage_type,
             "brokerage_rate": invoice_data.brokerage_rate,
