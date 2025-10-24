@@ -50,6 +50,12 @@ function PreEntryPage({ user, onLogout }) {
   const [otpLoading, setOtpLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  // Farmer check states (for mobile-first flow)
+  const [farmerExists, setFarmerExists] = useState(false);
+  const [farmerChecked, setFarmerChecked] = useState(false);
+  const [checkingFarmer, setCheckingFarmer] = useState(false);
+  const [farmerFieldsLocked, setFarmerFieldsLocked] = useState(false);
+
   // Form state
   const [transactionType, setTransactionType] = useState('farmer_purchase');
   const [fromLocation, setFromLocation] = useState('Sanawad Mandi');
