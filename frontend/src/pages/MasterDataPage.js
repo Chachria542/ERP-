@@ -39,6 +39,20 @@ function MasterDataPage({ user, onLogout }) {
 
   // Price update
   const [newPrice, setNewPrice] = useState('');
+  
+  // Broker form
+  const [brokerData, setBrokerData] = useState({
+    name: '',
+    phone: '',
+    mobile: '',
+    pan: '',
+    gstin: '',
+    address: '',
+    city: '',
+    state: '',
+    default_brokerage_type: 'per_quintal',
+    default_brokerage_rate: ''
+  });
 
   useEffect(() => {
     fetchData();
