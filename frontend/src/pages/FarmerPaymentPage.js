@@ -1075,7 +1075,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                   </Button>
                 </div>
 
-                {/* Print View (Hidden on Screen) - Bilingual Voucher */}
+                {/* Print View (Hidden on Screen) - Profarma-4 Payment Voucher */}
                 <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:bg-white">
                   <style>{`
                     @media print {
@@ -1086,15 +1086,12 @@ function FarmerPaymentPage({ user, onLogout }) {
                     }
                   `}</style>
 
-                  {/* HINDI COPY - किसान प्रति (Farmer Copy) */}
+                  {/* HINDI COPY - Profarma-4 Payment Voucher */}
                   <div className="p-6 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
-                    <div className="text-center mb-4 pb-3 border-b-2 border-black">
-                      <h1 className="text-2xl font-bold mb-1">सुदर्शन ट्रेडिंग कंपनी</h1>
-                      <p className="text-sm">Sudarshan Trading Company</p>
-                      <p className="text-xs">सानवाड़ | Sanawad</p>
-                      <h2 className="text-lg font-bold mt-2">भुगतान रसीद (किसान प्रति)</h2>
-                      <p className="text-xs">Payment Receipt (Farmer Copy)</p>
+                    <div className="text-center mb-3 pb-2 border-b border-black">
+                      <h2 className="text-lg font-bold">Profarma - 4 Payment Voucher</h2>
+                      <p className="text-xs">(Under Bye Law - 17(4))</p>
                     </div>
 
                     {/* Document Details */}
