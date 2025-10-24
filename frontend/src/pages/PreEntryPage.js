@@ -462,7 +462,7 @@ function PreEntryPage({ user, onLogout }) {
             is_mixed_load: true,
             line_items: processedLineItems,
             has_broker: hasBroker,
-            broker_id: null,
+            broker_id: brokerId || null,
             broker_name: brokerName || null,
             brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
             brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
