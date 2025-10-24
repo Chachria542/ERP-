@@ -196,6 +196,15 @@ class SalesInvoice(BaseModel):
     customer_gstin: Optional[str] = None
     place_of_supply: str
     
+    # Consignee details (for freight/delivery)
+    consignee_same_as_customer: bool = True
+    consignee_id: Optional[str] = None  # FK to parties (role=consignee)
+    consignee_name: Optional[str] = None  # Auto-filled from consignee master
+    consignee_address: Optional[str] = None  # Auto-filled but editable
+    consignee_city: Optional[str] = None
+    consignee_state: Optional[str] = None
+    consignee_pin_code: Optional[str] = None
+    
     # Location
     is_entry: bool = False  # False = Godown (default), True = Entry
     location_name: Optional[str] = None
