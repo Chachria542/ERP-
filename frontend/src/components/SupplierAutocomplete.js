@@ -38,7 +38,10 @@ function SupplierAutocomplete({
     contact: '',
     state: '',
     address: '',
-    pan: ''
+    pan: '',
+    city: '',
+    pin_code: '',
+    state_code: ''
   });
 
   const inputRef = useRef(null);
