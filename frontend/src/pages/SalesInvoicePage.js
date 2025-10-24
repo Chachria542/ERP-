@@ -369,7 +369,12 @@ function SalesInvoicePage({ user, onLogout }) {
       rate: preEntry.rate || '', // Rate from pre-entry
       broker_name: preEntry.broker_name || '',
       brokerage_type: preEntry.brokerage_type || 'per_quintal',
-      brokerage_rate: preEntry.brokerage_rate || ''
+      brokerage_rate: preEntry.brokerage_rate || '',
+      // Auto-fill transportation from weighbridge
+      vehicle_number: preEntry.vehicle_number || '',
+      gross_weight: preEntry.gross_weight || 0,
+      tare_weight: preEntry.tare_weight || 0,
+      net_weight: preEntry.net_weight || 0
     });
     
     setShowInvoiceModal(true);
