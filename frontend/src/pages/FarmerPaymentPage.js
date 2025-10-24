@@ -1229,7 +1229,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     <div className="text-xs text-gray-600 mt-2 text-center border-t pt-1">
-                      Purchase: {savedPayment.purchase_voucher_id?.substring(0, 16)}... | Payment: {savedPayment.payment_voucher_id?.substring(0, 16)}...
+                      Purchase: {savedPayment.purchase_voucher_id} | Payment: {savedPayment.payment_voucher_id}
                     </div>
                   </div>
 
