@@ -55,16 +55,26 @@ async def generate_slip_id() -> str:
 
 async def get_or_create_farmer(mobile: str, name: str, village: Optional[str] = None) -> tuple:
     """
-    Get existing farmer or create new one.
+    Get existing farmer or create new one in parties collection.
+    Farmers are stored as parties with role='farmer', village maps to city field.
     Preserves OTP verification status from otp_verifications collection.
     Returns: (farmer_id, name_conflict: bool, existing_name: str)
     """
-    existing = await db.farmers.find_one({"mobile": mobile})
+    # Check in parties collection for farmer with this mobile
+    existing = await db.parties.find_one({"contact": mobile, "roles": "farmer"})
     
     if existing:
         # Check for name conflict
         if existing['name'].lower().strip() != name.lower().strip():
             return existing['id'], True, existing['name']
+        
+        # Update village (city field) if provided and different
+        if village and existing.get('city') != village:
+            await db.parties.update_one(
+                {"id": existing['id']},
+                {"$set": {"city": village, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+        
         return existing['id'], False, None
     
     # Check for successful OTP verification before creating farmer
@@ -73,26 +83,32 @@ async def get_or_create_farmer(mobile: str, name: str, village: Optional[str] = 
         sort=[("created_at", -1)]  # Get latest verification
     )
     
-    # Create new farmer with OTP verification status preserved
-    if otp_verification:
-        farmer = Farmer(
-            mobile=mobile, 
-            name=name, 
-            village=village,
-            mobile_verified=True,
-            mobile_verified_at=datetime.now(timezone.utc),
-            otp_verified_count=1
-        )
-    else:
-        farmer = Farmer(mobile=mobile, name=name, village=village)
+    # Create new farmer as party with role="farmer"
+    from server import Party
     
-    doc = farmer.model_dump()
+    farmer_party = Party(
+        name=name,
+        roles=["farmer"],
+        contact=mobile,  # Mobile number in contact field
+        city=village,    # Village maps to city field
+        address=None,
+        gstin=None,
+        state=None,
+        place_of_supply=None,
+        pan=None,
+        pin_code=None,
+        state_code=None
+    )
+    
+    doc = farmer_party.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
-    if doc.get('mobile_verified_at'):
-        doc['mobile_verified_at'] = doc['mobile_verified_at'].isoformat()
-    await db.farmers.insert_one(doc)
+    if doc.get('updated_at'):
+        doc['updated_at'] = doc['updated_at'].isoformat()
     
-    return farmer.id, False, None
+    await db.parties.insert_one(doc)
+    
+    print(f"[BACKEND] Created farmer as party: {name} (mobile: {mobile}, village: {village})")
+    return farmer_party.id, False, None
 
 async def log_audit(user_id: str, user_name: str, action: str, entity_type: str, 
                    entity_id: str, old_value: dict = None, new_value: dict = None):
