@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BASE_URL = "https://grain-tracker-erp.preview.emergentagent.com/api"
+BASE_URL = "https://trading-platform-95.preview.emergentagent.com/api"
 
 class UniversalWeighbridgeTester:
     def __init__(self):

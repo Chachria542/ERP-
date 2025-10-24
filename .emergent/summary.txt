@@ -1,0 +1,71 @@
+<analysis>
+The AI engineer has significantly advanced the ERP application, primarily focusing on the Sales module. Key achievements include the implementation of a comprehensive Mixed Load Sales Pre-Entry and Processing feature, allowing multi-customer, multi-item orders. This involved extensive backend model and endpoint development, followed by a complex frontend UI for mixed load pre-entry creation and invoice splitting. Concurrently, new modules for Company Settings and Transporter Master were introduced, and the Broker Module was enhanced with more detailed data fields and master data management. Numerous bugs were addressed, including  errors during mixed load submission,  in invoice splitting,  in auto-allocation, and React missing key warnings. The current task involves setting up print functionality for various documents based on user-provided templates. The engineer has just completed the analysis of the print templates to identify any missing data fields before proceeding with implementation.
+</analysis>
+
+<product_requirements>
+The overarching goal is an AI-assisted Custom ERP for Sudarshan Trading, covering Grain Trading, Custody, and Funding. Key features implemented and requested include:
+**Sales Module**:
+-   **Sales Pre-Entry**: Integrated into , supports , , , . Enhanced to support Mixed Load functionality, enabling a single vehicle to carry items for multiple customers, each with multiple items/markas. Validation for total allocated weight (±100 kg variance).
+-   **Weighbridge Integration**: Two-step process (TARE → GROSS for Sales), queue system on .
+-   **Sales Invoice / Sales Return**: Single screen, auto-generated , , , , . Line items with , , , , , , , , , . Includes a queue for photo approval and invoice creation.
+-   **Invoice Enhancements**: Addition of fields for Transportation Details (Transporter Master, Driver, Vehicle details, Freight), Anugya No. (government registration), Company/Bank details (static). Broker details (Address, GSTIN, Phone/Mobile).
+**Broker Management**: Master data functionality for listing, adding, editing, and deleting brokers, integrated with autocomplete in pre-entry forms.
+**Print Functionality**: Implementation of various print templates (Sales Invoice, Farmer Payment Vouchers, Bill Purchase Voucher) based on provided PDF templates.
+</product_requirements>
+
+<key_technical_concepts>
+-   **Backend**: FastAPI, Python, MongoDB (UUIDs for IDs, UTC ISO timestamps), Pydantic.
+-   **Frontend**: React (, Shadcn/UI, Tailwind CSS), , .
+-   **API Design**:  prefix for backend routes.
+-   **UI Components**: Autocomplete (Supplier, Broker, Customer, Transporter), Modals, Toasts, Tabs.
+-   **Data Handling**: Mixed load logic, weight allocation, form validation.
+</key_technical_concepts>
+
+<code_architecture>
+
+-   : Main FastAPI entry point.
+    -   *Changes*: Registered  and .
+-   : Defines models for sales.
+    -   *Changes*:  modified for  and .  and  updated to include new transportation fields.  updated with .
+-   : FastAPI routes for Sales.
+    -   *Changes*: Added  endpoint for mixed load invoice creation and Create All auto-allocation. Corrected  type in mixed load pre-entry creation. Sales queue endpoint updated to include .
+-   : Defines models for brokers.
+    -   *Changes*: Added , , , ,  fields to  model.
+-   : FastAPI routes for brokers.
+    -   *Changes*: Fixed  endpoint to handle MongoDB ObjectId serialization errors.
+-    (New): Defines models for company-wide settings (e.g., IFSSAI, Bank Details, Warranty Text).
+-    (New): FastAPI routes for managing company settings.
+-    (New): Defines models for transporter master data.
+-    (New): FastAPI routes for managing transporter master data.
+-   : Main React application file.
+    -   *Changes*: Added route for .
+-   : Application layout and navigation.
+    -   *Changes*: Added Company Settings link to the sidebar navigation.
+-   : Autocomplete for brokers.
+    -   *Changes*: Updated UI for inline broker creation to include new fields (GSTIN, phone, mobile, city, state).
+-    (New): Autocomplete component for Transporters.
+-   : Frontend form for creating weighbridge pre-entries.
+    -   *Changes*: Implemented mixed load UI with Single Load / Mixed Load toggle, Add Customer and Add Line Item buttons. Replaced plain broker input with . Fixed  warnings.
+-   : Sales invoice processing page.
+    -   *Changes*: Added  for mixed load invoice processing. Fixed  in  (accessing ). Fixed  in . Added transportation section UI and state variables. Updated invoice submission payload with transportation fields. Fixed  warnings and missing key props in lists.
+-    (New): Frontend page for managing company settings.
+-    (Modified): Master data management page.
+    -   *Changes*: Added a Brokers tab for managing broker master data (list, create, edit, delete).
+-    (New): Python script to generate test mixed load pre-entries.
+</code_architecture>
+
+<pending_tasks>
+-   Integrate real S3-compatible storage for weighbridge photos.
+-   Implement print-friendly HTML view for Sales Invoice and Freight Slip.
+-   Complete Sales module Prints & Vouchers (Phase 5).
+-   Complete Mixed Load Sales Pre-Entry & Processing Phase 3: Frontend Mixed Load Form (UI for split modal - *mostly done, but print is next*).
+-   Complete Phase 4: Anugya No. Field.
+</pending_tasks>
+
+<current_work>
+The AI engineer is currently working on implementing print functionality for various documents (Sales Invoice, Farmer Payment Vouchers, Bill Purchase Voucher). The user has provided four PDF templates: , , , and . The immediate task is to analyze these templates to identify any fields that are not currently captured in the application's data models. The analysis of these PDF templates has just been completed by the AI engineer, and the next step is to use this analysis to determine if any data model changes are required before proceeding with the print template implementation.
+</current_work>
+
+<optional_next_step>
+Based on the template analysis, identify any missing data fields and propose backend model updates.
+</optional_next_step>
