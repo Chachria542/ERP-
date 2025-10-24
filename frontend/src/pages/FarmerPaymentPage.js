@@ -283,7 +283,7 @@ function FarmerPaymentPage({ user, onLogout }) {
         gate_entry_no: gateEntryNo,
         farmer_name: farmerName,
         mobile,
-        city,
+        village,  // Changed from city to village
         token_no: tokenNo,
         lines: lines.map((line, idx) => ({
           ...line,
