@@ -1947,3 +1947,79 @@ agent_communication:
       - Phase 5: Testing and validation
       
       Awaiting user confirmation to proceed with Phase 2 or test Phase 1 first.
+  - agent: "main"
+    message: |
+      🎉 **PHASE 2 COMPLETE: BILINGUAL PRINT TEMPLATE IMPLEMENTATION**
+      
+      **What was accomplished:**
+      Completely redesigned the Farmer Payment Voucher print system with comprehensive bilingual support and professional layout.
+      
+      **KEY FEATURES IMPLEMENTED:**
+      
+      **1. DUAL-COPY SYSTEM:**
+      - ✅ Hindi Copy (किसान प्रति) - Farmer Copy - Page 1
+      - ✅ English Copy (Office Record) - Office Copy - Page 2
+      - ✅ Automatic page break between copies
+      
+      **2. HINDI COPY FEATURES:**
+      - ✅ Bilingual headers: "सुदर्शन ट्रेडिंग कंपनी" / "Sudarshan Trading Company"
+      - ✅ Document details: बही नं / Book No, दिनांक / Date, स्थान / Location
+      - ✅ Farmer details: नाम / Name, मोबाइल / Mobile, गाँव / Village, टोकन नं / Token No
+      - ✅ Weighbridge slip: वजन पर्ची नं / Weighbridge Slip (conditional display)
+      - ✅ Items table with Hindi column headers: वस्तु, बोरे, किलो, क्विंटल, दर/क्विं, राशि, एच+टी, कुल
+      - ✅ Totals in Hindi/English: उप-कुल / Sub Total, कुल राशि / Net Amount
+      - ✅ **CONDITIONAL BANK DETAILS**: Shows बैंक विवरण / Bank Details only for Bank/RTGS/NEFT payments
+      - ✅ 4-column signature section with Hindi labels
+      
+      **3. ENGLISH COPY FEATURES:**
+      - ✅ Professional English-only header
+      - ✅ Extended document details (Book No, Date, Location, Tulai No, Agreement No, Contract Type)
+      - ✅ Enhanced farmer details with Vehicle Number
+      - ✅ Detailed items table with Vehicle Type column for H+T reference
+      - ✅ Comprehensive payment details section with all bank info
+      - ✅ Complete voucher ID display (Purchase + Payment voucher IDs)
+      - ✅ Professional 4-column signature section
+      - ✅ System footer with generation timestamp
+      
+      **4. CONDITIONAL LOGIC:**
+      - ✅ Bank details show ONLY when pay_type = Bank/RTGS/NEFT with account_no present
+      - ✅ Cash payments show simplified "नकद / Cash" display
+      - ✅ Additional Hamli and Bank Charges show only when > 0
+      - ✅ Weighbridge Slip No shows only when available
+      - ✅ Vehicle Number shows only in English copy when available
+      
+      **5. TECHNICAL IMPLEMENTATION:**
+      - ✅ Print-specific CSS with @page A4 size and margins
+      - ✅ `page-break` class for separating copies
+      - ✅ `no-break` class to prevent page breaks within sections
+      - ✅ Hidden on screen (`hidden print:block`)
+      - ✅ Proper number formatting with `.toFixed(2)` for all amounts
+      - ✅ Professional borders and spacing
+      - ✅ All data fields mapped from `savedPayment` object
+      
+      **6. SIGNATURE SECTIONS:**
+      - ✅ Hindi Copy: प्राप्तकर्ता (Receiver), कैशियर (Cashier), लेखाकार (Accountant), प्राधिकृत हस्ताक्षर (Authorized Sign)
+      - ✅ English Copy: Receiver's Signature, Cashier's Signature, Accountant's Signature, Authorized Signatory
+      - ✅ Space provided for manual signatures with border lines
+      
+      **PRINT WORKFLOW:**
+      1. User completes farmer payment → Success modal appears
+      2. User clicks "🖨️ Print" button
+      3. Browser print dialog opens
+      4. Page 1: Hindi copy prints (Farmer takes this)
+      5. Page 2: English copy prints (Office keeps this)
+      
+      **VERIFICATION:**
+      - ✅ Frontend compiles with no errors
+      - ✅ Farmer Payment page loads successfully
+      - ✅ Print template hidden on screen view
+      - ✅ All fields properly mapped from backend model
+      
+      **READY FOR:**
+      - ✅ Print functionality testing with actual payment data
+      - ✅ Visual verification of print layout
+      - ✅ Signature section testing
+      - ✅ Conditional bank details testing
+      
+      **NEXT STEPS:**
+      Recommend comprehensive print testing with actual payment flow to verify all fields display correctly and print layout matches requirements.
