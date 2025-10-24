@@ -630,9 +630,9 @@ function SalesInvoicePage({ user, onLogout }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="invoice_generated">Invoice Generated</SelectItem>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem key="status-pending" value="pending">Pending</SelectItem>
+                  <SelectItem key="status-invoice-generated" value="invoice_generated">Invoice Generated</SelectItem>
+                  <SelectItem key="status-all" value="all">All</SelectItem>
                 </SelectContent>
               </Select>
             </div>
