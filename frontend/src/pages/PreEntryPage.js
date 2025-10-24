@@ -718,6 +718,13 @@ function PreEntryPage({ user, onLogout }) {
     setPledgeRate('');
     setRemarks('');
     
+    // Reset Farmer check states
+    setFarmerExists(false);
+    setFarmerChecked(false);
+    setCheckingFarmer(false);
+    setFarmerFieldsLocked(false);
+    setOtpVerified(false);
+    
     // Reset Bill Purchase fields
     setSupplierId('');
     setPlaceOfSupply('');
