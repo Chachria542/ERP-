@@ -85,26 +85,28 @@ async def get_farmer_payment_queue(
             qtl = wb_entry.get("act_qtl", 0) or 0
             item_amount = rate * qtl
                 
-                # Estimate H+T based on vehicle type
-                vehicle_type = wb_entry.get("vehicle_type", "Truck")
-                h_plus_t_rate = 4.75 if vehicle_type == "Truck" else (5.75 if vehicle_type == "Hammali" else 0)
-                h_plus_t = h_plus_t_rate * qtl
-                
-                estimated_amount = item_amount - h_plus_t
-                
-                queue_item = {
-                    "slip_id": wb_entry["slip_id"],
-                    "farmer_name": pre_entry.get("party_name", "Unknown"),
-                    "farmer_mobile": pre_entry.get("party_mobile"),
-                    "item_name": pre_entry.get("item_name", "Unknown"),
-                    "act_qtl": wb_entry.get("act_qtl", 0),
-                    "vehicle_type": wb_entry.get("vehicle_type", "Unknown"),
-                    "rate_per_qtl": rate,
-                    "estimated_amount": round(estimated_amount),
-                    "payment_status": wb_entry.get("payment_status", "pending_payment"),
-                    "created_at": wb_entry.get("created_at", ""),
-                    "weighed_at": wb_entry.get("weighed_at", "")
-                }
+            # Estimate H+T based on vehicle type
+            vehicle_type = wb_entry.get("vehicle_type", "Truck")
+            h_plus_t_rate = 4.75 if vehicle_type == "Truck" else (5.75 if vehicle_type == "Hammali" else 0)
+            h_plus_t = h_plus_t_rate * qtl
+            
+            estimated_amount = item_amount - h_plus_t
+            
+            print(f"[FARMER PAYMENT QUEUE] Calculated for {wb_entry['slip_id']}: qtl={qtl}, rate={rate}, item_amount={item_amount}, h_plus_t={h_plus_t}, estimated={estimated_amount}")
+            
+            queue_item = {
+                "slip_id": wb_entry["slip_id"],
+                "farmer_name": pre_entry.get("party_name", "Unknown"),
+                "farmer_mobile": pre_entry.get("party_mobile"),
+                "item_name": pre_entry.get("item_name", "Unknown"),
+                "act_qtl": qtl,  # Use the qtl variable which handles None
+                "vehicle_type": wb_entry.get("vehicle_type", "Unknown"),
+                "rate_per_qtl": rate,
+                "estimated_amount": round(estimated_amount) if estimated_amount else 0,
+                "payment_status": wb_entry.get("payment_status", "pending_payment"),
+                "created_at": wb_entry.get("created_at", ""),
+                "weighed_at": wb_entry.get("weighed_at", "")
+            }
                 
                 # Apply search filter
                 if search:
