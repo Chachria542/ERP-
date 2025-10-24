@@ -1134,34 +1134,40 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </div>
                     </div>
 
-                    {/* Items Table */}
+                    {/* Items Table - Hindi Labels */}
                     <div className="mb-3">
                       <table className="w-full text-xs border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1">वस्तु<br/>Item</th>
-                            <th className="border border-black p-1">बोरे<br/>Bags</th>
-                            <th className="border border-black p-1">किलो<br/>Kgs</th>
-                            <th className="border border-black p-1">क्विंटल<br/>Quintals</th>
-                            <th className="border border-black p-1">दर/क्विं<br/>Rate/Qtl</th>
-                            <th className="border border-black p-1">राशि<br/>Amount</th>
-                            <th className="border border-black p-1">एच+टी<br/>H+T</th>
-                            <th className="border border-black p-1">कुल<br/>Total</th>
+                            <th className="border border-black p-1">कृषि उपज का नाम<br/><span className="text-[10px]">Krushi Upaj ka Naam</span></th>
+                            <th className="border border-black p-1">अनुबंध/सौदा पत्रक के आधार पर वजन<br/><span className="text-[10px]">Expected Weight</span></th>
+                            <th className="border border-black p-1">तोल परची के आधार पर वास्तविक वजन<br/><span className="text-[10px]">Actual Weight (qtl)</span></th>
+                            <th className="border border-black p-1">दर<br/><span className="text-[10px]">Dar</span></th>
+                            <th className="border border-black p-1">कृषि उपज का मूल्य<br/><span className="text-[10px]">Value</span></th>
+                            <th className="border border-black p-1">कुल मूल्य<br/><span className="text-[10px]">Total Value</span></th>
+                            <th className="border border-black p-1">कुल हम्माली और तुलाई<br/><span className="text-[10px]">Total H+T</span></th>
+                            <th className="border border-black p-1">उपविधि के अनुसार हम्माली दर<br/><span className="text-[10px]">H+T Rate</span></th>
+                            <th className="border border-black p-1">विक्रेता को भुगतान की गई राशि<br/><span className="text-[10px]">Amount Paid</span></th>
                           </tr>
                         </thead>
                         <tbody>
-                          {savedPayment.lines?.map((line, idx) => (
-                            <tr key={idx}>
-                              <td className="border border-black p-1">{line.item_name}</td>
-                              <td className="border border-black p-1 text-right">{line.bags}</td>
-                              <td className="border border-black p-1 text-right">{line.rem_kg}</td>
-                              <td className="border border-black p-1 text-right">{line.act_qtl}</td>
-                              <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
-                              <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                              <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
-                              <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
-                            </tr>
-                          ))}
+                          {savedPayment.lines?.map((line, idx) => {
+                            // Calculate H+T rate based on vehicle type
+                            const htRate = line.vehicle_type === 'Truck' ? 4.75 : line.vehicle_type === 'Hammali' ? 5.75 : 0;
+                            return (
+                              <tr key={idx}>
+                                <td className="border border-black p-1">{line.item_name}</td>
+                                <td className="border border-black p-1 text-right">{line.bags || 'N/A'}</td>
+                                <td className="border border-black p-1 text-right">{line.act_qtl}</td>
+                                <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
+                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">{htRate}</td>
+                                <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
