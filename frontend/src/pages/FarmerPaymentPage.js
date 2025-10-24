@@ -174,11 +174,25 @@ function FarmerPaymentPage({ user, onLogout }) {
     }
   };
 
-  const autoFillFromSlip = (data) => {
+  const autoFillFromSlip = async (data) => {
     setFarmerName(data.party_name || '');
     setMobile(data.party_mobile || '');
-    setCity(data.city || '');
     setTokenNo(data.token_no || '');
+    
+    // Fetch village from farmer master data using mobile
+    if (data.party_mobile) {
+      try {
+        const farmerResponse = await axios.get(`${API}/farmers/${data.party_mobile}`);
+        if (farmerResponse.data) {
+          setVillage(farmerResponse.data.village || '');
+        }
+      } catch (error) {
+        console.log('Could not fetch farmer village:', error);
+        setVillage('');
+      }
+    } else {
+      setVillage('');
+    }
     
     // Auto-fill first line item
     const newLines = [...lines];
