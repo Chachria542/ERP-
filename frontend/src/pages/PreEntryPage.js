@@ -410,6 +410,7 @@ function PreEntryPage({ user, onLogout }) {
           item_id: itemId,
           item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
           has_broker: hasBroker,
+          broker_id: brokerId || null,
           broker_name: brokerName || null,
           brokerage_type: brokerageType !== 'none' ? brokerageType : null,
           brokerage_rate: brokerageRate ? parseFloat(brokerageRate) : null,
