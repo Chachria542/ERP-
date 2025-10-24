@@ -325,7 +325,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   };
 
   const resetForm = () => {
-    setGateEntryNo('');
+    setWeighbridgeSlipNo('');
     setTulaiNo('');
     setAgrNo('');
     setFarmerName('');
