@@ -532,6 +532,21 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
+            # IMPORTANT: Update weighbridge entries with calculated quantities
+            quantities_final = calculate_quantities(net_weight)
+            
+            # Update ALL weighbridge entries for this slip with quantities
+            await db.weighbridge_entries.update_many(
+                {"slip_id": entry_data.slip_id},
+                {"$set": {
+                    "bags": quantities_final['bags'],
+                    "rem_kg": quantities_final['rem_kg'],
+                    "act_qtl": quantities_final['act_qtl'],
+                    "net_weight": net_weight
+                }}
+            )
+            print(f"[BACKEND] Updated weighbridge entries with act_qtl: {quantities_final['act_qtl']}, bags: {quantities_final['bags']}, rem_kg: {quantities_final['rem_kg']}")
+            
             if is_sales:
                 # Update sales pre-entry with weights and status to pending (ready for invoice)
                 update_data["tare_weight"] = tare_entry['weight'] if entry_data.weight_type == "gross" else measured_weight
