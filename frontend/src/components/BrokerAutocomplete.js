@@ -94,7 +94,12 @@ function BrokerAutocomplete({
     onSelect({
       id: broker.id,
       name: broker.name,
-      contact: broker.contact,
+      phone: broker.phone,
+      mobile: broker.mobile,
+      gstin: broker.gstin,
+      address: broker.address,
+      city: broker.city,
+      state: broker.state,
       default_brokerage_type: broker.default_brokerage_type,
       default_brokerage_rate: broker.default_brokerage_rate
     });
