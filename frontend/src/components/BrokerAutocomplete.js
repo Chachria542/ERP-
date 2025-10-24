@@ -277,7 +277,9 @@ function BrokerAutocomplete({
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Broker</DialogTitle>
-            <p className="text-sm text-gray-500 mt-1">* indicates required field</p>
+            <DialogDescription>
+              Fill in broker details. Fields marked with * are required.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
