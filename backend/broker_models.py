@@ -10,9 +10,14 @@ class Broker(BaseModel):
     """Broker master record"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    contact: Optional[str] = None
+    contact: Optional[str] = None  # Kept for backward compatibility
+    phone: Optional[str] = None
+    mobile: Optional[str] = None
     pan: Optional[str] = None
+    gstin: Optional[str] = None
     address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     default_brokerage_type: Optional[str] = "per_quintal"  # per_quintal, per_bag, percentage
     default_brokerage_rate: Optional[float] = 0.0
     active: bool = True
@@ -22,9 +27,13 @@ class Broker(BaseModel):
 class BrokerCreate(BaseModel):
     """Request model for creating broker"""
     name: str
-    contact: Optional[str] = None
+    phone: Optional[str] = None
+    mobile: Optional[str] = None
     pan: Optional[str] = None
+    gstin: Optional[str] = None
     address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
     default_brokerage_type: Optional[str] = "per_quintal"
     default_brokerage_rate: Optional[float] = 0.0
     active: bool = True
