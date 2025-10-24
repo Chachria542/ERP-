@@ -1206,30 +1206,28 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </div>
                     )}
 
-                    {/* Signatures */}
+                    {/* Signatures - 2 Only */}
                     <div className="mt-8 pt-4">
-                      <div className="grid grid-cols-4 gap-4 text-center text-xs">
+                      <div className="grid grid-cols-2 gap-8 text-center text-xs">
                         <div>
                           <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">प्राप्तकर्ता<br/>Receiver</div>
+                          <div className="border-t border-black pt-1">
+                            <p className="font-semibold">क्रेता के हस्ताक्षर</p>
+                            <p className="text-[10px]">Kretaa ke Hastakshar</p>
+                          </div>
                         </div>
                         <div>
                           <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">कैशियर<br/>Cashier</div>
-                        </div>
-                        <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">लेखाकार<br/>Accountant</div>
-                        </div>
-                        <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">प्राधिकृत हस्ताक्षर<br/>Authorized Sign</div>
+                          <div className="border-t border-black pt-1">
+                            <p className="font-semibold">विक्रेता के भुगतान प्राप्ति के हस्ताक्षर</p>
+                            <p className="text-[10px]">Vikretaa ke Bhugtaan prapti ke Hastakshar</p>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="text-xs text-gray-600 mt-2 text-center border-t pt-1">
-                      Purchase Voucher: {savedPayment.purchase_voucher_id?.substring(0, 16)}... | Payment Voucher: {savedPayment.payment_voucher_id?.substring(0, 16)}...
+                      Purchase: {savedPayment.purchase_voucher_id?.substring(0, 16)}... | Payment: {savedPayment.payment_voucher_id?.substring(0, 16)}...
                     </div>
                   </div>
 
