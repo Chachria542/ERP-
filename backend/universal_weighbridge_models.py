@@ -140,6 +140,7 @@ class PreEntryCreate(BaseModel):
     party_type: PartyType
     party_name: str
     party_mobile: Optional[str] = None
+    party_village: Optional[str] = None  # For farmer transactions (mandatory for farmers)
     party_gstin: Optional[str] = None
     
     item_id: str
