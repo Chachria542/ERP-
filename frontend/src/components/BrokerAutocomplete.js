@@ -164,8 +164,13 @@ function BrokerAutocomplete({
       // Reset form
       setNewBrokerData({
         name: '',
-        contact: '',
+        phone: '',
+        mobile: '',
         pan: '',
+        gstin: '',
+        address: '',
+        city: '',
+        state: '',
         default_brokerage_type: 'per_quintal',
         default_brokerage_rate: ''
       });
