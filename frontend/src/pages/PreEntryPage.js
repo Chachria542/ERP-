@@ -505,7 +505,7 @@ function PreEntryPage({ user, onLogout }) {
           party_name: partyName,
           party_mobile: partyMobile || null,
           party_village: partyVillage || null,  // Village for farmers
-          party_gstin: partyGstin || null,
+          party_gstin: partyType !== 'farmer' ? (partyGstin || null) : null,  // Only send GSTIN for non-farmers
           item_id: itemId,
           quality: quality || null,
           expected_bags: expectedBags ? parseInt(expectedBags) : null,
