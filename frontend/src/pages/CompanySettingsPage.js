@@ -62,6 +62,9 @@ function CompanySettingsPage({ user, onLogout }) {
       setCompanyPin(settings.company_pin);
       setCompanyPhone(settings.company_phone);
       setCompanyEmail(settings.company_email || '');
+      setCompanyLogoUrl(settings.company_logo_url || '');
+      setGodownAddress(settings.godown_address || '');
+      setTermsAndConditions(settings.terms_and_conditions || '');
       setIfssaiNo(settings.ifssai_no);
       setBankName(settings.bank_details.bank_name);
       setAccountNumber(settings.bank_details.account_number);
