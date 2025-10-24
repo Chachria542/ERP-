@@ -143,7 +143,7 @@ class FarmerPaymentCreate(BaseModel):
     
     farmer_name: str
     mobile: str
-    city: Optional[str] = None
+    village: Optional[str] = None  # Changed from city to village
     vehicle_number: Optional[str] = None
     
     lines: List[FarmerPaymentLine]
