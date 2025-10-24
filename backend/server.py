@@ -75,11 +75,16 @@ class Party(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    roles: List[str] = Field(default_factory=list)  # ["supplier", "trader", "buyer", "farmer"]
+    roles: List[str] = Field(default_factory=list)  # ["supplier", "trader", "buyer", "farmer", "customer", "consignee"]
     
     # Contact details
     contact: Optional[str] = None  # Mobile number
     address: Optional[str] = None
+    
+    # Structured address fields (for print templates)
+    city: Optional[str] = None
+    pin_code: Optional[str] = None
+    state_code: Optional[str] = None  # 2-digit state code (auto-extracted from GSTIN)
     
     # Business details
     gstin: Optional[str] = None
