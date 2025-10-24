@@ -449,6 +449,21 @@ async def get_party(party_id: str):
         party['created_at'] = datetime.fromisoformat(party['created_at'])
     return party
 
+@api_router.get("/consignees", response_model=List[Party])
+async def get_consignees():
+    """Get all parties with consignee role"""
+    consignees = await db.parties.find(
+        {"roles": "consignee"}, 
+        {"_id": 0}
+    ).to_list(1000)
+    
+    for p in consignees:
+        if isinstance(p.get('created_at'), str):
+            p['created_at'] = datetime.fromisoformat(p['created_at'])
+    
+    return consignees
+
+
 # ============= ITEM ENDPOINTS =============
 
 @api_router.post("/items", response_model=Item)
