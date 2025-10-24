@@ -139,7 +139,7 @@ async def create_pre_entry(entry_data: PreEntryCreate):
             party_id, farmer_conflict, existing_farmer_name = await get_or_create_farmer(
                 mobile=entry_data.party_mobile,
                 name=entry_data.party_name,
-                city=None  # City not in create request
+                village=entry_data.party_village  # Village field (mandatory for farmers)
             )
             
             # If name conflict, return warning (frontend will ask for confirmation)
