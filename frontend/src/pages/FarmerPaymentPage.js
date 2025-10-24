@@ -36,6 +36,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [mobile, setMobile] = useState('');
   const [village, setVillage] = useState('');  // Changed from city to village
   const [tokenNo, setTokenNo] = useState('');
+  const [weighbridgeSlipNo, setWeighbridgeSlipNo] = useState('');  // Changed from gateEntryNo
   
   const [items, setItems] = useState([]);
   const [lines, setLines] = useState([{
