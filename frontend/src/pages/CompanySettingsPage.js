@@ -363,6 +363,65 @@ function CompanySettingsPage({ user, onLogout }) {
             </CardContent>
           </Card>
 
+          {/* Print Templates Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Print Templates & Documents</CardTitle>
+              <CardDescription>Configure settings for invoices, vouchers, and other printed documents</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Logo Upload */}
+              <div>
+                <Label>Company Logo</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                    className="flex-1"
+                  />
+                  {uploadingLogo && <span className="text-sm text-gray-500">Uploading...</span>}
+                </div>
+                {companyLogoUrl && (
+                  <div className="mt-2">
+                    <img 
+                      src={`${API}${companyLogoUrl}`} 
+                      alt="Company Logo" 
+                      className="h-20 object-contain border rounded p-2 bg-white"
+                    />
+                    <p className="text-xs text-green-600 mt-1">✓ Logo uploaded successfully</p>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 mt-1">Upload PNG or JPEG (max 5MB). This will appear on invoices and vouchers.</p>
+              </div>
+
+              {/* Godown Address */}
+              <div>
+                <Label>Godown/Mandi Address</Label>
+                <Textarea
+                  value={godownAddress}
+                  onChange={(e) => setGodownAddress(e.target.value)}
+                  rows={2}
+                  placeholder="Enter godown or mandi address (e.g., Sanawad Godown, Khargone, Madhya Pradesh)"
+                />
+                <p className="text-xs text-gray-500 mt-1">This address will appear on farmer payment vouchers</p>
+              </div>
+
+              {/* Terms & Conditions */}
+              <div>
+                <Label>Invoice Terms & Conditions</Label>
+                <Textarea
+                  value={termsAndConditions}
+                  onChange={(e) => setTermsAndConditions(e.target.value)}
+                  rows={4}
+                  placeholder="Enter invoice terms and conditions (e.g., Payment terms, delivery terms, etc.)"
+                />
+                <p className="text-xs text-gray-500 mt-1">These terms will appear in the footer of sales invoices</p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Save Button */}
           <div className="flex justify-end">
             <Button type="submit" disabled={saving} className="btn-primary px-8">
