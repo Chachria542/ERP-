@@ -677,7 +677,7 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
               {/* Card 2: Second Weight */}
               <Card 
-                className={`p-6 border-2 ${secondWeightCaptured ? weightLabels.second.bg : 'bg-white'} ${!firstWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured) ? 'opacity-50' : ''}`}
+                className={`p-6 border-2 ${secondWeightCaptured ? weightLabels.second.bg : 'bg-white'} ${!firstWeightCaptured ? 'opacity-50' : ''}`}
                 style={{borderColor: secondWeightCaptured ? '#4CAF50' : weightLabels.second.border.includes('blue') ? '#2196F3' : '#4CAF50'}}
               >
                 <div className="flex justify-between items-center mb-4">
