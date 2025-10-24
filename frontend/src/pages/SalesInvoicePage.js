@@ -1212,9 +1212,9 @@ function SalesInvoicePage({ user, onLogout }) {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="To Pay">To Pay</SelectItem>
-                          <SelectItem value="Paid">Paid</SelectItem>
-                          <SelectItem value="TBB">TBB (To Be Billed)</SelectItem>
+                          <SelectItem key="to-pay" value="To Pay">To Pay</SelectItem>
+                          <SelectItem key="paid" value="Paid">Paid</SelectItem>
+                          <SelectItem key="tbb" value="TBB">TBB (To Be Billed)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
