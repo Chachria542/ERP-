@@ -1336,18 +1336,18 @@ function FarmerPaymentPage({ user, onLogout }) {
                     <div className="mb-3 p-2 border border-gray-400 text-xs">
                       <h3 className="font-bold mb-2">Payment Details</h3>
                       <div className="grid grid-cols-2 gap-2">
-                        <div><span className="font-semibold">Payment Mode:</span> {savedPayment.pay_type}</div>
+                        <div>
+                          <span className="font-semibold">Payment Mode:</span> {savedPayment.pay_type}
+                          {savedPayment.cash_amt > 0 && savedPayment.bank_amt > 0 && ' (Mixed)'}
+                        </div>
                         <div><span className="font-semibold">Location Type:</span> {savedPayment.mandi_godown}</div>
-                        {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && (
+                        {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT' || savedPayment.bank_amt > 0) && (
                           <>
                             {savedPayment.account_no && <div><span className="font-semibold">Account No:</span> {savedPayment.account_no}</div>}
-                            <div><span className="font-semibold">Bank Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>
-                            {savedPayment.cash_amt > 0 && (
-                              <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
-                            )}
+                            {savedPayment.bank_amt > 0 && <div><span className="font-semibold">Bank Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>}
                           </>
                         )}
-                        {savedPayment.pay_type === 'Cash' && (
+                        {savedPayment.cash_amt > 0 && (
                           <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
                         )}
                       </div>
