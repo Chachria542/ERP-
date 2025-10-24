@@ -1083,6 +1083,8 @@ function FarmerPaymentPage({ user, onLogout }) {
                       body { margin: 0; }
                       .page-break { page-break-after: always; }
                       .no-break { page-break-inside: avoid; }
+                      /* Hide Emergent watermark and other UI elements when printing */
+                      header, nav, .sidebar, [class*="emergent"], [class*="watermark"] { display: none !important; }
                     }
                   `}</style>
 
