@@ -1138,18 +1138,18 @@ function FarmerPaymentPage({ user, onLogout }) {
 
                     {/* Items Table - Hindi Labels */}
                     <div className="mb-3">
-                      <table className="w-full text-xs border-collapse border border-black">
+                      <table className="w-full text-[10px] border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1">कृषि उपज का नाम<br/><span className="text-[10px]">Krushi Upaj ka Naam</span></th>
-                            <th className="border border-black p-1">अनुबंध/सौदा पत्रक के आधार पर वजन<br/><span className="text-[10px]">Expected Weight</span></th>
-                            <th className="border border-black p-1">तोल परची के आधार पर वास्तविक वजन<br/><span className="text-[10px]">Actual Weight (qtl)</span></th>
-                            <th className="border border-black p-1">दर<br/><span className="text-[10px]">Dar</span></th>
-                            <th className="border border-black p-1">कृषि उपज का मूल्य<br/><span className="text-[10px]">Value</span></th>
-                            <th className="border border-black p-1">कुल मूल्य<br/><span className="text-[10px]">Total Value</span></th>
-                            <th className="border border-black p-1">कुल हम्माली और तुलाई<br/><span className="text-[10px]">Total H+T</span></th>
-                            <th className="border border-black p-1">उपविधि के अनुसार हम्माली दर<br/><span className="text-[10px]">H+T Rate</span></th>
-                            <th className="border border-black p-1">विक्रेता को भुगतान की गई राशि<br/><span className="text-[10px]">Amount Paid</span></th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>कृषि उपज का नाम<br/><span className="text-[8px]">Item Name</span></th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>अनुबंध/सौदा पत्रक के आधार पर वजन<br/><span className="text-[8px]">Expected Wt</span></th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>तोल परची के आधार पर वास्तविक वजन<br/><span className="text-[8px]">Actual Wt (qtl)</span></th>
+                            <th className="border border-black p-1" style={{width: '8%'}}>दर<br/><span className="text-[8px]">Rate</span></th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>कृषि उपज का मूल्य<br/><span className="text-[8px]">Value</span></th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>कुल मूल्य<br/><span className="text-[8px]">Total Value</span></th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>कुल हम्माली और तुलाई<br/><span className="text-[8px]">Total H+T</span></th>
+                            <th className="border border-black p-1" style={{width: '8%'}}>उपविधि के अनुसार हम्माली दर<br/><span className="text-[8px]">H+T Rate</span></th>
+                            <th className="border border-black p-1" style={{width: '14%'}}>विक्रेता को भुगतान की गई राशि<br/><span className="text-[8px]">Amount Paid</span></th>
                           </tr>
                         </thead>
                         <tbody>
