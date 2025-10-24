@@ -75,6 +75,62 @@ async def create_or_update_company_settings(settings_data: CompanySettingsCreate
 
 @router.get("/company-settings/exists")
 async def check_company_settings_exist():
+
+@router.post("/company-settings/upload-logo")
+async def upload_company_logo(file: UploadFile = File(...)):
+    """
+    Upload company logo (PNG/JPEG only)
+    Returns the file path to be saved in company settings
+    """
+    try:
+        # Validate file type
+        allowed_types = ["image/png", "image/jpeg", "image/jpg"]
+        if file.content_type not in allowed_types:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid file type. Only PNG and JPEG allowed. Got: {file.content_type}"
+            )
+        
+        # Generate filename with extension
+        file_extension = file.filename.split(".")[-1]
+        filename = f"logo.{file_extension}"
+        file_path = UPLOAD_DIR / filename
+        
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Return the path relative to /app
+        relative_path = f"/uploads/company/{filename}"
+        
+        print(f"[BACKEND] Company logo uploaded: {relative_path}")
+        return {
+            "message": "Logo uploaded successfully",
+            "file_path": relative_path,
+            "filename": filename
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error uploading logo: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to upload logo: {str(e)}")
+
+@router.get("/company-settings/logo")
+async def get_company_logo():
+    """Get company logo file path"""
+    settings = await db.company_settings.find_one({}, {"_id": 0})
+    
+    if not settings or not settings.get("company_logo_url"):
+        raise HTTPException(status_code=404, detail="Company logo not found")
+    
+    return {
+        "logo_url": settings.get("company_logo_url"),
+        "exists": True
+    }
+
     """Check if company settings exist"""
     settings = await db.company_settings.find_one({})
     return {"exists": settings is not None}
