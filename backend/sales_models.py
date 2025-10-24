@@ -284,6 +284,15 @@ class SalesInvoiceCreate(BaseModel):
     # Location
     is_entry: bool = False  # False = Godown (default), True = Entry
     
+    # Consignee details
+    consignee_same_as_customer: bool = True
+    consignee_id: Optional[str] = None
+    consignee_name: Optional[str] = None
+    consignee_address: Optional[str] = None
+    consignee_city: Optional[str] = None
+    consignee_state: Optional[str] = None
+    consignee_pin_code: Optional[str] = None
+    
     # Line items (item, marka, bags, kgs, bharti, rate)
     line_items: List[dict]  # Will process in endpoint
     
