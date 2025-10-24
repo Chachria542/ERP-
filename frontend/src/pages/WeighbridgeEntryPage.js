@@ -493,39 +493,33 @@ function WeighbridgeEntryPage({ user, onLogout }) {
               </div>
             </Card>
 
-            {/* Visual Flow Indicator */}
+            {/* Expected Bags Info (from Pre-Entry) */}
             <Card className="p-4 mb-6" style={{backgroundColor: '#F5F5F5'}}>
-              <div className="flex items-center justify-center gap-6">
+              <div className="flex items-center justify-center gap-8">
                 <div className="text-center">
-                  <div className={`text-3xl mb-1 ${firstWeightCaptured ? '' : 'opacity-40'}`}>
-                    {weightLabels.first.emoji}
-                  </div>
-                  <div className={`font-bold ${weightLabels.first.color}`}>{weightLabels.first.label}</div>
-                  <div className="text-2xl mt-1">
-                    {firstWeightCaptured ? '✅' : '⏳'}
-                  </div>
+                  <p className="text-sm text-gray-600 mb-1">Expected Bags</p>
+                  <p className="text-3xl font-bold" style={{color: '#1976D2'}}>
+                    {preEntry.expected_bags || 'N/A'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">From Pre-Entry</p>
                 </div>
                 
-                <div className="text-4xl text-gray-400">→</div>
+                <div className="text-3xl text-gray-300">|</div>
                 
                 <div className="text-center">
-                  <div className={`text-3xl mb-1 ${secondWeightCaptured ? '' : 'opacity-40'}`}>
-                    {weightLabels.second.emoji}
-                  </div>
-                  <div className={`font-bold ${weightLabels.second.color}`}>{weightLabels.second.label}</div>
-                  <div className="text-2xl mt-1">
-                    {secondWeightCaptured ? '✅' : firstWeightCaptured ? '⏳' : '🔒'}
-                  </div>
+                  <p className="text-sm text-gray-600 mb-1">Quality</p>
+                  <p className="text-xl font-semibold text-gray-700">
+                    {preEntry.quality || 'N/A'}
+                  </p>
                 </div>
                 
-                <div className="text-4xl text-gray-400">=</div>
+                <div className="text-3xl text-gray-300">|</div>
                 
                 <div className="text-center">
-                  <div className={`text-3xl mb-1 ${secondWeightCaptured ? '' : 'opacity-40'}`}>🎯</div>
-                  <div className="font-bold text-orange-700">NET Weight</div>
-                  <div className="text-2xl mt-1">
-                    {secondWeightCaptured ? '✅' : '🔒'}
-                  </div>
+                  <p className="text-sm text-gray-600 mb-1">Rate per Qtl</p>
+                  <p className="text-xl font-semibold text-gray-700">
+                    ₹ {preEntry.rate_per_qtl ? preEntry.rate_per_qtl.toFixed(2) : 'N/A'}
+                  </p>
                 </div>
               </div>
             </Card>
