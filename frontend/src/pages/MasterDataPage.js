@@ -60,13 +60,15 @@ function MasterDataPage({ user, onLogout }) {
 
   const fetchData = async () => {
     try {
-      const [partiesRes, itemsRes] = await Promise.all([
+      const [partiesRes, itemsRes, brokersRes] = await Promise.all([
         axios.get(`${API}/parties`),
-        axios.get(`${API}/items`)
+        axios.get(`${API}/items`),
+        axios.get(`${API}/brokers`)
       ]);
       
       setParties(partiesRes.data);
       setItems(itemsRes.data);
+      setBrokers(brokersRes.data);
     } catch (error) {
       toast.error('Failed to load data');
     } finally {
