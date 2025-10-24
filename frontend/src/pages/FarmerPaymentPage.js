@@ -766,8 +766,8 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <Input value={mobile} onChange={(e) => setMobile(e.target.value)} maxLength={10} required />
               </div>
               <div>
-                <Label>City</Label>
-                <Input value={city} onChange={(e) => setCity(e.target.value)} />
+                <Label>Village</Label>
+                <Input value={village} onChange={(e) => setVillage(e.target.value)} />
               </div>
               <div>
                 <Label>Token No</Label>
