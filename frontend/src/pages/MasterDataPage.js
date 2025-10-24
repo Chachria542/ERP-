@@ -15,11 +15,14 @@ const API = `${BACKEND_URL}/api`;
 function MasterDataPage({ user, onLogout }) {
   const [parties, setParties] = useState([]);
   const [items, setItems] = useState([]);
+  const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPartyDialog, setShowPartyDialog] = useState(false);
   const [showItemDialog, setShowItemDialog] = useState(false);
   const [showPriceDialog, setShowPriceDialog] = useState(false);
+  const [showBrokerDialog, setShowBrokerDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editingBroker, setEditingBroker] = useState(null);
 
   // Party form
   const [partyName, setPartyName] = useState('');
