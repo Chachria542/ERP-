@@ -365,8 +365,8 @@ yarn start
 ```
 
 ### Access:
-- Frontend: https://trading-platform-95.preview.emergentagent.com
-- Backend API: https://trading-platform-95.preview.emergentagent.com/api
+- Frontend: https://grain-trade-erp.preview.emergentagent.com
+- Backend API: https://grain-trade-erp.preview.emergentagent.com/api
 
 ## Testing Recommendations
 

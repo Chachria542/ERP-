@@ -1,71 +1,75 @@
 <analysis>
-The AI engineer has significantly advanced the ERP application, primarily focusing on the Sales module. Key achievements include the implementation of a comprehensive Mixed Load Sales Pre-Entry and Processing feature, allowing multi-customer, multi-item orders. This involved extensive backend model and endpoint development, followed by a complex frontend UI for mixed load pre-entry creation and invoice splitting. Concurrently, new modules for Company Settings and Transporter Master were introduced, and the Broker Module was enhanced with more detailed data fields and master data management. Numerous bugs were addressed, including  errors during mixed load submission,  in invoice splitting,  in auto-allocation, and React missing key warnings. The current task involves setting up print functionality for various documents based on user-provided templates. The engineer has just completed the analysis of the print templates to identify any missing data fields before proceeding with implementation.
+The AI engineer's work primarily focused on expanding an ERP application, specifically the Sales and Weighbridge modules. Initial tasks involved comprehensive data model and UI updates for print functionality, followed by several critical bug fixes. The print template analysis identified numerous missing fields, leading to significant backend model restructuring across Company Settings, Party (Customer/Supplier), Sales Invoice, Farmer, and Farmer Payment models. This included adding structured addresses, consignee details, company logo URL, and replacing 'city' with 'village' for farmers.
+
+A major architectural shift consolidated farmer master data into the  collection, using a farmer role. A mobile-first pre-entry flow was implemented, featuring farmer existence checks, OTP verification, and master data registration. Throughout, the engineer meticulously handled backend endpoint updates for new fields and frontend UI adjustments for forms and display logic. Crucial bug fixes addressed weighbridge tare weight entry, incorrect farmer payment queue data ( always zero), and UI/caching inconsistencies, ensuring data integrity and correct calculations. The latest user request involves detailed refinement of the Farmer Payment Voucher print template, starting with a field rename.
 </analysis>
 
 <product_requirements>
-The overarching goal is an AI-assisted Custom ERP for Sudarshan Trading, covering Grain Trading, Custody, and Funding. Key features implemented and requested include:
-**Sales Module**:
--   **Sales Pre-Entry**: Integrated into , supports , , , . Enhanced to support Mixed Load functionality, enabling a single vehicle to carry items for multiple customers, each with multiple items/markas. Validation for total allocated weight (±100 kg variance).
--   **Weighbridge Integration**: Two-step process (TARE → GROSS for Sales), queue system on .
--   **Sales Invoice / Sales Return**: Single screen, auto-generated , , , , . Line items with , , , , , , , , , . Includes a queue for photo approval and invoice creation.
--   **Invoice Enhancements**: Addition of fields for Transportation Details (Transporter Master, Driver, Vehicle details, Freight), Anugya No. (government registration), Company/Bank details (static). Broker details (Address, GSTIN, Phone/Mobile).
-**Broker Management**: Master data functionality for listing, adding, editing, and deleting brokers, integrated with autocomplete in pre-entry forms.
-**Print Functionality**: Implementation of various print templates (Sales Invoice, Farmer Payment Vouchers, Bill Purchase Voucher) based on provided PDF templates.
+The ERP application aims to manage Grain Trading, Custody, and Funding for Sudarshan Trading. The Sales module includes Sales Pre-Entry (supporting Mixed Load for multi-customer, multi-item orders with weight validation), Weighbridge Integration (TARE → GROSS), and Sales Invoice/Return with auto-allocation and photo approval. Recent enhancements added fields for Transportation, Anugya No., Company/Bank details, and Broker details. Broker and Transporter master data management is integrated.
+
+The current focus is robust print functionality for Sales Invoice, Farmer Payment Vouchers, and Bill Purchase Voucher. This involves aligning application data models with user-provided print templates. Key additions include structured addresses for parties, consignee details in sales, company details (logo URL, godown address, terms & conditions), and specific farmer details (village, vehicle number, weighbridge slip number). A mobile-first farmer pre-entry flow ensures farmer master data integrity. The latest specific requirement is to refine the Farmer Payment Voucher print template, including dual-language copies and precise field mapping from the backend.
 </product_requirements>
 
 <key_technical_concepts>
--   **Backend**: FastAPI, Python, MongoDB (UUIDs for IDs, UTC ISO timestamps), Pydantic.
--   **Frontend**: React (, Shadcn/UI, Tailwind CSS), , .
--   **API Design**:  prefix for backend routes.
--   **UI Components**: Autocomplete (Supplier, Broker, Customer, Transporter), Modals, Toasts, Tabs.
--   **Data Handling**: Mixed load logic, weight allocation, form validation.
+-   **Backend**: FastAPI, Python, MongoDB (UUIDs, UTC ISO timestamps), Pydantic, file uploads.
+-   **Frontend**: React (, Shadcn/UI, Tailwind CSS), , ,  for API.
+-   **API Design**:  prefix, RESTful endpoints, data validation.
+-   **UI Components**: Autocomplete, Modals, Toasts, Tabs.
+-   **Data Handling**: Mixed load logic, weight allocation, form validation, consolidated party/farmer master data.
 </key_technical_concepts>
 
 <code_architecture>
 
 -   : Main FastAPI entry point.
-    -   *Changes*: Registered  and .
--   : Defines models for sales.
-    -   *Changes*:  modified for  and .  and  updated to include new transportation fields.  updated with .
+    -   *Changes*:  model updated with , ,  fields and  extended to include consignee.  helper added. New endpoint  added.
+-   : Defines sales-related models.
+    -   *Changes*:  model updated to include , , , , , ,  for detailed delivery information.
 -   : FastAPI routes for Sales.
-    -   *Changes*: Added  endpoint for mixed load invoice creation and Create All auto-allocation. Corrected  type in mixed load pre-entry creation. Sales queue endpoint updated to include .
--   : Defines models for brokers.
-    -   *Changes*: Added , , , ,  fields to  model.
--   : FastAPI routes for brokers.
-    -   *Changes*: Fixed  endpoint to handle MongoDB ObjectId serialization errors.
--    (New): Defines models for company-wide settings (e.g., IFSSAI, Bank Details, Warranty Text).
--    (New): FastAPI routes for managing company settings.
--    (New): Defines models for transporter master data.
--    (New): FastAPI routes for managing transporter master data.
--   : Main React application file.
-    -   *Changes*: Added route for .
--   : Application layout and navigation.
-    -   *Changes*: Added Company Settings link to the sidebar navigation.
--   : Autocomplete for brokers.
-    -   *Changes*: Updated UI for inline broker creation to include new fields (GSTIN, phone, mobile, city, state).
--    (New): Autocomplete component for Transporters.
--   : Frontend form for creating weighbridge pre-entries.
-    -   *Changes*: Implemented mixed load UI with Single Load / Mixed Load toggle, Add Customer and Add Line Item buttons. Replaced plain broker input with . Fixed  warnings.
--   : Sales invoice processing page.
-    -   *Changes*: Added  for mixed load invoice processing. Fixed  in  (accessing ). Fixed  in . Added transportation section UI and state variables. Updated invoice submission payload with transportation fields. Fixed  warnings and missing key props in lists.
--    (New): Frontend page for managing company settings.
--    (Modified): Master data management page.
-    -   *Changes*: Added a Brokers tab for managing broker master data (list, create, edit, delete).
--    (New): Python script to generate test mixed load pre-entries.
+    -   *Changes*: Invoice creation logic updated to handle new consignee and transportation details.
+-   : Defines models for universal weighbridge.
+    -   *Changes*:  model now has  (mandatory) replacing .
+-   : FastAPI routes for weighbridge.
+    -   *Changes*:  function rewritten to interact with  collection, storing  in the  field. New endpoints  and  added for mobile-first farmer flow.  logic updated to correctly persist  and other calculated weights to existing weighbridge entries upon second weight capture.
+-   : Defines models for weighbridge queue.
+    -   *Changes*:  updated to include , , .
+-   : Defines models for company settings.
+    -   *Changes*: Added , , .
+-   : FastAPI routes for company settings.
+    -   *Changes*: Added  endpoint. Fixed a syntax error during implementation.
+-   : Defines models for farmer payments.
+    -   *Changes*:  and  models updated to replace  with , and  with .
+-   : FastAPI routes for farmer payments.
+    -   *Changes*: Queue fetching logic improved to correctly calculate and display quantity and estimated amount by ensuring  and other fields are correctly pulled and used for calculations.
+-   : Frontend for company settings.
+    -   *Changes*: Added UI for logo upload, godown address, terms & conditions.
+-   : Autocomplete for customers.
+    -   *Changes*: UI updated to include , ,  fields with GSTIN auto-extraction.
+-   : Autocomplete for suppliers.
+    -   *Changes*: UI updated to include , ,  fields with GSTIN auto-extraction.
+-   : Frontend form for pre-entries.
+    -   *Changes*: Implemented mobile-first farmer flow:  to check farmer existence,  to register new farmers, dynamic UI for name/village fields (locked for existing, editable for new), OTP verification. GSTIN field for farmers is now explicitly excluded from the payload. UI updated to show a blue checkmark for verified farmers. Disabled fields for verified farmers have enhanced styling.  updated for new states.
+-   : Frontend for weighbridge entries.
+    -   *Changes*: Fixed logic making second weight entry dimmed for purchase transactions. Replaced static gross-tare image with , , and  from pre-entry.
+-   : Frontend for farmer payment.
+    -   *Changes*: Updated to use  instead of  for farmer details. UI updated to reflect this. Currently being updated to use  instead of .
+-   : Master data management.
+    -   *Changes*: UI updated to display  array and show  (village) for farmers in the parties table.
 </code_architecture>
 
 <pending_tasks>
--   Integrate real S3-compatible storage for weighbridge photos.
--   Implement print-friendly HTML view for Sales Invoice and Freight Slip.
--   Complete Sales module Prints & Vouchers (Phase 5).
--   Complete Mixed Load Sales Pre-Entry & Processing Phase 3: Frontend Mixed Load Form (UI for split modal - *mostly done, but print is next*).
--   Complete Phase 4: Anugya No. Field.
+-   Integrate real S3-compatible storage for weighbridge photos (existing).
+-   Complete Farmer Payment Voucher print template implementation (HTML template, bilingual labels, conditional bank details, signature sections).
+-   Implement Sales Invoice print view.
+-   Implement Freight Slip print view.
+-   Implement Bill Purchase voucher print view.
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently working on implementing print functionality for various documents (Sales Invoice, Farmer Payment Vouchers, Bill Purchase Voucher). The user has provided four PDF templates: , , , and . The immediate task is to analyze these templates to identify any fields that are not currently captured in the application's data models. The analysis of these PDF templates has just been completed by the AI engineer, and the next step is to use this analysis to determine if any data model changes are required before proceeding with the print template implementation.
+The AI engineer is currently working on the Farmer Payment Voucher print template. Following a detailed analysis of the user-provided  and subsequent clarifications, it was decided to replace the  field with  in the  model to capture the weighbridge slip reference.
+
+The backend model () has already been updated to reflect this change. The current task is to propagate this change to the frontend. Specifically, the engineer is in the process of updating  to rename the existing  state variable to , ensuring that the UI correctly captures and displays the weighbridge slip number for farmer payments. This is a preparatory step before fully implementing the print-friendly HTML view for the payment vouchers, which will include dual-language support (Hindi for farmer, English for records) and conditional display of bank details.
 </current_work>
 
 <optional_next_step>
-Based on the template analysis, identify any missing data fields and propose backend model updates.
+Complete the renaming of  to  in .
 </optional_next_step>
