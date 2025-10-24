@@ -32,7 +32,10 @@ function CustomerAutocomplete({
     place_of_supply: '',
     contact: '',
     state: '',
-    address: ''
+    address: '',
+    city: '',
+    pin_code: '',
+    state_code: ''
   });
 
   const inputRef = useRef(null);
