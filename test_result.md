@@ -1904,6 +1904,18 @@ frontend:
         agent: "main"
         comment: "FIELD RENAMING COMPLETED: Updated FarmerPaymentPage.js to rename all references from 'gateEntryNo' to 'weighbridgeSlipNo' to match the backend model change (gate_entry_no → weighbridge_slip_no). Changes include: 1) Removed duplicate state variable 'gateEntryNo' (line 31), 2) Using existing 'weighbridgeSlipNo' state variable (line 38), 3) Updated all 14 occurrences of gateEntryNo to weighbridgeSlipNo throughout the component, 4) Updated API payload field from 'gate_entry_no' to 'weighbridge_slip_no' (line 286) to match backend FarmerPayment model, 5) Updated UI labels from 'Gate Entry No' to 'Weighbridge Slip No' in Manual Entry modal and payment form. Screenshot verification shows Manual Entry modal now displays 'Slip ID / Weighbridge Slip No' label correctly. Frontend hot-reload applied changes automatically. This completes Phase 1 of the Farmer Payment Voucher print template refinement."
 
+  - task: "Farmer Payment Voucher - Bilingual Print Template"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/FarmerPaymentPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PHASE 2 COMPLETED - COMPREHENSIVE BILINGUAL PRINT TEMPLATE: Completely replaced the basic print template with a professional dual-language voucher system. Implementation includes: **HINDI COPY (किसान प्रति - Farmer Copy):** 1) Bilingual header with company name in Hindi and English, 2) Document details section with Book No, Date, Location in both languages, 3) Farmer details section with Name, Mobile, Village, Token No, Weighbridge Slip No in Hindi/English labels, 4) Complete items table with bilingual column headers (वस्तु/Item, बोरे/Bags, किलो/Kgs, क्विंटल/Quintals, दर/क्विं/Rate/Qtl, राशि/Amount, एच+टी/H+T, कुल/Total), 5) Totals section with Sub Total, Additional Hamli, Bank Charges, Net Amount in both languages, 6) **CONDITIONAL BANK DETAILS**: Shows only when pay_type is Bank/RTGS/NEFT with account number, displays payment mode, account number, and amount in Hindi/English, 7) Signature sections with 4 columns: Receiver (प्राप्तकर्ता), Cashier (कैशियर), Accountant (लेखाकार), Authorized Sign (प्राधिकृत हस्ताक्षर), 8) Footer with voucher IDs. **ENGLISH COPY (Office Record):** 1) Professional English-only header, 2) Extended document details including Tulai No, Agreement No, Contract Type, 3) Enhanced farmer details with Vehicle Number field, 4) Detailed items table with Vehicle Type column for H+T reference, 5) Complete payment details section with all bank information, 6) Full voucher ID display in separate section, 7) Professional signature section, 8) System footer with generation timestamp. **TECHNICAL FEATURES:** 1) Print-specific CSS with @page A4 size, margin control, page-break-after between copies, 2) Hidden on screen (hidden print:block), visible only when printing, 3) Conditional rendering for bank details based on payment type, 4) Proper number formatting with 2 decimal places for all amounts, 5) Clean borders and spacing for professional appearance, 6) Both copies print on separate pages (page-break), 7) All fields mapped correctly from savedPayment data structure. Frontend compiles successfully with no errors. Ready for print testing."
+
 agent_communication:
   - agent: "main"
     message: |
