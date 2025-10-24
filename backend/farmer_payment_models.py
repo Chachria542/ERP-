@@ -104,6 +104,7 @@ class FarmerPayment(BaseModel):
     farmer_name: str
     mobile: str
     city: Optional[str] = None
+    vehicle_number: Optional[str] = None  # Fetched from weighbridge entry for print
     
     # Line items
     lines: List[FarmerPaymentLine]
