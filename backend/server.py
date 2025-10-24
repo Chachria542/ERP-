@@ -409,12 +409,27 @@ async def login(credentials: UserLogin):
 
 # ============= PARTY ENDPOINTS =============
 
+def extract_state_code_from_gstin(gstin: Optional[str]) -> Optional[str]:
+    """
+    Extract 2-digit state code from GSTIN (first 2 characters)
+    Example: 27AAAAA0000A1Z5 -> 27
+    """
+    if gstin and len(gstin) >= 2:
+        return gstin[:2]
+    return None
+
 @api_router.post("/parties", response_model=Party)
 async def create_party(party_data: PartyCreate):
+    # Auto-extract state_code from GSTIN if not provided
+    if party_data.gstin and not party_data.state_code:
+        party_data.state_code = extract_state_code_from_gstin(party_data.gstin)
+    
     party = Party(**party_data.model_dump())
     doc = party.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.parties.insert_one(doc)
+    
+    print(f"[BACKEND] Created party: {party.name} (state_code: {party.state_code})")
     return party
 
 @api_router.get("/parties", response_model=List[Party])
