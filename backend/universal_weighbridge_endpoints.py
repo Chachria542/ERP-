@@ -487,6 +487,22 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 if gross_entry:
                     # Both weights captured, mark as complete
                     calc_net_weight = gross_entry['weight'] - measured_weight
+                    
+                    # Calculate quantities for final weighment
+                    quantities_final = calculate_quantities(calc_net_weight)
+                    
+                    # Update ALL weighbridge entries with quantities
+                    await db.weighbridge_entries.update_many(
+                        {"slip_id": entry_data.slip_id},
+                        {"$set": {
+                            "bags": quantities_final['bags'],
+                            "rem_kg": quantities_final['rem_kg'],
+                            "act_qtl": quantities_final['act_qtl'],
+                            "net_weight": calc_net_weight
+                        }}
+                    )
+                    print(f"[BACKEND] Updated weighbridge entries with act_qtl: {quantities_final['act_qtl']}, bags: {quantities_final['bags']}, net_weight: {calc_net_weight} kg")
+                    
                     update_data = {
                         "tare_weight": measured_weight,
                         "net_weight": calc_net_weight,
