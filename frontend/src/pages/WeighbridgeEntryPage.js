@@ -752,19 +752,19 @@ function WeighbridgeEntryPage({ user, onLogout }) {
 
               {/* Card 3: Net Weight */}
               <Card 
-                className={`p-6 border-2 ${(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? 'bg-orange-50' : 'bg-white opacity-50'}`}
-                style={{borderColor: (secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '#FF9800' : '#E0E0E0'}}
+                className={`p-6 border-2 ${secondWeightCaptured ? 'bg-orange-50' : 'bg-white opacity-50'}`}
+                style={{borderColor: secondWeightCaptured ? '#FF9800' : '#E0E0E0'}}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-bold text-orange-700">
                     3️⃣ NET Weight
                   </h3>
-                  <Badge style={{backgroundColor: (secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '#FF9800' : '#9E9E9E', color: 'white'}}>
-                    {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? '🎯 Result' : '🔒 Locked'}
+                  <Badge style={{backgroundColor: secondWeightCaptured ? '#FF9800' : '#9E9E9E', color: 'white'}}>
+                    {secondWeightCaptured ? '🎯 Result' : '🔒 Locked'}
                   </Badge>
                 </div>
 
-                {(secondWeightCaptured || (transactionType === 'purchase' && firstWeightCaptured)) ? (
+                {secondWeightCaptured ? (
                   <div className="space-y-4">
                     <div className="text-center py-4">
                       <div className="text-6xl font-bold text-orange-600">
