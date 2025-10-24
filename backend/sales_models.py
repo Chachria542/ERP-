@@ -232,6 +232,26 @@ class SalesInvoice(BaseModel):
     # Vehicle info (from weighbridge)
     vehicle_number: Optional[str] = None
     
+    # Transportation details
+    city_from: Optional[str] = None
+    city_to: Optional[str] = None
+    driver_name: Optional[str] = None
+    driver_license_no: Optional[str] = None
+    driver_license_expiry: Optional[str] = None
+    freight_type: Optional[str] = None  # To Pay, Paid, etc.
+    freight_amount: Optional[float] = None
+    freight_rate: Optional[float] = None
+    advance_freight: Optional[float] = None
+    net_freight: Optional[float] = None
+    owner_name: Optional[str] = None
+    bilty_no: Optional[str] = None
+    transporter_name: Optional[str] = None
+    transporter_id: Optional[str] = None
+    gross_weight: Optional[float] = None  # From weighbridge
+    tare_weight: Optional[float] = None   # From weighbridge
+    net_weight: Optional[float] = None     # From weighbridge
+    anugya_no: Optional[str] = None  # Government registration number
+    
     # Additional
     remarks: Optional[str] = None
     
