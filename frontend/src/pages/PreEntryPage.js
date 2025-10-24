@@ -633,6 +633,7 @@ function PreEntryPage({ user, onLogout }) {
     setPartyName('');
     setPartyMobile('');
     setPartyGstin('');
+    setPartyVillage(''); // Reset village field
     setItemId('');
     setQuality('');
     setExpectedBags('');
