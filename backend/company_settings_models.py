@@ -57,4 +57,7 @@ class CompanySettingsCreate(BaseModel):
     ifssai_no: str
     bank_details: BankDetails
     warranty_text: str
+    company_logo_url: Optional[str] = None
+    godown_address: Optional[str] = None
+    terms_and_conditions: Optional[str] = None
     created_by: str
