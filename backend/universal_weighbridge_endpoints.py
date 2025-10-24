@@ -53,7 +53,7 @@ async def generate_slip_id() -> str:
     
     return f"WB-{fy_year:02d}-{new_no:06d}"
 
-async def get_or_create_farmer(mobile: str, name: str, city: Optional[str] = None) -> tuple:
+async def get_or_create_farmer(mobile: str, name: str, village: Optional[str] = None) -> tuple:
     """
     Get existing farmer or create new one.
     Preserves OTP verification status from otp_verifications collection.
@@ -78,13 +78,13 @@ async def get_or_create_farmer(mobile: str, name: str, city: Optional[str] = Non
         farmer = Farmer(
             mobile=mobile, 
             name=name, 
-            city=city,
+            village=village,
             mobile_verified=True,
             mobile_verified_at=datetime.now(timezone.utc),
             otp_verified_count=1
         )
     else:
-        farmer = Farmer(mobile=mobile, name=name, city=city)
+        farmer = Farmer(mobile=mobile, name=name, village=village)
     
     doc = farmer.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
