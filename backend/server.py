@@ -105,6 +105,9 @@ class PartyCreate(BaseModel):
     roles: List[str] = Field(default_factory=list)
     contact: Optional[str] = None
     address: Optional[str] = None
+    city: Optional[str] = None
+    pin_code: Optional[str] = None
+    state_code: Optional[str] = None
     gstin: Optional[str] = None
     state: Optional[str] = None
     place_of_supply: Optional[str] = None
