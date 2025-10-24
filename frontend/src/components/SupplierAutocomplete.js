@@ -161,6 +161,15 @@ function SupplierAutocomplete({
     }
   };
 
+  // Auto-extract state_code from GSTIN
+  const handleSupplierGstinChange = (value) => {
+    setNewSupplierData({
+      ...newSupplierData, 
+      gstin: value,
+      state_code: value.length >= 2 ? value.substring(0, 2) : newSupplierData.state_code
+    });
+  };
+
   // Handle new supplier creation
   const handleCreateNewSupplier = async () => {
     console.log('[SupplierAutocomplete] handleCreateNewSupplier called');
