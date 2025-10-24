@@ -33,6 +33,11 @@ class CompanySettings(BaseModel):
     # Legal/Compliance
     warranty_text: str
     
+    # Company assets and additional info (for print templates)
+    company_logo_url: Optional[str] = None  # Path to uploaded logo (PNG/JPEG)
+    godown_address: Optional[str] = None     # Static godown/mandi address
+    terms_and_conditions: Optional[str] = None  # Invoice footer terms
+    
     # Metadata
     created_at: datetime
     updated_at: Optional[datetime] = None
