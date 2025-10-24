@@ -313,10 +313,13 @@ function CustomerAutocomplete({
                 <Label>GSTIN</Label>
                 <Input
                   value={newCustomerData.gstin}
-                  onChange={(e) => setNewCustomerData({...newCustomerData, gstin: e.target.value})}
-                  placeholder="Enter GSTIN"
+                  onChange={(e) => handleGstinChange(e.target.value)}
+                  placeholder="Enter GSTIN (auto-extracts state code)"
                   className="mt-1"
                 />
+                {newCustomerData.state_code && (
+                  <p className="text-xs text-green-600 mt-1">✓ State Code: {newCustomerData.state_code}</p>
+                )}
               </div>
             </div>
 
@@ -339,6 +342,42 @@ function CustomerAutocomplete({
                   placeholder="10-digit mobile"
                   className="mt-1"
                   maxLength={10}
+                />
+              </div>
+            </div>
+
+            {/* NEW: Structured Address Fields */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>City</Label>
+                <Input
+                  value={newCustomerData.city}
+                  onChange={(e) => setNewCustomerData({...newCustomerData, city: e.target.value})}
+                  placeholder="City"
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label>PIN Code</Label>
+                <Input
+                  value={newCustomerData.pin_code}
+                  onChange={(e) => setNewCustomerData({...newCustomerData, pin_code: e.target.value})}
+                  placeholder="6-digit PIN"
+                  className="mt-1"
+                  maxLength={6}
+                />
+              </div>
+
+              <div>
+                <Label>State Code</Label>
+                <Input
+                  value={newCustomerData.state_code}
+                  onChange={(e) => setNewCustomerData({...newCustomerData, state_code: e.target.value})}
+                  placeholder="2-digit code"
+                  className="mt-1"
+                  maxLength={2}
+                  readOnly={!!newCustomerData.gstin}
                 />
               </div>
             </div>
@@ -377,7 +416,10 @@ function CustomerAutocomplete({
                     place_of_supply: '',
                     contact: '',
                     state: '',
-                    address: ''
+                    address: '',
+                    city: '',
+                    pin_code: '',
+                    state_code: ''
                   });
                 }}
               >
