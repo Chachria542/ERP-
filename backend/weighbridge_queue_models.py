@@ -23,6 +23,11 @@ class WeighbridgeQueueItem(BaseModel):
     item_name: Optional[str] = None
     item_id: Optional[str] = None
     
+    # Pre-entry details (for display)
+    expected_bags: Optional[int] = None
+    quality: Optional[str] = None
+    rate_per_qtl: Optional[float] = None
+    
     # Weight status
     tare_weight: Optional[float] = None
     gross_weight: Optional[float] = None
