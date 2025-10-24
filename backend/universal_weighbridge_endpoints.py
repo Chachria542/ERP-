@@ -767,6 +767,81 @@ async def get_farmer(mobile: str):
 
 # ============= UNIVERSAL WEIGHBRIDGE QUEUE =============
 
+@router.get("/farmers/check/{mobile}")
+async def check_farmer_exists(mobile: str):
+    """
+    Check if farmer exists in parties collection by mobile number
+    Returns farmer details if found, else 404
+    Used in pre-entry to auto-fill farmer details or prompt new registration
+    """
+    # Check in parties collection for farmer with this mobile
+    farmer = await db.parties.find_one(
+        {"contact": mobile, "roles": "farmer"}, 
+        {"_id": 0}
+    )
+    
+    if not farmer:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+    
+    print(f"[BACKEND] Farmer found for mobile {mobile}: {farmer.get('name')}")
+    
+    return {
+        "exists": True,
+        "farmer": {
+            "id": farmer.get("id"),
+            "name": farmer.get("name"),
+            "mobile": farmer.get("contact"),
+            "village": farmer.get("city")  # Village stored in city field
+        }
+    }
+
+@router.post("/farmers/register")
+async def register_farmer(data: dict):
+    """
+    Register new farmer in parties collection after OTP verification
+    Called after successful OTP verification in pre-entry form
+    """
+    mobile = data.get("mobile")
+    name = data.get("name")
+    village = data.get("village")
+    
+    if not mobile or not name or not village:
+        raise HTTPException(status_code=400, detail="Mobile, name, and village are required")
+    
+    # Validate mobile format
+    if len(mobile) != 10 or not mobile.isdigit():
+        raise HTTPException(status_code=400, detail="Invalid mobile number")
+    
+    # Check if OTP was verified (optional - we trust frontend verification)
+    otp_verification = await db.otp_verifications.find_one(
+        {"mobile": mobile, "verified": True},
+        sort=[("created_at", -1)]
+    )
+    
+    if not otp_verification:
+        raise HTTPException(status_code=400, detail="Mobile number not verified. Please verify OTP first.")
+    
+    # Check if farmer already exists
+    existing = await db.parties.find_one({"contact": mobile, "roles": "farmer"})
+    if existing:
+        raise HTTPException(status_code=409, detail="Farmer already exists with this mobile")
+    
+    # Create farmer using the existing function
+    farmer_id, name_conflict, existing_name = await get_or_create_farmer(mobile, name, village)
+    
+    print(f"[BACKEND] Registered new farmer: {name} (mobile: {mobile}, village: {village})")
+    
+    return {
+        "message": "Farmer registered successfully",
+        "farmer": {
+            "id": farmer_id,
+            "name": name,
+            "mobile": mobile,
+            "village": village
+        }
+    }
+
+
 @router.get("/weighbridge/queue", response_model=WeighbridgeQueueResponse)
 async def get_weighbridge_queue(
     transaction_type: Optional[str] = None,
