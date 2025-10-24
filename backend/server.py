@@ -894,6 +894,10 @@ api_router.include_router(sales_router, tags=["sales"])
 from company_settings_endpoints import router as company_settings_router
 api_router.include_router(company_settings_router, tags=["company-settings"])
 
+# Include transporter router
+from transporter_endpoints import router as transporter_router
+api_router.include_router(transporter_router, tags=["transporters"])
+
 # Include routers in app
 app.include_router(api_router)
 
