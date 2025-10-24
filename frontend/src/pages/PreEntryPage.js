@@ -504,6 +504,7 @@ function PreEntryPage({ user, onLogout }) {
           party_type: partyType,
           party_name: partyName,
           party_mobile: partyMobile || null,
+          party_village: partyVillage || null,  // Village for farmers
           party_gstin: partyGstin || null,
           item_id: itemId,
           quality: quality || null,
