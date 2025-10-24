@@ -1172,45 +1172,37 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </table>
                     </div>
 
-                    {/* Totals */}
-                    <div className="flex justify-end mb-3">
-                      <div className="w-1/2 text-sm">
-                        <div className="flex justify-between py-1">
-                          <span>उप-कुल / Sub Total:</span>
-                          <span className="font-bold">₹{savedPayment.lines?.reduce((sum, l) => sum + l.line_total, 0).toFixed(2)}</span>
-                        </div>
-                        {savedPayment.additional_hamli > 0 && (
-                          <div className="flex justify-between py-1">
-                            <span>अतिरिक्त हमाली / Additional Hamli:</span>
-                            <span>- ₹{savedPayment.additional_hamli.toFixed(2)}</span>
+                    {/* Payment Details & Totals */}
+                    <div className="mb-3">
+                      <div className="flex justify-end text-sm">
+                        <div className="w-1/3">
+                          <div className="flex justify-between py-1 border-t-2 border-black font-bold">
+                            <span>Net Amount</span>
+                            <span>₹{savedPayment.total_amount.toFixed(2)}</span>
                           </div>
-                        )}
-                        {savedPayment.bank_charges > 0 && (
-                          <div className="flex justify-between py-1">
-                            <span>बैंक शुल्क / Bank Charges:</span>
-                            <span>- ₹{savedPayment.bank_charges.toFixed(2)}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between py-1 border-t-2 border-black font-bold text-base">
-                          <span>कुल राशि / Net Amount:</span>
-                          <span>₹{savedPayment.total_amount.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Payment Details - Conditional for Bank */}
-                    {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && savedPayment.account_no && (
-                      <div className="mb-3 p-2 border border-gray-400 text-sm">
-                        <h3 className="font-bold mb-1">बैंक विवरण / Bank Details</h3>
-                        <div><span className="font-semibold">भुगतान विधि / Payment Mode:</span> {savedPayment.pay_type}</div>
-                        <div><span className="font-semibold">खाता नं / Account No:</span> {savedPayment.account_no}</div>
-                        <div><span className="font-semibold">राशि / Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>
+                    {/* Conditional Payment Mode Details */}
+                    {savedPayment.pay_type === 'Cash' && (
+                      <div className="mb-3 p-2 border border-gray-400 text-xs">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
+                        </div>
                       </div>
                     )}
-                    {savedPayment.pay_type === 'Cash' && (
-                      <div className="mb-3 p-2 border border-gray-400 text-sm">
-                        <div><span className="font-bold">भुगतान विधि / Payment Mode:</span> नकद / Cash</div>
-                        <div><span className="font-semibold">राशि / Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
+                    
+                    {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && savedPayment.account_no && (
+                      <div className="mb-3 p-2 border border-gray-400 text-xs">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div><span className="font-semibold">Bank Name:</span> {savedPayment.pay_type}</div>
+                          <div><span className="font-semibold">Account No.:</span> {savedPayment.account_no}</div>
+                          <div><span className="font-semibold">Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>
+                          {savedPayment.cash_amt > 0 && (
+                            <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
+                          )}
+                        </div>
                       </div>
                     )}
 
