@@ -214,6 +214,7 @@ function MasterDataPage({ user, onLogout }) {
           <TabsList className="mb-6">
             <TabsTrigger value="parties" data-testid="parties-tab">Parties</TabsTrigger>
             <TabsTrigger value="items" data-testid="items-tab">Items</TabsTrigger>
+            <TabsTrigger value="brokers" data-testid="brokers-tab">Brokers</TabsTrigger>
           </TabsList>
 
           <TabsContent value="parties">
