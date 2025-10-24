@@ -378,6 +378,24 @@ function PreEntryPage({ user, onLogout }) {
         setShowOTPDialog(false);
         setOtp('');
         toast.success('✅ Mobile verified successfully!');
+        
+        // If new farmer, register immediately after OTP verification
+        if (!farmerExists && partyType === 'farmer' && partyName && partyVillage) {
+          try {
+            const registerResponse = await axios.post(`${API}/farmers/register`, {
+              mobile: partyMobile,
+              name: partyName,
+              village: partyVillage
+            });
+            
+            setFarmerExists(true);
+            setFarmerFieldsLocked(true);
+            toast.success('✅ Farmer registered in master data!');
+          } catch (regError) {
+            console.error('Farmer registration error:', regError);
+            toast.error('Mobile verified, but farmer registration failed. Please try again.');
+          }
+        }
       }
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Invalid OTP');
