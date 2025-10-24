@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import SupplierAutocomplete from '../components/SupplierAutocomplete';
 import CustomerAutocomplete from '../components/CustomerAutocomplete';
+import BrokerAutocomplete from '../components/BrokerAutocomplete';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
