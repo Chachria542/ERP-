@@ -493,10 +493,10 @@ function FarmerPaymentPage({ user, onLogout }) {
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Slip ID / Gate Entry No</Label>
+                  <Label>Slip ID / Weighbridge Slip No</Label>
                   <Input
-                    value={gateEntryNo}
-                    onChange={(e) => setGateEntryNo(e.target.value)}
+                    value={weighbridgeSlipNo}
+                    onChange={(e) => setWeighbridgeSlipNo(e.target.value)}
                     placeholder="WB-25-000001"
                     className="mt-1"
                   />
@@ -510,8 +510,8 @@ function FarmerPaymentPage({ user, onLogout }) {
                   </Button>
                   <Button 
                     onClick={() => {
-                      if (gateEntryNo) {
-                        handleProcessPayment(gateEntryNo);
+                      if (weighbridgeSlipNo) {
+                        handleProcessPayment(weighbridgeSlipNo);
                         setShowManualEntry(false);
                       } else {
                         toast.error('Please enter Slip ID');
