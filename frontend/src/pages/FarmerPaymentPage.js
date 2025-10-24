@@ -283,7 +283,7 @@ function FarmerPaymentPage({ user, onLogout }) {
         contract_type: contractType,
         mandi_godown: mandiGodown,
         date,
-        gate_entry_no: gateEntryNo,
+        weighbridge_slip_no: weighbridgeSlipNo,
         farmer_name: farmerName,
         mobile,
         village,  // Changed from city to village
