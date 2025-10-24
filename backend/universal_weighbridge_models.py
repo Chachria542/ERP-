@@ -47,7 +47,7 @@ class Farmer(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     mobile: str  # Unique identifier
     name: str
-    city: Optional[str] = None
+    village: str  # Mandatory - Farmer's permanent village (replaced city)
     aadhaar: Optional[str] = None
     mobile_verified: bool = False
     mobile_verified_at: Optional[datetime] = None
@@ -58,7 +58,7 @@ class Farmer(BaseModel):
 class FarmerCreate(BaseModel):
     mobile: str
     name: str
-    city: Optional[str] = None
+    village: str  # Mandatory field
     aadhaar: Optional[str] = None
 
 # ============= OTP VERIFICATION MODELS =============
