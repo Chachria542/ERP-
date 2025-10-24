@@ -197,7 +197,10 @@ function CustomerAutocomplete({
         place_of_supply: '',
         contact: '',
         state: '',
-        address: ''
+        address: '',
+        city: '',
+        pin_code: '',
+        state_code: ''
       });
     } catch (error) {
       console.error('Error creating customer:', error);
