@@ -128,6 +128,69 @@ function MasterDataPage({ user, onLogout }) {
       toast.error('Failed to update price');
     }
   };
+  
+  const handleSaveBroker = async (e) => {
+    e.preventDefault();
+    
+    try {
+      if (editingBroker) {
+        // Update existing broker
+        await axios.put(`${API}/brokers/${editingBroker.id}`, brokerData);
+        toast.success('Broker updated successfully!');
+      } else {
+        // Create new broker
+        await axios.post(`${API}/brokers`, brokerData);
+        toast.success('Broker created successfully!');
+      }
+      
+      setShowBrokerDialog(false);
+      setEditingBroker(null);
+      setBrokerData({
+        name: '',
+        phone: '',
+        mobile: '',
+        pan: '',
+        gstin: '',
+        address: '',
+        city: '',
+        state: '',
+        default_brokerage_type: 'per_quintal',
+        default_brokerage_rate: ''
+      });
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to save broker');
+    }
+  };
+  
+  const handleEditBroker = (broker) => {
+    setEditingBroker(broker);
+    setBrokerData({
+      name: broker.name,
+      phone: broker.phone || '',
+      mobile: broker.mobile || '',
+      pan: broker.pan || '',
+      gstin: broker.gstin || '',
+      address: broker.address || '',
+      city: broker.city || '',
+      state: broker.state || '',
+      default_brokerage_type: broker.default_brokerage_type || 'per_quintal',
+      default_brokerage_rate: broker.default_brokerage_rate || ''
+    });
+    setShowBrokerDialog(true);
+  };
+  
+  const handleDeleteBroker = async (brokerId) => {
+    if (!window.confirm('Are you sure you want to delete this broker?')) return;
+    
+    try {
+      await axios.delete(`${API}/brokers/${brokerId}`);
+      toast.success('Broker deleted successfully!');
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete broker');
+    }
+  };
 
   if (loading) {
     return (
