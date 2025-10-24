@@ -1285,18 +1285,18 @@ function FarmerPaymentPage({ user, onLogout }) {
 
                     {/* Items Table - English */}
                     <div className="mb-3">
-                      <table className="w-full text-xs border-collapse border border-black">
+                      <table className="w-full text-[10px] border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1">Item Name</th>
-                            <th className="border border-black p-1">Expected Weight</th>
-                            <th className="border border-black p-1">Actual Weight (qtl)</th>
-                            <th className="border border-black p-1">Rate</th>
-                            <th className="border border-black p-1">Value</th>
-                            <th className="border border-black p-1">Total Value</th>
-                            <th className="border border-black p-1">Total H+T</th>
-                            <th className="border border-black p-1">H+T Rate</th>
-                            <th className="border border-black p-1">Amount Paid</th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>Item Name</th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>Expected Weight</th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>Actual Weight (qtl)</th>
+                            <th className="border border-black p-1" style={{width: '8%'}}>Rate</th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>Value</th>
+                            <th className="border border-black p-1" style={{width: '12%'}}>Total Value</th>
+                            <th className="border border-black p-1" style={{width: '10%'}}>Total H+T</th>
+                            <th className="border border-black p-1" style={{width: '8%'}}>H+T Rate</th>
+                            <th className="border border-black p-1" style={{width: '14%'}}>Amount Paid</th>
                           </tr>
                         </thead>
                         <tbody>
