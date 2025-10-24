@@ -34,8 +34,13 @@ function BrokerAutocomplete({
   const [showNewBrokerModal, setShowNewBrokerModal] = useState(false);
   const [newBrokerData, setNewBrokerData] = useState({
     name: '',
-    contact: '',
+    phone: '',
+    mobile: '',
     pan: '',
+    gstin: '',
+    address: '',
+    city: '',
+    state: '',
     default_brokerage_type: 'per_quintal',
     default_brokerage_rate: ''
   });
