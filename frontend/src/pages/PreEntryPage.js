@@ -453,10 +453,22 @@ function PreEntryPage({ user, onLogout }) {
         return;
       }
 
-      // OTP Verification Check (only for farmer_purchase with NEW farmers)
-      if (transactionType === 'farmer_purchase' && partyMobile && !otpVerified) {
-        toast.error('Please verify mobile number first');
-        return;
+      // New validation: Farmer must be checked and verified
+      if (transactionType === 'farmer_purchase' && partyType === 'farmer') {
+        if (!farmerChecked) {
+          toast.error('Please enter mobile number and wait for farmer check');
+          return;
+        }
+        
+        if (!farmerExists && !otpVerified) {
+          toast.error('Please verify mobile and register new farmer first');
+          return;
+        }
+        
+        if (!farmerExists && !partyVillage) {
+          toast.error('Please enter village name');
+          return;
+        }
       }
     }
 
