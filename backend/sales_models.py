@@ -303,6 +303,23 @@ class SalesInvoiceCreate(BaseModel):
     brokerage_type: Optional[str] = None
     brokerage_rate: Optional[float] = None
     
+    # Transportation details
+    city_from: Optional[str] = None
+    city_to: Optional[str] = None
+    driver_name: Optional[str] = None
+    driver_license_no: Optional[str] = None
+    driver_license_expiry: Optional[str] = None
+    freight_type: Optional[str] = None
+    freight_amount: Optional[float] = None
+    freight_rate: Optional[float] = None
+    advance_freight: Optional[float] = None
+    net_freight: Optional[float] = None
+    owner_name: Optional[str] = None
+    bilty_no: Optional[str] = None
+    transporter_name: Optional[str] = None
+    transporter_id: Optional[str] = None
+    anugya_no: Optional[str] = None
+    
     # Additional
     remarks: Optional[str] = None
     created_by: str
