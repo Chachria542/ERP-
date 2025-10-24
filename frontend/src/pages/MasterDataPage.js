@@ -267,9 +267,9 @@ function MasterDataPage({ user, onLogout }) {
                   <thead>
                     <tr>
                       <th>Name</th>
-                      <th>Type</th>
+                      <th>Roles</th>
                       <th>Contact</th>
-                      <th>Address</th>
+                      <th>Village/City</th>
                       <th>GSTIN</th>
                     </tr>
                   </thead>
@@ -277,9 +277,17 @@ function MasterDataPage({ user, onLogout }) {
                     {parties.map(party => (
                       <tr key={party.id}>
                         <td className="font-semibold">{party.name}</td>
-                        <td><span className="badge badge-info capitalize">{party.type}</span></td>
+                        <td>
+                          {party.roles && party.roles.length > 0 ? (
+                            party.roles.map(role => (
+                              <span key={role} className="badge badge-info capitalize mr-1">{role}</span>
+                            ))
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
                         <td>{party.contact || '-'}</td>
-                        <td>{party.address || '-'}</td>
+                        <td>{party.city || '-'}</td>
                         <td>{party.gstin || '-'}</td>
                       </tr>
                     ))}
