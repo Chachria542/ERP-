@@ -75,6 +75,9 @@ class PartyExtendedUpdate(BaseModel):
     roles: Optional[List[str]] = None
     contact: Optional[str] = None
     address: Optional[str] = None
+    city: Optional[str] = None
+    pin_code: Optional[str] = None
+    state_code: Optional[str] = None
     gstin: Optional[str] = None
     state: Optional[str] = None
     place_of_supply: Optional[str] = None
