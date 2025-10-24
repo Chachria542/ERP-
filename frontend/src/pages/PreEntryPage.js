@@ -60,6 +60,7 @@ function PreEntryPage({ user, onLogout }) {
   const [partyName, setPartyName] = useState('');
   const [partyMobile, setPartyMobile] = useState('');
   const [partyGstin, setPartyGstin] = useState('');
+  const [partyVillage, setPartyVillage] = useState(''); // Village for farmer transactions
   
   // Bill Purchase specific fields
   const [suppliers, setSuppliers] = useState([]);
