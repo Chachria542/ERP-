@@ -107,16 +107,16 @@ async def get_farmer_payment_queue(
                 "created_at": wb_entry.get("created_at", ""),
                 "weighed_at": wb_entry.get("weighed_at", "")
             }
-                
-                # Apply search filter
-                if search:
-                    search_lower = search.lower()
-                    if (search_lower in queue_item["slip_id"].lower() or
-                        search_lower in queue_item["farmer_name"].lower() or
-                        (queue_item["farmer_mobile"] and search_lower in queue_item["farmer_mobile"])):
-                        queue_items.append(queue_item)
-                else:
+            
+            # Apply search filter
+            if search:
+                search_lower = search.lower()
+                if (search_lower in queue_item["slip_id"].lower() or
+                    search_lower in queue_item["farmer_name"].lower() or
+                    (queue_item["farmer_mobile"] and search_lower in queue_item["farmer_mobile"])):
                     queue_items.append(queue_item)
+            else:
+                queue_items.append(queue_item)
         
         # Sort
         reverse = (sort_order == "desc")
