@@ -75,6 +75,9 @@ async def create_or_update_company_settings(settings_data: CompanySettingsCreate
 
 @router.get("/company-settings/exists")
 async def check_company_settings_exist():
+    """Check if company settings exist"""
+    settings = await db.company_settings.find_one({})
+    return {"exists": settings is not None}
 
 @router.post("/company-settings/upload-logo")
 async def upload_company_logo(file: UploadFile = File(...)):
