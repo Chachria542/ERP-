@@ -1237,110 +1237,112 @@ function FarmerPaymentPage({ user, onLogout }) {
                   {/* ENGLISH COPY - Office Record */}
                   <div className="p-6 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
-                    <div className="text-center mb-4 pb-3 border-b-2 border-black">
-                      <h1 className="text-2xl font-bold mb-1">Sudarshan Trading Company</h1>
-                      <p className="text-xs">Sanawad, Madhya Pradesh</p>
-                      <h2 className="text-lg font-bold mt-2">Payment Voucher (Office Record)</h2>
+                    <div className="text-center mb-3 pb-2 border-b border-black">
+                      <h2 className="text-lg font-bold">Payment Voucher (Office Record)</h2>
+                      <p className="text-xs">Profarma - 4 (Under Bye Law - 17(4))</p>
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 text-sm">
-                      <div><span className="font-semibold">Book No:</span> {savedPayment.book_no}</div>
+                    <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
                       <div><span className="font-semibold">Date:</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}</div>
-                      <div><span className="font-semibold">Location:</span> {savedPayment.location}</div>
-                      {savedPayment.tulai_no && <div><span className="font-semibold">Tulai No:</span> {savedPayment.tulai_no}</div>}
-                      {savedPayment.agr_no && <div><span className="font-semibold">Agreement No:</span> {savedPayment.agr_no}</div>}
-                      <div><span className="font-semibold">Contract Type:</span> {savedPayment.contract_type}</div>
+                      <div><span className="font-semibold">Book No:</span> {savedPayment.book_no}</div>
+                      <div className="text-right"><span className="font-semibold">Location:</span> {savedPayment.location}</div>
                     </div>
 
-                    {/* Farmer Details */}
+                    {/* Purchaser & Seller Details */}
                     <div className="mb-3 p-2 border border-gray-400">
-                      <h3 className="font-bold text-sm mb-2 border-b pb-1">Farmer Details</h3>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div><span className="font-semibold">Name:</span> {savedPayment.farmer_name}</div>
-                        <div><span className="font-semibold">Mobile:</span> {savedPayment.mobile}</div>
-                        <div><span className="font-semibold">Village:</span> {savedPayment.village || 'N/A'}</div>
-                        <div><span className="font-semibold">Token No:</span> {savedPayment.token_no || 'N/A'}</div>
-                        {savedPayment.weighbridge_slip_no && (
-                          <div><span className="font-semibold">Weighbridge Slip:</span> {savedPayment.weighbridge_slip_no}</div>
-                        )}
-                        {savedPayment.vehicle_number && (
-                          <div><span className="font-semibold">Vehicle No:</span> {savedPayment.vehicle_number}</div>
-                        )}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <p className="font-semibold mb-1">Purchaser</p>
+                          <p className="font-bold">M/S Sudarshan Trading Company</p>
+                        </div>
+                        <div>
+                          {savedPayment.weighbridge_slip_no && (
+                            <div className="text-right">
+                              <p className="font-semibold">Weight Slip</p>
+                              <p className="font-bold">{savedPayment.weighbridge_slip_no}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                        <div>
+                          <span className="font-semibold">Seller:</span>
+                          <p className="font-bold">{savedPayment.farmer_name}</p>
+                        </div>
+                        <div>
+                          <span className="font-semibold">Mobile:</span> {savedPayment.mobile}
+                        </div>
+                        <div>
+                          {savedPayment.village && (
+                            <div><span className="font-semibold">Village:</span> {savedPayment.village}</div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Items Table */}
+                    {/* Items Table - English */}
                     <div className="mb-3">
                       <table className="w-full text-xs border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1">Item</th>
-                            <th className="border border-black p-1">Bags</th>
-                            <th className="border border-black p-1">Kgs</th>
-                            <th className="border border-black p-1">Quintals</th>
-                            <th className="border border-black p-1">Rate/Qtl</th>
-                            <th className="border border-black p-1">Amount</th>
-                            <th className="border border-black p-1">Vehicle</th>
-                            <th className="border border-black p-1">H+T</th>
-                            <th className="border border-black p-1">Net Total</th>
+                            <th className="border border-black p-1">Item Name</th>
+                            <th className="border border-black p-1">Expected Weight</th>
+                            <th className="border border-black p-1">Actual Weight (qtl)</th>
+                            <th className="border border-black p-1">Rate</th>
+                            <th className="border border-black p-1">Value</th>
+                            <th className="border border-black p-1">Total Value</th>
+                            <th className="border border-black p-1">Total H+T</th>
+                            <th className="border border-black p-1">H+T Rate</th>
+                            <th className="border border-black p-1">Amount Paid</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {savedPayment.lines?.map((line, idx) => (
-                            <tr key={idx}>
-                              <td className="border border-black p-1">{line.item_name}</td>
-                              <td className="border border-black p-1 text-right">{line.bags}</td>
-                              <td className="border border-black p-1 text-right">{line.rem_kg}</td>
-                              <td className="border border-black p-1 text-right">{line.act_qtl}</td>
-                              <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
-                              <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                              <td className="border border-black p-1 text-center">{line.vehicle_type}</td>
-                              <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
-                              <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
-                            </tr>
-                          ))}
+                          {savedPayment.lines?.map((line, idx) => {
+                            const htRate = line.vehicle_type === 'Truck' ? 4.75 : line.vehicle_type === 'Hammali' ? 5.75 : 0;
+                            return (
+                              <tr key={idx}>
+                                <td className="border border-black p-1">{line.item_name}</td>
+                                <td className="border border-black p-1 text-right">{line.bags || 'N/A'}</td>
+                                <td className="border border-black p-1 text-right">{line.act_qtl}</td>
+                                <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
+                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
+                                <td className="border border-black p-1 text-right">{htRate}</td>
+                                <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
 
                     {/* Totals */}
-                    <div className="flex justify-end mb-3">
-                      <div className="w-1/2 text-sm">
-                        <div className="flex justify-between py-1">
-                          <span>Sub Total:</span>
-                          <span className="font-bold">₹{savedPayment.lines?.reduce((sum, l) => sum + l.line_total, 0).toFixed(2)}</span>
-                        </div>
-                        {savedPayment.additional_hamli > 0 && (
-                          <div className="flex justify-between py-1">
-                            <span>Additional Hamli:</span>
-                            <span>- ₹{savedPayment.additional_hamli.toFixed(2)}</span>
+                    <div className="mb-3">
+                      <div className="flex justify-end text-sm">
+                        <div className="w-1/3">
+                          <div className="flex justify-between py-1 border-t-2 border-black font-bold">
+                            <span>Net Amount</span>
+                            <span>₹{savedPayment.total_amount.toFixed(2)}</span>
                           </div>
-                        )}
-                        {savedPayment.bank_charges > 0 && (
-                          <div className="flex justify-between py-1">
-                            <span>Bank Charges:</span>
-                            <span>- ₹{savedPayment.bank_charges.toFixed(2)}</span>
-                          </div>
-                        )}
-                        <div className="flex justify-between py-1 border-t-2 border-black font-bold text-base">
-                          <span>Net Payable Amount:</span>
-                          <span>₹{savedPayment.total_amount.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Payment Details with Bank Info */}
-                    <div className="mb-3 p-2 border border-gray-400 text-sm">
+                    {/* Payment Details */}
+                    <div className="mb-3 p-2 border border-gray-400 text-xs">
                       <h3 className="font-bold mb-2">Payment Details</h3>
                       <div className="grid grid-cols-2 gap-2">
                         <div><span className="font-semibold">Payment Mode:</span> {savedPayment.pay_type}</div>
-                        <div><span className="font-semibold">Mandi/Godown:</span> {savedPayment.mandi_godown}</div>
+                        <div><span className="font-semibold">Location Type:</span> {savedPayment.mandi_godown}</div>
                         {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && (
                           <>
                             {savedPayment.account_no && <div><span className="font-semibold">Account No:</span> {savedPayment.account_no}</div>}
-                            {savedPayment.cash_bank_ac_id && <div><span className="font-semibold">Bank ID:</span> {savedPayment.cash_bank_ac_id}</div>}
                             <div><span className="font-semibold">Bank Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>
+                            {savedPayment.cash_amt > 0 && (
+                              <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
+                            )}
                           </>
                         )}
                         {savedPayment.pay_type === 'Cash' && (
@@ -1357,28 +1359,20 @@ function FarmerPaymentPage({ user, onLogout }) {
 
                     {/* Signatures */}
                     <div className="mt-8 pt-4">
-                      <div className="grid grid-cols-4 gap-4 text-center text-xs">
+                      <div className="grid grid-cols-2 gap-8 text-center text-xs">
                         <div>
                           <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Receiver's<br/>Signature</div>
+                          <div className="border-t border-black pt-1">Buyer's Signature</div>
                         </div>
                         <div>
                           <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Cashier's<br/>Signature</div>
-                        </div>
-                        <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Accountant's<br/>Signature</div>
-                        </div>
-                        <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Authorized<br/>Signatory</div>
+                          <div className="border-t border-black pt-1">Seller's Payment Receipt Signature</div>
                         </div>
                       </div>
                     </div>
 
                     <div className="text-xs text-gray-600 mt-4 text-center border-t pt-2">
-                      Generated on: {new Date().toLocaleString('en-IN')} | System: GrainTrade ERP
+                      Generated: {new Date().toLocaleString('en-IN')} | GrainTrade ERP
                     </div>
                   </div>
                 </div>
