@@ -109,7 +109,7 @@ function FarmerPaymentPage({ user, onLogout }) {
     try {
       const response = await axios.get(`${API}/weighbridge-entry/${slipId}`);
       setSlipData(response.data);
-      setGateEntryNo(slipId);
+      setWeighbridgeSlipNo(slipId);
       
       // Show photo approval modal first
       setShowPhotoModal(true);
@@ -122,7 +122,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   const handleApprovePhotos = async () => {
     try {
       // Update backend with approval
-      await axios.put(`${API}/weighbridge-entry/${gateEntryNo}/photo-approval`, null, {
+      await axios.put(`${API}/weighbridge-entry/${weighbridgeSlipNo}/photo-approval`, null, {
         params: {
           approved: true,
           user_id: user.id
@@ -151,7 +151,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   const handleConfirmRejection = async () => {
     try {
       // Update backend with rejection
-      await axios.put(`${API}/weighbridge-entry/${gateEntryNo}/photo-approval`, null, {
+      await axios.put(`${API}/weighbridge-entry/${weighbridgeSlipNo}/photo-approval`, null, {
         params: {
           approved: false,
           user_id: user.id,
@@ -163,7 +163,7 @@ function FarmerPaymentPage({ user, onLogout }) {
       setShowRejectionDialog(false);
       setShowPhotoModal(false);
       setSlipData(null);
-      setGateEntryNo('');
+      setWeighbridgeSlipNo('');
       setRejectionReason('');
       
       toast.error('Photos rejected. Slip returned to queue.');
