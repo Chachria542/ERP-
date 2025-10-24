@@ -179,12 +179,15 @@ function FarmerPaymentPage({ user, onLogout }) {
     setMobile(data.party_mobile || '');
     setTokenNo(data.token_no || '');
     
-    // Fetch village from farmer master data using mobile
+    // Fetch village (stored as city) from parties collection with role=farmer
     if (data.party_mobile) {
       try {
-        const farmerResponse = await axios.get(`${API}/farmers/${data.party_mobile}`);
-        if (farmerResponse.data) {
-          setVillage(farmerResponse.data.village || '');
+        const response = await axios.get(`${API}/parties`);
+        const farmer = response.data.find(p => 
+          p.roles?.includes('farmer') && p.contact === data.party_mobile
+        );
+        if (farmer) {
+          setVillage(farmer.city || '');  // Village is stored in city field
         }
       } catch (error) {
         console.log('Could not fetch farmer village:', error);
