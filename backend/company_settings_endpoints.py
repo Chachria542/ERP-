@@ -1,13 +1,20 @@
 """
 Company Settings Module - API Endpoints
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from datetime import datetime, timezone
 import uuid
+import os
+import shutil
+from pathlib import Path
 
 from company_settings_models import CompanySettings, CompanySettingsCreate
 
 router = APIRouter()
+
+# Upload directory for company assets
+UPLOAD_DIR = Path("/app/uploads/company")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 # Import database from server
 from server import db
