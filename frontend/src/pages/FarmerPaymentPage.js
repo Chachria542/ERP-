@@ -28,7 +28,6 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [contractType, setContractType] = useState('Anubandh');
   const [mandiGodown, setMandiGodown] = useState('Mandi');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [gateEntryNo, setGateEntryNo] = useState('');
   const [tulaiNo, setTulaiNo] = useState('');
   const [agrNo, setAgrNo] = useState('');
   
@@ -36,7 +35,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [mobile, setMobile] = useState('');
   const [village, setVillage] = useState('');  // Changed from city to village
   const [tokenNo, setTokenNo] = useState('');
-  const [weighbridgeSlipNo, setWeighbridgeSlipNo] = useState('');  // Changed from gateEntryNo
+  const [weighbridgeSlipNo, setWeighbridgeSlipNo] = useState('');
   
   const [items, setItems] = useState([]);
   const [lines, setLines] = useState([{
