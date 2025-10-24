@@ -1523,62 +1523,73 @@ function PreEntryPage({ user, onLogout }) {
                 )}
               </div>
             ) : (
-              // Farmer Purchase fields (existing logic)
+              // Farmer Purchase fields - Mobile-First Flow
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
+                  {/* Mobile - Always first, triggers farmer check */}
+                  {(partyType === 'farmer' || transactionType === 'sale') && (
+                    <div>
+                      <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
+                      <div className="space-y-2 mt-1">
+                        <Input
+                          value={partyMobile}
+                          onChange={(e) => {
+                            setPartyMobile(e.target.value);
+                            setOtpVerified(false);
+                            setFarmerChecked(false);
+                            setFarmerExists(false);
+                            setFarmerFieldsLocked(false);
+                          }}
+                          onBlur={handleMobileBlur}
+                          placeholder="Enter 10-digit mobile"
+                          maxLength={10}
+                          className="flex-1"
+                          required={partyType === 'farmer'}
+                        />
+                        {checkingFarmer && (
+                          <p className="text-xs text-blue-600">🔍 Checking farmer...</p>
+                        )}
+                        {farmerExists && (
+                          <p className="text-xs text-green-600">✅ Existing farmer - details auto-filled</p>
+                        )}
+                        {farmerChecked && !farmerExists && (
+                          <p className="text-xs text-orange-600">📝 New farmer - fill details below</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Name - Locked if farmer exists */}
                   <div>
                     <Label className="text-sm font-semibold">Name *</Label>
                     <Input
                       value={partyName}
                       onChange={(e) => setPartyName(e.target.value)}
-                      placeholder="Party name"
+                      placeholder={farmerFieldsLocked ? "Auto-filled" : "Farmer name"}
                       className="mt-1"
+                      disabled={farmerFieldsLocked}
                       required
+                      style={farmerFieldsLocked ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
                     />
                   </div>
-                  {(partyType === 'farmer' || transactionType === 'sale') && (
-                    <div>
-                      <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
-                      <div className="flex gap-2 mt-1">
-                        <Input
-                          value={partyMobile}
-                          onChange={(e) => {
-                            setPartyMobile(e.target.value);
-                            setOtpVerified(false); // Reset verification on mobile change
-                          }}
-                          placeholder="10-digit mobile"
-                          maxLength={10}
-                          className="flex-1"
-                          required={partyType === 'farmer'}
-                        />
-                        {partyType === 'farmer' && partyMobile.length === 10 && (
-                          <Button
-                            type="button"
-                            onClick={handleCheckAndSendOTP}
-                            disabled={otpVerified || otpLoading}
-                            className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
-                          >
-                            {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
-                          </Button>
-                        )}
-                      </div>
-                      {otpVerified && (
-                        <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
-                      )}
-                    </div>
-                  )}
+                  
+                  {/* Village - Locked if farmer exists, shown only for farmers */}
                   {partyType === 'farmer' && (
                     <div>
                       <Label className="text-sm font-semibold">Village *</Label>
                       <Input
                         value={partyVillage}
                         onChange={(e) => setPartyVillage(e.target.value)}
-                        placeholder="Village name"
+                        placeholder={farmerFieldsLocked ? "Auto-filled" : "Village name"}
                         className="mt-1"
+                        disabled={farmerFieldsLocked}
                         required
+                        style={farmerFieldsLocked ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
                       />
                     </div>
                   )}
+                  
+                  {/* GSTIN - Only for non-farmers */}
                   {partyType !== 'farmer' && (
                     <div>
                       <Label className="text-sm font-semibold">GSTIN</Label>
@@ -1591,6 +1602,32 @@ function PreEntryPage({ user, onLogout }) {
                     </div>
                   )}
                 </div>
+                
+                {/* OTP Verification Button - Only for new farmers after filling details */}
+                {partyType === 'farmer' && farmerChecked && !farmerExists && partyName && partyVillage && !otpVerified && (
+                  <div className="mt-4">
+                    <Button
+                      type="button"
+                      onClick={handleCheckAndSendOTP}
+                      disabled={otpLoading}
+                      className="btn-primary"
+                    >
+                      {otpLoading ? '⏳ Sending...' : '📱 Verify Mobile & Register Farmer'}
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-2">
+                      ⚠️ Please verify mobile to register this farmer in master data
+                    </p>
+                  </div>
+                )}
+                
+                {/* Success Message - Farmer registered */}
+                {partyType === 'farmer' && otpVerified && farmerExists && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                    <p className="text-sm text-green-800">
+                      ✅ <strong>{partyName}</strong> is registered. You can proceed with the pre-entry.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
