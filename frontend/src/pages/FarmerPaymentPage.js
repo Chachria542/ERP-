@@ -34,7 +34,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   
   const [farmerName, setFarmerName] = useState('');
   const [mobile, setMobile] = useState('');
-  const [city, setCity] = useState('');
+  const [village, setVillage] = useState('');  // Changed from city to village
   const [tokenNo, setTokenNo] = useState('');
   
   const [items, setItems] = useState([]);
