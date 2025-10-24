@@ -1581,7 +1581,7 @@ function PreEntryPage({ user, onLogout }) {
                     </div>
                   )}
                   
-                  {/* Name - Locked if farmer exists */}
+                  {/* Name - Locked if farmer exists OR verified */}
                   <div>
                     <Label className="text-sm font-semibold">Name *</Label>
                     <Input
@@ -1590,12 +1590,16 @@ function PreEntryPage({ user, onLogout }) {
                       placeholder={farmerFieldsLocked ? "Auto-filled" : "Farmer name"}
                       className="mt-1"
                       disabled={farmerFieldsLocked}
+                      readOnly={farmerFieldsLocked}
                       required
-                      style={farmerFieldsLocked ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
+                      style={farmerFieldsLocked ? {backgroundColor: '#f5f5f5', cursor: 'not-allowed', color: '#666'} : {}}
                     />
+                    {farmerFieldsLocked && (
+                      <p className="text-xs text-gray-500 mt-1">🔒 Locked after verification</p>
+                    )}
                   </div>
                   
-                  {/* Village - Locked if farmer exists, shown only for farmers */}
+                  {/* Village - Locked if farmer exists OR verified, shown only for farmers */}
                   {partyType === 'farmer' && (
                     <div>
                       <Label className="text-sm font-semibold">Village *</Label>
@@ -1605,9 +1609,13 @@ function PreEntryPage({ user, onLogout }) {
                         placeholder={farmerFieldsLocked ? "Auto-filled" : "Village name"}
                         className="mt-1"
                         disabled={farmerFieldsLocked}
+                        readOnly={farmerFieldsLocked}
                         required
-                        style={farmerFieldsLocked ? {backgroundColor: '#f0f0f0', cursor: 'not-allowed'} : {}}
+                        style={farmerFieldsLocked ? {backgroundColor: '#f5f5f5', cursor: 'not-allowed', color: '#666'} : {}}
                       />
+                      {farmerFieldsLocked && (
+                        <p className="text-xs text-gray-500 mt-1">🔒 Locked after verification</p>
+                      )}
                     </div>
                   )}
                   
