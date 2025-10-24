@@ -95,6 +95,27 @@ function SalesInvoicePage({ user, onLogout }) {
     brokerage_type: 'per_quintal',
     brokerage_rate: '',
     
+    // Transportation details
+    city_from: 'Sanawad',
+    city_to: '',
+    driver_name: '',
+    driver_license_no: '',
+    driver_license_expiry: '',
+    vehicle_number: '', // Auto-filled from weighbridge
+    freight_type: 'To Pay',
+    freight_amount: '',
+    freight_rate: '',
+    advance_freight: '',
+    net_freight: '',
+    owner_name: '',
+    bilty_no: '',
+    transporter_name: '',
+    transporter_id: '',
+    gross_weight: 0, // Auto-filled from weighbridge
+    tare_weight: 0,  // Auto-filled from weighbridge
+    net_weight: 0,   // Auto-filled from weighbridge
+    anugya_no: '',   // Government registration number
+    
     remarks: ''
   });
   
