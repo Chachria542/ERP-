@@ -146,6 +146,7 @@ class FarmerPaymentCreate(BaseModel):
     mobile: str
     village: Optional[str] = None  # Changed from city to village
     vehicle_number: Optional[str] = None
+    weighbridge_slip_no: Optional[str] = None  # Weight slip reference (वजन पर्ची)
     
     lines: List[FarmerPaymentLine]
     
