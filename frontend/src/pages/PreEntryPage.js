@@ -483,7 +483,7 @@ function PreEntryPage({ user, onLogout }) {
             bharti: bharti,
             expected_weight: expectedWeight ? parseFloat(expectedWeight) : null,
             has_broker: hasBroker,
-            broker_id: null,
+            broker_id: brokerId || null,
             broker_name: brokerName || null,
             brokerage_type: hasBroker && brokerageType !== 'none' ? brokerageType : null,
             brokerage_rate: hasBroker && brokerageRate ? parseFloat(brokerageRate) : null,
