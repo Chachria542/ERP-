@@ -66,6 +66,7 @@ function PreEntryPage({ user, onLogout }) {
   const [supplierId, setSupplierId] = useState('');
   const [placeOfSupply, setPlaceOfSupply] = useState('');
   const [hasBroker, setHasBroker] = useState(false);
+  const [brokerId, setBrokerId] = useState('');
   const [brokerName, setBrokerName] = useState('');
   const [brokerageType, setBrokerageType] = useState('none');
   const [brokerageRate, setBrokerageRate] = useState('');
