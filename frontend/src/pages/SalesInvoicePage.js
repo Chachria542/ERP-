@@ -508,6 +508,23 @@ function SalesInvoicePage({ user, onLogout }) {
         brokerage_type: invoiceData.brokerage_type !== 'none' ? invoiceData.brokerage_type : null,
         brokerage_rate: invoiceData.brokerage_rate ? parseFloat(invoiceData.brokerage_rate) : null,
         
+        // Transportation details
+        city_from: invoiceData.city_from || null,
+        city_to: invoiceData.city_to || null,
+        driver_name: invoiceData.driver_name || null,
+        driver_license_no: invoiceData.driver_license_no || null,
+        driver_license_expiry: invoiceData.driver_license_expiry || null,
+        freight_type: invoiceData.freight_type || null,
+        freight_amount: invoiceData.freight_amount ? parseFloat(invoiceData.freight_amount) : null,
+        freight_rate: invoiceData.freight_rate ? parseFloat(invoiceData.freight_rate) : null,
+        advance_freight: invoiceData.advance_freight ? parseFloat(invoiceData.advance_freight) : null,
+        net_freight: invoiceData.net_freight ? parseFloat(invoiceData.net_freight) : null,
+        owner_name: invoiceData.owner_name || null,
+        bilty_no: invoiceData.bilty_no || null,
+        transporter_name: invoiceData.transporter_name || null,
+        transporter_id: invoiceData.transporter_id || null,
+        anugya_no: invoiceData.anugya_no || null,
+        
         remarks: invoiceData.remarks || null,
         created_by: user.username
       };
