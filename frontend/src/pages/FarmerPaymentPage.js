@@ -1102,8 +1102,8 @@ function FarmerPaymentPage({ user, onLogout }) {
                         <p className="font-bold">{savedPayment.mobile}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">City</p>
-                        <p className="font-bold">{savedPayment.city || 'N/A'}</p>
+                        <p className="text-sm text-gray-600">Village</p>
+                        <p className="font-bold">{savedPayment.village || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Token No</p>
