@@ -327,7 +327,7 @@ function FarmerPaymentPage({ user, onLogout }) {
     setAgrNo('');
     setFarmerName('');
     setMobile('');
-    setCity('');
+    setVillage('');
     setTokenNo('');
     setCashBankAcId('');
     setLines([{
