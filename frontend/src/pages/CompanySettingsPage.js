@@ -14,6 +14,7 @@ function CompanySettingsPage({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [settingsExist, setSettingsExist] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   
   // Company details
   const [companyName, setCompanyName] = useState('');
@@ -24,6 +25,11 @@ function CompanySettingsPage({ user, onLogout }) {
   const [companyPin, setCompanyPin] = useState('');
   const [companyPhone, setCompanyPhone] = useState('');
   const [companyEmail, setCompanyEmail] = useState('');
+  
+  // New fields for print templates
+  const [companyLogoUrl, setCompanyLogoUrl] = useState('');
+  const [godownAddress, setGodownAddress] = useState('');
+  const [termsAndConditions, setTermsAndConditions] = useState('');
   
   // Statutory details
   const [ifssaiNo, setIfssaiNo] = useState('');
