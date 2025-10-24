@@ -1079,6 +1079,241 @@ function SalesInvoicePage({ user, onLogout }) {
                 </div>
               </Card>
 
+              {/* Transportation Details */}
+              <Card className="p-4 bg-blue-50 border-blue-200">
+                <h3 className="font-bold mb-3 text-blue-900">🚚 Transportation Details</h3>
+                
+                {/* Route Information */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Route Information</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>City From</Label>
+                      <Input
+                        value={invoiceData.city_from}
+                        onChange={(e) => setInvoiceData({...invoiceData, city_from: e.target.value})}
+                        placeholder="Origin city"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>City To</Label>
+                      <Input
+                        value={invoiceData.city_to}
+                        onChange={(e) => setInvoiceData({...invoiceData, city_to: e.target.value})}
+                        placeholder="Destination city"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transporter & Vehicle */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Transporter & Vehicle</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Transporter Name</Label>
+                      <TransporterAutocomplete
+                        value={invoiceData.transporter_name}
+                        onSelect={(transporter) => setInvoiceData({
+                          ...invoiceData, 
+                          transporter_name: transporter.name,
+                          transporter_id: transporter.id
+                        })}
+                        placeholder="Type transporter name..."
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Vehicle Number (Auto-filled)</Label>
+                      <Input
+                        value={invoiceData.vehicle_number}
+                        onChange={(e) => setInvoiceData({...invoiceData, vehicle_number: e.target.value})}
+                        placeholder="MH12AB1234"
+                        className="mt-1 bg-gray-100"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <Label>Owner Name</Label>
+                      <Input
+                        value={invoiceData.owner_name}
+                        onChange={(e) => setInvoiceData({...invoiceData, owner_name: e.target.value})}
+                        placeholder="Vehicle owner"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Driver Details */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Driver Details</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Driver Name</Label>
+                      <Input
+                        value={invoiceData.driver_name}
+                        onChange={(e) => setInvoiceData({...invoiceData, driver_name: e.target.value})}
+                        placeholder="Driver name"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>License Number</Label>
+                      <Input
+                        value={invoiceData.driver_license_no}
+                        onChange={(e) => setInvoiceData({...invoiceData, driver_license_no: e.target.value})}
+                        placeholder="License no."
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>License Expiry Date</Label>
+                      <Input
+                        type="date"
+                        value={invoiceData.driver_license_expiry}
+                        onChange={(e) => setInvoiceData({...invoiceData, driver_license_expiry: e.target.value})}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Freight Details */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Freight Details</h4>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div>
+                      <Label>Freight Type</Label>
+                      <Select 
+                        value={invoiceData.freight_type} 
+                        onValueChange={(val) => setInvoiceData({...invoiceData, freight_type: val})}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="To Pay">To Pay</SelectItem>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="TBB">TBB (To Be Billed)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Freight Rate</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={invoiceData.freight_rate}
+                        onChange={(e) => setInvoiceData({...invoiceData, freight_rate: e.target.value})}
+                        placeholder="Per qtl/vehicle"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Freight Amount</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={invoiceData.freight_amount}
+                        onChange={(e) => setInvoiceData({...invoiceData, freight_amount: e.target.value})}
+                        placeholder="Total amount"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label>Advance Freight</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={invoiceData.advance_freight}
+                        onChange={(e) => {
+                          const advance = parseFloat(e.target.value) || 0;
+                          const total = parseFloat(invoiceData.freight_amount) || 0;
+                          setInvoiceData({
+                            ...invoiceData, 
+                            advance_freight: e.target.value,
+                            net_freight: (total - advance).toString()
+                          });
+                        }}
+                        placeholder="Advance paid"
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4 mt-3">
+                    <div>
+                      <Label>Net Freight</Label>
+                      <Input
+                        type="number"
+                        value={invoiceData.net_freight}
+                        className="mt-1 bg-gray-100"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <Label>Bilty No.</Label>
+                      <Input
+                        value={invoiceData.bilty_no}
+                        onChange={(e) => setInvoiceData({...invoiceData, bilty_no: e.target.value})}
+                        placeholder="Lorry receipt no."
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weight Information (Auto-filled from Weighbridge) */}
+                <div className="mb-4">
+                  <h4 className="font-semibold text-sm mb-2">Weight Information (From Weighbridge)</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Gross Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        value={invoiceData.gross_weight}
+                        className="mt-1 bg-gray-100"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <Label>Tare Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        value={invoiceData.tare_weight}
+                        className="mt-1 bg-gray-100"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <Label>Net Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        value={invoiceData.net_weight}
+                        className="mt-1 bg-gray-100"
+                        readOnly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Government Registration */}
+                <div>
+                  <Label>Anugya No. (Government Registration)</Label>
+                  <Input
+                    value={invoiceData.anugya_no}
+                    onChange={(e) => setInvoiceData({...invoiceData, anugya_no: e.target.value})}
+                    placeholder="Enter after state portal registration"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-600 mt-1">
+                    ℹ️ This number is obtained after registering the sale and paying tax on the state government portal
+                  </p>
+                </div>
+              </Card>
+
               {/* Remarks */}
               <div>
                 <Label>Remarks</Label>
