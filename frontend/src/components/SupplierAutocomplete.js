@@ -438,6 +438,42 @@ function SupplierAutocomplete({
               <p className="text-xs text-gray-500 mt-1">Numbers only, no spaces or special characters</p>
             </div>
 
+            {/* NEW: Structured Address Fields */}
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="supplier_city">City (Optional)</Label>
+                <Input
+                  id="supplier_city"
+                  value={newSupplierData.city}
+                  onChange={(e) => setNewSupplierData(prev => ({ ...prev, city: e.target.value }))}
+                  placeholder="City name"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="supplier_pin">PIN Code (Optional)</Label>
+                <Input
+                  id="supplier_pin"
+                  value={newSupplierData.pin_code}
+                  onChange={(e) => setNewSupplierData(prev => ({ ...prev, pin_code: e.target.value.replace(/\D/g, '') }))}
+                  placeholder="6-digit PIN"
+                  maxLength={6}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="supplier_state_code">State Code</Label>
+                <Input
+                  id="supplier_state_code"
+                  value={newSupplierData.state_code}
+                  onChange={(e) => setNewSupplierData(prev => ({ ...prev, state_code: e.target.value.replace(/\D/g, '') }))}
+                  placeholder="2-digit"
+                  maxLength={2}
+                  readOnly={!!newSupplierData.gstin}
+                />
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="supplier_state">State (Optional)</Label>
               <Input
