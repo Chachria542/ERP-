@@ -401,12 +401,14 @@ function SupplierAutocomplete({
               <Input
                 id="supplier_gstin"
                 value={newSupplierData.gstin}
-                onChange={(e) => setNewSupplierData(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
-                placeholder="27AAAAA0000A1Z5"
+                onChange={(e) => handleSupplierGstinChange(e.target.value.toUpperCase())}
+                placeholder="27AAAAA0000A1Z5 (auto-extracts state code)"
                 maxLength={15}
                 className={!newSupplierData.gstin?.trim() ? 'border-red-300' : ''}
               />
-              <p className="text-xs text-gray-500 mt-1">15-character GST identification number</p>
+              {newSupplierData.state_code && (
+                <p className="text-xs text-green-600 mt-1">✓ State Code: {newSupplierData.state_code}</p>
+              )}
             </div>
 
             <div>
