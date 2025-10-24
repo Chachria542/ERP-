@@ -1568,11 +1568,14 @@ function PreEntryPage({ user, onLogout }) {
                         {checkingFarmer && (
                           <p className="text-xs text-blue-600">🔍 Checking farmer...</p>
                         )}
-                        {farmerExists && (
+                        {farmerExists && !checkingFarmer && (
                           <p className="text-xs text-green-600">✅ Existing farmer - details auto-filled</p>
                         )}
-                        {farmerChecked && !farmerExists && (
+                        {farmerChecked && !farmerExists && !otpVerified && !checkingFarmer && (
                           <p className="text-xs text-orange-600">📝 New farmer - fill details below</p>
+                        )}
+                        {!farmerExists && otpVerified && !checkingFarmer && (
+                          <p className="text-xs text-blue-600">✅ Verified</p>
                         )}
                       </div>
                     </div>
