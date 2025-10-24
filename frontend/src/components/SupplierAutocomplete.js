@@ -214,7 +214,10 @@ function SupplierAutocomplete({
         contact: '',
         state: '',
         address: '',
-        pan: ''
+        pan: '',
+        city: '',
+        pin_code: '',
+        state_code: ''
       });
       
       console.log('[SupplierAutocomplete] Supplier creation completed successfully');
