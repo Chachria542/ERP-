@@ -143,10 +143,22 @@ function CustomerAutocomplete({
       place_of_supply: '',
       contact: '',
       state: '',
-      address: ''
+      address: '',
+      city: '',
+      pin_code: '',
+      state_code: ''
     });
     setShowNewCustomerModal(true);
     setShowSuggestions(false);
+  };
+
+  // Auto-extract state_code from GSTIN
+  const handleGstinChange = (value) => {
+    setNewCustomerData({
+      ...newCustomerData, 
+      gstin: value,
+      state_code: value.length >= 2 ? value.substring(0, 2) : newCustomerData.state_code
+    });
   };
 
   // Create new customer
