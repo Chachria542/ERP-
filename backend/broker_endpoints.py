@@ -83,8 +83,19 @@ async def delete_broker(broker_id: str):
 @router.get("/brokers/search/{query}")
 async def search_brokers(query: str):
     """Search brokers by name"""
-    brokers = await db.brokers.find({
-        "name": {"$regex": query, "$options": "i"},
-        "active": True
-    }).to_list(length=None)
-    return brokers
+    try:
+        # Case-insensitive regex search
+        brokers = await db.brokers.find(
+            {
+                "name": {"$regex": query, "$options": "i"},
+                "active": True
+            }
+        ).sort("name", 1).limit(10).to_list(10)
+        
+        # Remove _id from results
+        for broker in brokers:
+            broker.pop('_id', None)
+        
+        return brokers
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
