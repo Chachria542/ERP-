@@ -1095,29 +1095,42 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 text-sm">
+                    <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
                       <div>
-                        <span className="font-semibold">बही नं / Book No:</span> {savedPayment.book_no}
+                        <span className="font-semibold">Date :</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}
                       </div>
                       <div>
-                        <span className="font-semibold">दिनांक / Date:</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}
+                        <span className="font-semibold">Book No.</span> {savedPayment.book_no}
                       </div>
-                      <div>
-                        <span className="font-semibold">स्थान / Location:</span> {savedPayment.location}
+                      <div className="text-right">
+                        <span className="font-semibold">{savedPayment.location}</span>
                       </div>
                     </div>
 
-                    {/* Farmer Details */}
+                    {/* Purchaser & Seller Details */}
                     <div className="mb-3 p-2 border border-gray-400">
-                      <h3 className="font-bold text-sm mb-2 border-b pb-1">किसान विवरण / Farmer Details</h3>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div><span className="font-semibold">नाम / Name:</span> {savedPayment.farmer_name}</div>
-                        <div><span className="font-semibold">मोबाइल / Mobile:</span> {savedPayment.mobile}</div>
-                        <div><span className="font-semibold">गाँव / Village:</span> {savedPayment.village || 'N/A'}</div>
-                        <div><span className="font-semibold">टोकन नं / Token No:</span> {savedPayment.token_no || 'N/A'}</div>
-                        {savedPayment.weighbridge_slip_no && (
-                          <div className="col-span-2"><span className="font-semibold">वजन पर्ची नं / Weighbridge Slip:</span> {savedPayment.weighbridge_slip_no}</div>
-                        )}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <p className="font-semibold mb-1">Name and License No. of Purchaser</p>
+                          <p className="font-bold">M/S Sudarshan Trading Company</p>
+                        </div>
+                        <div>
+                          {savedPayment.weighbridge_slip_no && (
+                            <div className="text-right">
+                              <p className="font-semibold">Weight Slip</p>
+                              <p className="font-bold">{savedPayment.weighbridge_slip_no}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                        <div>
+                          <span className="font-semibold">Name of Seller</span>
+                          <p className="font-bold">{savedPayment.farmer_name}</p>
+                        </div>
+                        <div>
+                          <span className="font-semibold">Mob. No. :</span> {savedPayment.mobile}
+                        </div>
                       </div>
                     </div>
 
