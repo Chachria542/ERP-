@@ -1461,56 +1461,72 @@ function PreEntryPage({ user, onLogout }) {
               </div>
             ) : (
               // Farmer Purchase fields (existing logic)
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label className="text-sm font-semibold">Name *</Label>
-                  <Input
-                    value={partyName}
-                    onChange={(e) => setPartyName(e.target.value)}
-                    placeholder="Party name"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-                {(partyType === 'farmer' || transactionType === 'sale') && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        value={partyMobile}
-                        onChange={(e) => {
-                          setPartyMobile(e.target.value);
-                          setOtpVerified(false); // Reset verification on mobile change
-                        }}
-                        placeholder="10-digit mobile"
-                        maxLength={10}
-                        className="flex-1"
-                        required={partyType === 'farmer'}
-                      />
-                      {partyType === 'farmer' && partyMobile.length === 10 && (
-                        <Button
-                          type="button"
-                          onClick={handleCheckAndSendOTP}
-                          disabled={otpVerified || otpLoading}
-                          className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
-                        >
-                          {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
-                        </Button>
+                    <Label className="text-sm font-semibold">Name *</Label>
+                    <Input
+                      value={partyName}
+                      onChange={(e) => setPartyName(e.target.value)}
+                      placeholder="Party name"
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  {(partyType === 'farmer' || transactionType === 'sale') && (
+                    <div>
+                      <Label className="text-sm font-semibold">Mobile {partyType === 'farmer' ? '*' : ''}</Label>
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          value={partyMobile}
+                          onChange={(e) => {
+                            setPartyMobile(e.target.value);
+                            setOtpVerified(false); // Reset verification on mobile change
+                          }}
+                          placeholder="10-digit mobile"
+                          maxLength={10}
+                          className="flex-1"
+                          required={partyType === 'farmer'}
+                        />
+                        {partyType === 'farmer' && partyMobile.length === 10 && (
+                          <Button
+                            type="button"
+                            onClick={handleCheckAndSendOTP}
+                            disabled={otpVerified || otpLoading}
+                            className={otpVerified ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'}
+                          >
+                            {otpVerified ? '✅ Verified' : otpLoading ? '⏳...' : '📱 Verify'}
+                          </Button>
+                        )}
+                      </div>
+                      {otpVerified && (
+                        <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
                       )}
                     </div>
-                    {otpVerified && (
-                      <p className="text-xs text-green-600 mt-1">✅ Mobile verified</p>
-                    )}
-                  </div>
-                )}
-                <div>
-                  <Label className="text-sm font-semibold">GSTIN</Label>
-                  <Input
-                    value={partyGstin}
-                    onChange={(e) => setPartyGstin(e.target.value)}
-                    placeholder="GST number"
-                    className="mt-1"
-                  />
+                  )}
+                  {partyType === 'farmer' && (
+                    <div>
+                      <Label className="text-sm font-semibold">Village *</Label>
+                      <Input
+                        value={partyVillage}
+                        onChange={(e) => setPartyVillage(e.target.value)}
+                        placeholder="Village name"
+                        className="mt-1"
+                        required
+                      />
+                    </div>
+                  )}
+                  {partyType !== 'farmer' && (
+                    <div>
+                      <Label className="text-sm font-semibold">GSTIN</Label>
+                      <Input
+                        value={partyGstin}
+                        onChange={(e) => setPartyGstin(e.target.value)}
+                        placeholder="GST number"
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             )}
