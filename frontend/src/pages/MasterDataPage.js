@@ -370,6 +370,224 @@ function MasterDataPage({ user, onLogout }) {
               </div>
             </Card>
           </TabsContent>
+
+          <TabsContent value="brokers">
+            <div className="flex justify-end mb-4">
+              <Dialog open={showBrokerDialog} onOpenChange={(open) => {
+                setShowBrokerDialog(open);
+                if (!open) {
+                  setEditingBroker(null);
+                  setBrokerData({
+                    name: '',
+                    phone: '',
+                    mobile: '',
+                    pan: '',
+                    gstin: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    default_brokerage_type: 'per_quintal',
+                    default_brokerage_rate: ''
+                  });
+                }
+              }}>
+                <DialogTrigger asChild>
+                  <Button className="btn-primary" data-testid="add-broker-button">
+                    Add Broker
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{editingBroker ? 'Edit Broker' : 'Add New Broker'}</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleSaveBroker} className="space-y-4">
+                    {/* Basic Information */}
+                    <div className="border-b pb-4">
+                      <h3 className="font-semibold mb-3">Basic Information</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2">
+                          <Label>Broker Name *</Label>
+                          <Input 
+                            value={brokerData.name} 
+                            onChange={(e) => setBrokerData({...brokerData, name: e.target.value})} 
+                            required 
+                          />
+                        </div>
+                        <div>
+                          <Label>Phone Number</Label>
+                          <Input 
+                            value={brokerData.phone} 
+                            onChange={(e) => setBrokerData({...brokerData, phone: e.target.value})} 
+                          />
+                        </div>
+                        <div>
+                          <Label>Mobile Number</Label>
+                          <Input 
+                            value={brokerData.mobile} 
+                            onChange={(e) => setBrokerData({...brokerData, mobile: e.target.value})} 
+                          />
+                        </div>
+                        <div>
+                          <Label>PAN</Label>
+                          <Input 
+                            value={brokerData.pan} 
+                            onChange={(e) => setBrokerData({...brokerData, pan: e.target.value.toUpperCase()})} 
+                            maxLength={10}
+                          />
+                        </div>
+                        <div>
+                          <Label>GSTIN</Label>
+                          <Input 
+                            value={brokerData.gstin} 
+                            onChange={(e) => setBrokerData({...brokerData, gstin: e.target.value.toUpperCase()})} 
+                            maxLength={15}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Address Information */}
+                    <div className="border-b pb-4">
+                      <h3 className="font-semibold mb-3">Address Information</h3>
+                      <div className="space-y-3">
+                        <div>
+                          <Label>Address</Label>
+                          <Input 
+                            value={brokerData.address} 
+                            onChange={(e) => setBrokerData({...brokerData, address: e.target.value})} 
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>City</Label>
+                            <Input 
+                              value={brokerData.city} 
+                              onChange={(e) => setBrokerData({...brokerData, city: e.target.value})} 
+                            />
+                          </div>
+                          <div>
+                            <Label>State</Label>
+                            <Input 
+                              value={brokerData.state} 
+                              onChange={(e) => setBrokerData({...brokerData, state: e.target.value})} 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Brokerage Details */}
+                    <div>
+                      <h3 className="font-semibold mb-3">Default Brokerage Details</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Brokerage Type</Label>
+                          <select 
+                            value={brokerData.default_brokerage_type} 
+                            onChange={(e) => setBrokerData({...brokerData, default_brokerage_type: e.target.value})} 
+                            className="erp-select"
+                          >
+                            <option value="per_quintal">Per Quintal</option>
+                            <option value="per_bag">Per Bag</option>
+                            <option value="percentage">Percentage</option>
+                          </select>
+                        </div>
+                        <div>
+                          <Label>Brokerage Rate</Label>
+                          <Input 
+                            type="number"
+                            step="0.01"
+                            value={brokerData.default_brokerage_rate} 
+                            onChange={(e) => setBrokerData({...brokerData, default_brokerage_rate: e.target.value})} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button type="submit" className="w-full btn-primary">
+                      {editingBroker ? 'Update Broker' : 'Add Broker'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <Card className="erp-card">
+              <div className="overflow-x-auto">
+                <table className="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Phone/Mobile</th>
+                      <th>City/State</th>
+                      <th>GSTIN</th>
+                      <th>Brokerage</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {brokers.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center text-gray-500 py-8">
+                          No brokers found. Click "Add Broker" to create one.
+                        </td>
+                      </tr>
+                    ) : (
+                      brokers.map(broker => (
+                        <tr key={broker.id}>
+                          <td className="font-semibold">{broker.name}</td>
+                          <td>
+                            {broker.mobile && <div>{broker.mobile}</div>}
+                            {broker.phone && <div className="text-sm text-gray-600">{broker.phone}</div>}
+                            {!broker.mobile && !broker.phone && '-'}
+                          </td>
+                          <td>
+                            {broker.city || broker.state ? (
+                              <>
+                                {broker.city}{broker.city && broker.state && ', '}{broker.state}
+                              </>
+                            ) : '-'}
+                          </td>
+                          <td>{broker.gstin || '-'}</td>
+                          <td>
+                            <div className="text-sm">
+                              {broker.default_brokerage_type && (
+                                <>
+                                  <span className="capitalize">{broker.default_brokerage_type.replace('_', ' ')}</span>
+                                  {broker.default_brokerage_rate && `: ${broker.default_brokerage_rate}`}
+                                </>
+                              )}
+                              {!broker.default_brokerage_type && '-'}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleEditBroker(broker)}
+                                className="text-blue-600"
+                              >
+                                Edit
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleDeleteBroker(broker.id)}
+                                className="text-red-600"
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </TabsContent>
         </Tabs>
 
         {/* Price Update Dialog */}
