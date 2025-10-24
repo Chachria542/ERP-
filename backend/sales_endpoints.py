@@ -494,6 +494,27 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "round_off": round_off,
             "grand_total": grand_total,
             "vehicle_number": pre_entry.get('vehicle_number'),
+            
+            # Transportation details (from frontend)
+            "city_from": invoice_data.city_from,
+            "city_to": invoice_data.city_to,
+            "driver_name": invoice_data.driver_name,
+            "driver_license_no": invoice_data.driver_license_no,
+            "driver_license_expiry": invoice_data.driver_license_expiry,
+            "freight_type": invoice_data.freight_type,
+            "freight_amount": invoice_data.freight_amount,
+            "freight_rate": invoice_data.freight_rate,
+            "advance_freight": invoice_data.advance_freight,
+            "net_freight": invoice_data.net_freight,
+            "owner_name": invoice_data.owner_name,
+            "bilty_no": invoice_data.bilty_no,
+            "transporter_name": invoice_data.transporter_name,
+            "transporter_id": invoice_data.transporter_id,
+            "gross_weight": pre_entry.get('gross_weight'),
+            "tare_weight": pre_entry.get('tare_weight'),
+            "net_weight": pre_entry.get('net_weight'),
+            "anugya_no": invoice_data.anugya_no,
+            
             "remarks": invoice_data.remarks,
             "status": "posted",  # Save = Post
             "posted_at": datetime.now(timezone.utc).isoformat(),
