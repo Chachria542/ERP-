@@ -281,6 +281,44 @@ function PreEntryPage({ user, onLogout }) {
     }
   };
 
+  // Farmer Check Function (Mobile-First Flow)
+  const handleMobileBlur = async () => {
+    // Only check for farmer party type
+    if (partyType !== 'farmer' || !partyMobile || partyMobile.length !== 10) {
+      return;
+    }
+    
+    setCheckingFarmer(true);
+    try {
+      const response = await axios.get(`${API}/farmers/check/${partyMobile}`);
+      
+      // Farmer exists - auto-fill and lock fields
+      const farmer = response.data.farmer;
+      setPartyName(farmer.name);
+      setPartyVillage(farmer.village);
+      setFarmerExists(true);
+      setFarmerFieldsLocked(true);
+      setOtpVerified(true); // Already verified farmer
+      toast.success(`✅ Farmer found: ${farmer.name} from ${farmer.village}`);
+      
+    } catch (error) {
+      if (error.response?.status === 404) {
+        // New farmer - enable fields for input
+        setPartyName('');
+        setPartyVillage('');
+        setFarmerExists(false);
+        setFarmerFieldsLocked(false);
+        setOtpVerified(false);
+        toast.info('📝 New farmer - please fill details and verify mobile');
+      } else {
+        toast.error('Error checking farmer');
+      }
+    } finally {
+      setCheckingFarmer(false);
+      setFarmerChecked(true);
+    }
+  };
+
   // OTP Verification Functions
   const handleCheckAndSendOTP = async () => {
     if (!partyMobile || partyMobile.length !== 10) {
