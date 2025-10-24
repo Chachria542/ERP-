@@ -236,8 +236,17 @@ function BrokerAutocomplete({
                   onClick={() => handleSelectBroker(broker)}
                 >
                   <div className="font-medium">{broker.name}</div>
-                  {broker.contact && (
-                    <div className="text-sm text-gray-600">Contact: {broker.contact}</div>
+                  {(broker.mobile || broker.phone) && (
+                    <div className="text-sm text-gray-600">
+                      {broker.mobile && `Mobile: ${broker.mobile}`}
+                      {broker.mobile && broker.phone && ' | '}
+                      {broker.phone && `Phone: ${broker.phone}`}
+                    </div>
+                  )}
+                  {(broker.city || broker.state) && (
+                    <div className="text-sm text-gray-600">
+                      {broker.city}{broker.city && broker.state && ', '}{broker.state}
+                    </div>
                   )}
                   {broker.default_brokerage_type && (
                     <div className="text-sm text-gray-600">
