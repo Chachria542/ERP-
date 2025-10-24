@@ -1302,10 +1302,15 @@ function PreEntryPage({ user, onLogout }) {
                         <div className="grid grid-cols-3 gap-4">
                           <div>
                             <Label className="text-sm font-semibold">Broker Name</Label>
-                            <Input
+                            <BrokerAutocomplete
                               value={brokerName}
-                              onChange={(e) => setBrokerName(e.target.value)}
-                              placeholder="Type name..."
+                              onSelect={(broker) => {
+                                setBrokerId(broker.id);
+                                setBrokerName(broker.name);
+                                setBrokerageType(broker.default_brokerage_type || 'per_quintal');
+                                setBrokerageRate(broker.default_brokerage_rate || '');
+                              }}
+                              placeholder="Type broker name..."
                               className="mt-1"
                             />
                           </div>
