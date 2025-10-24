@@ -17,6 +17,7 @@ import ReportsPage from "./pages/ReportsPage";
 import BillPurchasePage from "./pages/BillPurchasePage";
 import SalesInvoicePage from "./pages/SalesInvoicePage";
 import SalesPreEntryPage from "./pages/SalesPreEntryPage";
+import CompanySettingsPage from "./pages/CompanySettingsPage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
