@@ -176,6 +176,9 @@ function CustomerAutocomplete({
         contact: newCustomerData.contact || null,
         state: newCustomerData.state || null,
         address: newCustomerData.address || null,
+        city: newCustomerData.city || null,
+        pin_code: newCustomerData.pin_code || null,
+        state_code: newCustomerData.state_code || null,
         roles: ['customer']
       };
 
