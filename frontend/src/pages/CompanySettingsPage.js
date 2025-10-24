@@ -85,6 +85,43 @@ function CompanySettingsPage({ user, onLogout }) {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) {
+      toast.error('Only PNG and JPEG images are allowed');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+    
+    setUploadingLogo(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await axios.post(`${API}/api/company-settings/upload-logo`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      setCompanyLogoUrl(response.data.file_path);
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error(error.response?.data?.detail || 'Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -99,6 +136,9 @@ function CompanySettingsPage({ user, onLogout }) {
         company_pin: companyPin,
         company_phone: companyPhone,
         company_email: companyEmail || null,
+        company_logo_url: companyLogoUrl || null,
+        godown_address: godownAddress || null,
+        terms_and_conditions: termsAndConditions || null,
         ifssai_no: ifssaiNo,
         bank_details: {
           bank_name: bankName,
