@@ -729,10 +729,10 @@ function FarmerPaymentPage({ user, onLogout }) {
             <h2 className="text-xl font-bold mb-4" style={{color: '#3E2723'}}>Document Details</h2>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label>Gate Entry No</Label>
+                <Label>Weighbridge Slip No</Label>
                 <Input 
-                  value={gateEntryNo} 
-                  onChange={(e) => setGateEntryNo(e.target.value)} 
+                  value={weighbridgeSlipNo} 
+                  onChange={(e) => setWeighbridgeSlipNo(e.target.value)} 
                   placeholder="WB-25-000001"
                   readOnly
                 />
