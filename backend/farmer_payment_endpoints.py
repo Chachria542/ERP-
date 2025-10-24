@@ -62,19 +62,28 @@ async def get_farmer_payment_queue(
         # Fetch weighbridge entries
         wb_entries = await db.weighbridge_entries.find(query, {"_id": 0}).to_list(1000)
         
+        print(f"[FARMER PAYMENT QUEUE] Found {len(wb_entries)} weighbridge entries")
+        
         # Enrich with pre-entry data
         queue_items = []
         for wb_entry in wb_entries:
+            print(f"[FARMER PAYMENT QUEUE] Processing WB entry: {wb_entry.get('slip_id')}, act_qtl: {wb_entry.get('act_qtl')}")
+            
             pre_entry = await db.pre_entries.find_one(
                 {"slip_id": wb_entry["slip_id"]},
                 {"_id": 0}
             )
             
-            if pre_entry:
-                # Calculate estimated amount (rate * qtl - H+T)
-                rate = pre_entry.get("rate_per_qtl", 0) or 0
-                qtl = wb_entry.get("act_qtl", 0)
-                item_amount = rate * qtl
+            if not pre_entry:
+                print(f"[FARMER PAYMENT QUEUE] Pre-entry not found for slip_id: {wb_entry['slip_id']}, skipping...")
+                continue
+            
+            print(f"[FARMER PAYMENT QUEUE] Found pre-entry for {wb_entry['slip_id']}, rate: {pre_entry.get('rate_per_qtl')}")
+            
+            # Calculate estimated amount (rate * qtl - H+T)
+            rate = pre_entry.get("rate_per_qtl", 0) or 0
+            qtl = wb_entry.get("act_qtl", 0) or 0
+            item_amount = rate * qtl
                 
                 # Estimate H+T based on vehicle type
                 vehicle_type = wb_entry.get("vehicle_type", "Truck")
