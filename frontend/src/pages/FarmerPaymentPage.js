@@ -1079,9 +1079,8 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:bg-white">
                   <style>{`
                     @media print {
-                      @page { size: A4; margin: 10mm; }
+                      @page { size: A4; margin: 8mm; }
                       body { margin: 0; }
-                      .page-break { page-break-after: always; }
                       .no-break { page-break-inside: avoid; }
                       /* Hide Emergent watermark and other UI elements when printing */
                       header, nav, .sidebar, [class*="emergent"], [class*="watermark"] { display: none !important; }
@@ -1089,7 +1088,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                   `}</style>
 
                   {/* HINDI COPY - Profarma-4 Payment Voucher */}
-                  <div className="p-6 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
                     <div className="text-center mb-3 pb-2 border-b border-black">
                       <h2 className="text-lg font-bold">Profarma - 4 Payment Voucher</h2>
