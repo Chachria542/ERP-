@@ -1090,13 +1090,13 @@ function FarmerPaymentPage({ user, onLogout }) {
                   {/* HINDI COPY - Profarma-4 Payment Voucher */}
                   <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
-                    <div className="text-center mb-3 pb-2 border-b border-black">
-                      <h2 className="text-lg font-bold">Profarma - 4 Payment Voucher</h2>
-                      <p className="text-xs">(Under Bye Law - 17(4))</p>
+                    <div className="text-center mb-1 pb-1 border-b border-black">
+                      <h2 className="text-sm font-bold">Profarma - 4 Payment Voucher</h2>
+                      <p className="text-[8px]">(Under Bye Law - 17(4))</p>
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
+                    <div className="grid grid-cols-3 gap-1 mb-1 text-[10px]">
                       <div>
                         <span className="font-semibold">Date :</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}
                       </div>
@@ -1109,28 +1109,28 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Purchaser & Seller Details */}
-                    <div className="mb-3 p-2 border border-gray-400">
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="mb-1 p-1 border border-gray-400">
+                      <div className="grid grid-cols-2 gap-1 text-[10px]">
                         <div>
-                          <p className="font-semibold mb-1">Name and License No. of Purchaser</p>
-                          <p className="font-bold">M/S Sudarshan Trading Company</p>
+                          <p className="font-semibold text-[9px]">Name and License No. of Purchaser</p>
+                          <p className="font-bold text-[10px]">M/S Sudarshan Trading Company</p>
                         </div>
                         <div>
                           {savedPayment.weighbridge_slip_no && (
                             <div className="text-right">
-                              <p className="font-semibold">Weight Slip</p>
-                              <p className="font-bold">{savedPayment.weighbridge_slip_no}</p>
+                              <p className="font-semibold text-[9px]">Weight Slip</p>
+                              <p className="font-bold text-[10px]">{savedPayment.weighbridge_slip_no}</p>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                      <div className="grid grid-cols-2 gap-1 mt-1 text-[10px]">
                         <div>
-                          <span className="font-semibold">Name of Seller</span>
-                          <p className="font-bold">{savedPayment.farmer_name}</p>
+                          <span className="font-semibold text-[9px]">Name of Seller</span>
+                          <p className="font-bold text-[10px]">{savedPayment.farmer_name}</p>
                         </div>
                         <div>
-                          <span className="font-semibold">Mob. No. :</span> {savedPayment.mobile}
+                          <span className="font-semibold text-[9px]">Mob. No. :</span> {savedPayment.mobile}
                         </div>
                       </div>
                     </div>
