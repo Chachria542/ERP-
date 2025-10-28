@@ -1136,19 +1136,19 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Items Table - Hindi Labels */}
-                    <div className="mb-3">
+                    <div className="mb-1">
                       <table className="w-full text-[10px] border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1" style={{width: '12%'}}>कृषि उपज का नाम<br/><span className="text-[8px]">Item Name</span></th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>अनुबंध/सौदा पत्रक के आधार पर वजन<br/><span className="text-[8px]">Expected Wt</span></th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>तोल परची के आधार पर वास्तविक वजन<br/><span className="text-[8px]">Actual Wt (qtl)</span></th>
-                            <th className="border border-black p-1" style={{width: '8%'}}>दर<br/><span className="text-[8px]">Rate</span></th>
-                            <th className="border border-black p-1" style={{width: '12%'}}>कृषि उपज का मूल्य<br/><span className="text-[8px]">Value</span></th>
-                            <th className="border border-black p-1" style={{width: '12%'}}>कुल मूल्य<br/><span className="text-[8px]">Total Value</span></th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>कुल हम्माली और तुलाई<br/><span className="text-[8px]">Total H+T</span></th>
-                            <th className="border border-black p-1" style={{width: '8%'}}>उपविधि के अनुसार हम्माली दर<br/><span className="text-[8px]">H+T Rate</span></th>
-                            <th className="border border-black p-1" style={{width: '14%'}}>विक्रेता को भुगतान की गई राशि<br/><span className="text-[8px]">Amount Paid</span></th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>कृषि उपज का नाम<br/><span className="text-[8px]">Item Name</span></th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>अनुबंध/सौदा पत्रक के आधार पर वजन<br/><span className="text-[8px]">Expected Wt</span></th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>तोल परची के आधार पर वास्तविक वजन<br/><span className="text-[8px]">Actual Wt (qtl)</span></th>
+                            <th className="border border-black p-0.5" style={{width: '8%'}}>दर<br/><span className="text-[8px]">Rate</span></th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>कृषि उपज का मूल्य<br/><span className="text-[8px]">Value</span></th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>कुल मूल्य<br/><span className="text-[8px]">Total Value</span></th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>कुल हम्माली और तुलाई<br/><span className="text-[8px]">Total H+T</span></th>
+                            <th className="border border-black p-0.5" style={{width: '8%'}}>उपविधि के अनुसार हम्माली दर<br/><span className="text-[8px]">H+T Rate</span></th>
+                            <th className="border border-black p-0.5" style={{width: '14%'}}>विक्रेता को भुगतान की गई राशि<br/><span className="text-[8px]">Amount Paid</span></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1157,15 +1157,15 @@ function FarmerPaymentPage({ user, onLogout }) {
                             const htRate = line.vehicle_type === 'Truck' ? 4.75 : line.vehicle_type === 'Hammali' ? 5.75 : 0;
                             return (
                               <tr key={idx}>
-                                <td className="border border-black p-1">{line.item_name}</td>
-                                <td className="border border-black p-1 text-right">{line.bags || 'N/A'}</td>
-                                <td className="border border-black p-1 text-right">{line.act_qtl}</td>
-                                <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
-                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">{htRate}</td>
-                                <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
+                                <td className="border border-black p-0.5">{line.item_name}</td>
+                                <td className="border border-black p-0.5 text-right">{line.bags || 'N/A'}</td>
+                                <td className="border border-black p-0.5 text-right">{line.act_qtl}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.rate_per_qtl}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.h_plus_t.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">{htRate}</td>
+                                <td className="border border-black p-0.5 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
                               </tr>
                             );
                           })}
