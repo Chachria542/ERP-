@@ -1364,7 +1364,6 @@ function FarmerPaymentPage({ user, onLogout }) {
                       Generated: {new Date().toLocaleString('en-IN')} | GrainTrade ERP
                     </div>
                   </div>
-                  </div>
                 </div>
               </div>
             )}
