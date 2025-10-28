@@ -1076,7 +1076,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                 </div>
 
                 {/* Print View (Hidden on Screen) - Profarma-4 Payment Voucher */}
-                <div className="hidden print:block print:bg-white" id="payment-voucher-print">
+                <div className="hidden print:block" id="payment-voucher-print">
                   <style>{`
                     @media print {
                       @page { 
@@ -1084,27 +1084,15 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Hide everything except our print voucher */
-                      body * { display: none !important; }
-                      #payment-voucher-print, #payment-voucher-print * { 
-                        display: block !important; 
-                      }
-                      table, thead, tbody, tr, td, th {
-                        display: table !important;
-                      }
-                      thead { display: table-header-group !important; }
-                      tbody { display: table-row-group !important; }
-                      tr { display: table-row !important; }
-                      td, th { display: table-cell !important; }
-                      
-                      /* Position at top */
+                      /* Hide only UI elements, not print content */
                       body { margin: 0; padding: 0; }
-                      #payment-voucher-print {
-                        position: relative;
-                        width: 100%;
-                        margin: 0;
-                        padding: 0;
-                      }
+                      
+                      /* Hide screen UI */
+                      body > div:not(#root) { display: none !important; }
+                      
+                      /* Keep only print content visible */
+                      .hidden { display: none !important; }
+                      .print\\:block { display: block !important; }
                       
                       .no-break { page-break-inside: avoid; }
                     }
