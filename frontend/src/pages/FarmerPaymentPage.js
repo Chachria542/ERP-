@@ -1076,7 +1076,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                 </div>
 
                 {/* Print View (Hidden on Screen) - Profarma-4 Payment Voucher */}
-                <div className="hidden print:block print:fixed print:inset-0 print:bg-white print:z-[9999]">
+                <div className="hidden print:block print:bg-white" id="payment-voucher-print">
                   <style>{`
                     @media print {
                       @page { 
@@ -1084,34 +1084,34 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Force hide everything except print content */
-                      body > *:not(#root) { display: none !important; }
-                      #root > *:not(.print-content) { display: none !important; }
-                      header, nav, aside, footer, .sidebar, [class*="Layout"] { display: none !important; }
-                      [class*="emergent"], [class*="watermark"], [class*="banner"] { display: none !important; }
+                      /* Hide everything except our print voucher */
+                      body * { display: none !important; }
+                      #payment-voucher-print, #payment-voucher-print * { 
+                        display: block !important; 
+                      }
+                      table, thead, tbody, tr, td, th {
+                        display: table !important;
+                      }
+                      thead { display: table-header-group !important; }
+                      tbody { display: table-row-group !important; }
+                      tr { display: table-row !important; }
+                      td, th { display: table-cell !important; }
                       
-                      /* Reset all margins and paddings */
-                      * { margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
-                      html, body { margin: 0 !important; padding: 0 !important; }
-                      
-                      /* Print content positioning */
-                      .print-content { 
-                        position: absolute !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        right: 0 !important;
-                        width: 100% !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
+                      /* Position at top */
+                      body { margin: 0; padding: 0; }
+                      #payment-voucher-print {
+                        position: relative;
+                        width: 100%;
+                        margin: 0;
+                        padding: 0;
                       }
                       
                       .no-break { page-break-inside: avoid; }
                     }
                   `}</style>
 
-                  <div className="print-content">
-                    {/* HINDI COPY - Profarma-4 Payment Voucher */}
-                    <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  {/* HINDI COPY - Profarma-4 Payment Voucher */}
+                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
                     <div className="text-center mb-1 pb-1 border-b border-black">
                       <h2 className="text-sm font-bold">Profarma - 4 Payment Voucher</h2>
