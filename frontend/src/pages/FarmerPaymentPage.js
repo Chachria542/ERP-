@@ -1079,18 +1079,26 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <div style={{display: 'none'}} className="print-voucher-container">
                   <style>{`
                     @media print {
+                      /* Hide EVERYTHING on screen */
+                      body > * {
+                        display: none !important;
+                      }
+                      
+                      /* Show ONLY the print voucher */
+                      .print-voucher-container {
+                        display: block !important;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                      }
+                      
                       @page { 
                         size: A4; 
                         margin: 5mm 8mm;
                       }
                       
                       body { margin: 0; padding: 0; }
-                      
-                      /* Show print content */
-                      .print-voucher-container { 
-                        display: block !important; 
-                      }
-                      
                       .no-break { page-break-inside: avoid; }
                     }
                     
