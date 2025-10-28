@@ -1076,7 +1076,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                 </div>
 
                 {/* Print View (Hidden on Screen) - Profarma-4 Payment Voucher */}
-                <div className="hidden print:block" id="payment-voucher-print">
+                <div style={{display: 'none'}} className="print-voucher-container">
                   <style>{`
                     @media print {
                       @page { 
@@ -1084,17 +1084,20 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Hide only UI elements, not print content */
                       body { margin: 0; padding: 0; }
                       
-                      /* Hide screen UI */
-                      body > div:not(#root) { display: none !important; }
-                      
-                      /* Keep only print content visible */
-                      .hidden { display: none !important; }
-                      .print\\:block { display: block !important; }
+                      /* Show print content */
+                      .print-voucher-container { 
+                        display: block !important; 
+                      }
                       
                       .no-break { page-break-inside: avoid; }
+                    }
+                    
+                    @media screen {
+                      .print-voucher-container {
+                        display: none !important;
+                      }
                     }
                   `}</style>
 
