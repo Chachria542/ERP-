@@ -1076,19 +1076,42 @@ function FarmerPaymentPage({ user, onLogout }) {
                 </div>
 
                 {/* Print View (Hidden on Screen) - Profarma-4 Payment Voucher */}
-                <div className="hidden print:block print:absolute print:top-0 print:left-0 print:w-full print:bg-white">
+                <div className="hidden print:block print:fixed print:inset-0 print:bg-white print:z-[9999]">
                   <style>{`
                     @media print {
-                      @page { size: A4; margin: 8mm; }
-                      body { margin: 0; }
+                      @page { 
+                        size: A4; 
+                        margin: 5mm 8mm;
+                      }
+                      
+                      /* Force hide everything except print content */
+                      body > *:not(#root) { display: none !important; }
+                      #root > *:not(.print-content) { display: none !important; }
+                      header, nav, aside, footer, .sidebar, [class*="Layout"] { display: none !important; }
+                      [class*="emergent"], [class*="watermark"], [class*="banner"] { display: none !important; }
+                      
+                      /* Reset all margins and paddings */
+                      * { margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; }
+                      html, body { margin: 0 !important; padding: 0 !important; }
+                      
+                      /* Print content positioning */
+                      .print-content { 
+                        position: absolute !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        width: 100% !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                      }
+                      
                       .no-break { page-break-inside: avoid; }
-                      /* Hide Emergent watermark and other UI elements when printing */
-                      header, nav, .sidebar, [class*="emergent"], [class*="watermark"] { display: none !important; }
                     }
                   `}</style>
 
-                  {/* HINDI COPY - Profarma-4 Payment Voucher */}
-                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <div className="print-content">
+                    {/* HINDI COPY - Profarma-4 Payment Voucher */}
+                    <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
                     <div className="text-center mb-1 pb-1 border-b border-black">
                       <h2 className="text-sm font-bold">Profarma - 4 Payment Voucher</h2>
