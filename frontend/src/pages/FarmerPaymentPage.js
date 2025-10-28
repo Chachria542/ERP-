@@ -1219,66 +1219,66 @@ function FarmerPaymentPage({ user, onLogout }) {
                   <div className="border-t-2 border-dashed border-gray-400 my-2"></div>
 
                   {/* ENGLISH COPY - Office Record */}
-                  <div className="p-6 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
-                    <div className="text-center mb-3 pb-2 border-b border-black">
-                      <h2 className="text-lg font-bold">Payment Voucher (Office Record)</h2>
-                      <p className="text-xs">Profarma - 4 (Under Bye Law - 17(4))</p>
+                    <div className="text-center mb-1 pb-1 border-b border-black">
+                      <h2 className="text-sm font-bold">Payment Voucher (Office Record)</h2>
+                      <p className="text-[8px]">Profarma - 4 (Under Bye Law - 17(4))</p>
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
+                    <div className="grid grid-cols-3 gap-1 mb-1 text-[10px]">
                       <div><span className="font-semibold">Date:</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}</div>
                       <div><span className="font-semibold">Book No:</span> {savedPayment.book_no}</div>
                       <div className="text-right"><span className="font-semibold">Location:</span> {savedPayment.location}</div>
                     </div>
 
                     {/* Purchaser & Seller Details */}
-                    <div className="mb-3 p-2 border border-gray-400">
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="mb-1 p-1 border border-gray-400">
+                      <div className="grid grid-cols-2 gap-1 text-[10px]">
                         <div>
-                          <p className="font-semibold mb-1">Purchaser</p>
-                          <p className="font-bold">M/S Sudarshan Trading Company</p>
+                          <p className="font-semibold text-[9px]">Purchaser</p>
+                          <p className="font-bold text-[10px]">M/S Sudarshan Trading Company</p>
                         </div>
                         <div>
                           {savedPayment.weighbridge_slip_no && (
                             <div className="text-right">
-                              <p className="font-semibold">Weight Slip</p>
-                              <p className="font-bold">{savedPayment.weighbridge_slip_no}</p>
+                              <p className="font-semibold text-[9px]">Weight Slip</p>
+                              <p className="font-bold text-[10px]">{savedPayment.weighbridge_slip_no}</p>
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                      <div className="grid grid-cols-3 gap-1 mt-1 text-[10px]">
                         <div>
-                          <span className="font-semibold">Seller:</span>
-                          <p className="font-bold">{savedPayment.farmer_name}</p>
+                          <span className="font-semibold text-[9px]">Seller:</span>
+                          <p className="font-bold text-[10px]">{savedPayment.farmer_name}</p>
                         </div>
                         <div>
-                          <span className="font-semibold">Mobile:</span> {savedPayment.mobile}
+                          <span className="font-semibold text-[9px]">Mobile:</span> {savedPayment.mobile}
                         </div>
                         <div>
                           {savedPayment.village && (
-                            <div><span className="font-semibold">Village:</span> {savedPayment.village}</div>
+                            <div><span className="font-semibold text-[9px]">Village:</span> {savedPayment.village}</div>
                           )}
                         </div>
                       </div>
                     </div>
 
                     {/* Items Table - English */}
-                    <div className="mb-3">
+                    <div className="mb-1">
                       <table className="w-full text-[10px] border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
-                            <th className="border border-black p-1" style={{width: '12%'}}>Item Name</th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>Expected Weight</th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>Actual Weight (qtl)</th>
-                            <th className="border border-black p-1" style={{width: '8%'}}>Rate</th>
-                            <th className="border border-black p-1" style={{width: '12%'}}>Value</th>
-                            <th className="border border-black p-1" style={{width: '12%'}}>Total Value</th>
-                            <th className="border border-black p-1" style={{width: '10%'}}>Total H+T</th>
-                            <th className="border border-black p-1" style={{width: '8%'}}>H+T Rate</th>
-                            <th className="border border-black p-1" style={{width: '14%'}}>Amount Paid</th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>Item Name</th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>Expected Weight</th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>Actual Weight (qtl)</th>
+                            <th className="border border-black p-0.5" style={{width: '8%'}}>Rate</th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>Value</th>
+                            <th className="border border-black p-0.5" style={{width: '12%'}}>Total Value</th>
+                            <th className="border border-black p-0.5" style={{width: '10%'}}>Total H+T</th>
+                            <th className="border border-black p-0.5" style={{width: '8%'}}>H+T Rate</th>
+                            <th className="border border-black p-0.5" style={{width: '14%'}}>Amount Paid</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -1286,15 +1286,15 @@ function FarmerPaymentPage({ user, onLogout }) {
                             const htRate = line.vehicle_type === 'Truck' ? 4.75 : line.vehicle_type === 'Hammali' ? 5.75 : 0;
                             return (
                               <tr key={idx}>
-                                <td className="border border-black p-1">{line.item_name}</td>
-                                <td className="border border-black p-1 text-right">{line.bags || 'N/A'}</td>
-                                <td className="border border-black p-1 text-right">{line.act_qtl}</td>
-                                <td className="border border-black p-1 text-right">₹{line.rate_per_qtl}</td>
-                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">₹{line.item_amount.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">₹{line.h_plus_t.toFixed(2)}</td>
-                                <td className="border border-black p-1 text-right">{htRate}</td>
-                                <td className="border border-black p-1 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
+                                <td className="border border-black p-0.5">{line.item_name}</td>
+                                <td className="border border-black p-0.5 text-right">{line.bags || 'N/A'}</td>
+                                <td className="border border-black p-0.5 text-right">{line.act_qtl}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.rate_per_qtl}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.item_amount.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">₹{line.h_plus_t.toFixed(2)}</td>
+                                <td className="border border-black p-0.5 text-right">{htRate}</td>
+                                <td className="border border-black p-0.5 text-right font-bold">₹{line.line_total.toFixed(2)}</td>
                               </tr>
                             );
                           })}
@@ -1302,60 +1302,42 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </table>
                     </div>
 
-                    {/* Totals */}
-                    <div className="mb-3">
-                      <div className="flex justify-end text-sm">
-                        <div className="w-1/3">
-                          <div className="flex justify-between py-1 border-t-2 border-black font-bold">
-                            <span>Net Amount</span>
-                            <span>₹{savedPayment.total_amount.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Payment Details */}
-                    <div className="mb-3 p-2 border border-gray-400 text-xs">
-                      <h3 className="font-bold mb-2">Payment Details</h3>
-                      <div className="grid grid-cols-2 gap-2">
+                    {/* Payment Details - Single Line */}
+                    <div className="mb-1">
+                      <div className="flex justify-between items-center text-[10px] border-t border-black pt-1">
                         <div>
-                          <span className="font-semibold">Payment Mode:</span> {savedPayment.pay_type}
-                          {savedPayment.cash_amt > 0 && savedPayment.bank_amt > 0 && ' (Mixed)'}
+                          <span className="font-semibold">Mode: {savedPayment.pay_type} | Type: {savedPayment.mandi_godown}</span>
+                          {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && savedPayment.account_no && (
+                            <span> | Acc: {savedPayment.account_no}</span>
+                          )}
                         </div>
-                        <div><span className="font-semibold">Location Type:</span> {savedPayment.mandi_godown}</div>
-                        {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT' || savedPayment.bank_amt > 0) && (
-                          <>
-                            {savedPayment.account_no && <div><span className="font-semibold">Account No:</span> {savedPayment.account_no}</div>}
-                            {savedPayment.bank_amt > 0 && <div><span className="font-semibold">Bank Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>}
-                          </>
-                        )}
-                        {savedPayment.cash_amt > 0 && (
-                          <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
-                        )}
+                        <div className="font-bold">
+                          <span>Net Amount: ₹{savedPayment.total_amount.toFixed(2)}</span>
+                        </div>
                       </div>
                     </div>
 
                     {/* Voucher IDs */}
-                    <div className="mb-3 p-2 bg-gray-100 text-xs">
-                      <div><span className="font-semibold">Purchase Voucher ID:</span> {savedPayment.purchase_voucher_id}</div>
-                      <div><span className="font-semibold">Payment Voucher ID:</span> {savedPayment.payment_voucher_id}</div>
+                    <div className="mb-1 p-1 bg-gray-100 text-[8px]">
+                      <div><span className="font-semibold">Purchase:</span> {savedPayment.purchase_voucher_id}</div>
+                      <div><span className="font-semibold">Payment:</span> {savedPayment.payment_voucher_id}</div>
                     </div>
 
                     {/* Signatures */}
-                    <div className="mt-8 pt-4">
-                      <div className="grid grid-cols-2 gap-8 text-center text-xs">
+                    <div className="mt-2 pt-2">
+                      <div className="grid grid-cols-2 gap-4 text-center text-[10px]">
                         <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Buyer's Signature</div>
+                          <div className="h-6"></div>
+                          <div className="border-t border-black pt-0.5">Buyer's Signature</div>
                         </div>
                         <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">Seller's Payment Receipt Signature</div>
+                          <div className="h-6"></div>
+                          <div className="border-t border-black pt-0.5">Seller's Payment Receipt Signature</div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-xs text-gray-600 mt-4 text-center border-t pt-2">
+                    <div className="text-[8px] text-gray-600 mt-1 text-center border-t pt-0.5">
                       Generated: {new Date().toLocaleString('en-IN')} | GrainTrade ERP
                     </div>
                   </div>
