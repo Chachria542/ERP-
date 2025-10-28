@@ -1173,67 +1173,50 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </table>
                     </div>
 
-                    {/* Payment Details & Totals */}
-                    <div className="mb-3">
-                      <div className="flex justify-end text-sm">
-                        <div className="w-1/3">
-                          <div className="flex justify-between py-1 border-t-2 border-black font-bold">
-                            <span>Net Amount</span>
-                            <span>₹{savedPayment.total_amount.toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Conditional Payment Mode Details */}
-                    {savedPayment.pay_type === 'Cash' && (
-                      <div className="mb-3 p-2 border border-gray-400 text-xs">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && savedPayment.account_no && (
-                      <div className="mb-3 p-2 border border-gray-400 text-xs">
-                        <div className="grid grid-cols-2 gap-2">
-                          <div><span className="font-semibold">Bank Name:</span> {savedPayment.pay_type}</div>
-                          <div><span className="font-semibold">Account No.:</span> {savedPayment.account_no}</div>
-                          <div><span className="font-semibold">Amount:</span> ₹{savedPayment.bank_amt.toFixed(2)}</div>
-                          {savedPayment.cash_amt > 0 && (
-                            <div><span className="font-semibold">Cash Amount:</span> ₹{savedPayment.cash_amt.toFixed(2)}</div>
+                    {/* Payment Details & Totals - Single Line */}
+                    <div className="mb-1">
+                      <div className="flex justify-between items-center text-[10px] border-t border-black pt-1">
+                        <div>
+                          {savedPayment.pay_type === 'Cash' && (
+                            <span className="font-semibold">Cash Amount: ₹{savedPayment.cash_amt.toFixed(2)}</span>
+                          )}
+                          {(savedPayment.pay_type === 'Bank' || savedPayment.pay_type === 'RTGS' || savedPayment.pay_type === 'NEFT') && savedPayment.account_no && (
+                            <span className="font-semibold">Bank: {savedPayment.account_no} | ₹{savedPayment.bank_amt.toFixed(2)}</span>
                           )}
                         </div>
+                        <div className="font-bold">
+                          <span>Net Amount: ₹{savedPayment.total_amount.toFixed(2)}</span>
+                        </div>
                       </div>
-                    )}
+                    </div>
 
                     {/* Signatures - 2 Only */}
-                    <div className="mt-8 pt-4">
-                      <div className="grid grid-cols-2 gap-8 text-center text-xs">
+                    <div className="mt-2 pt-2">
+                      <div className="grid grid-cols-2 gap-4 text-center text-[10px]">
                         <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">
+                          <div className="h-6"></div>
+                          <div className="border-t border-black pt-0.5">
                             <p className="font-semibold">क्रेता के हस्ताक्षर</p>
-                            <p className="text-[10px]">Kretaa ke Hastakshar</p>
+                            <p className="text-[8px]">Kretaa ke Hastakshar</p>
                           </div>
                         </div>
                         <div>
-                          <div className="h-12"></div>
-                          <div className="border-t border-black pt-1">
+                          <div className="h-6"></div>
+                          <div className="border-t border-black pt-0.5">
                             <p className="font-semibold">विक्रेता के भुगतान प्राप्ति के हस्ताक्षर</p>
-                            <p className="text-[10px]">Vikretaa ke Bhugtaan prapti ke Hastakshar</p>
+                            <p className="text-[8px]">Vikretaa ke Bhugtaan prapti ke Hastakshar</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="text-xs text-gray-600 mt-2 text-center border-t pt-1">
+                    <div className="text-[8px] text-gray-600 mt-1 text-center border-t pt-0.5">
                       Purchase: {savedPayment.purchase_voucher_id} | Payment: {savedPayment.payment_voucher_id}
                     </div>
                   </div>
 
-                  {/* PAGE BREAK */}
-                  <div className="page-break"></div>
+                  {/* PERFORATION LINE - Dashed Border */}
+                  <div className="border-t-2 border-dashed border-gray-400 my-2"></div>
 
                   {/* ENGLISH COPY - Office Record */}
                   <div className="p-6 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
