@@ -1079,12 +1079,12 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <div style={{display: 'none'}} className="print-voucher-container">
                   <style>{`
                     @media print {
-                      /* Hide EVERYTHING on screen */
-                      body > * {
+                      /* Hide everything EXCEPT print voucher */
+                      body > *:not(.print-voucher-container) {
                         display: none !important;
                       }
                       
-                      /* Show ONLY the print voucher */
+                      /* Show print voucher */
                       .print-voucher-container {
                         display: block !important;
                         position: absolute;
