@@ -1679,74 +1679,74 @@ function SalesInvoicePage({ user, onLogout }) {
             }
           `}</style>
 
-          <div className="p-1 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+          <div style={{fontFamily: 'Arial, sans-serif', padding: '5px', pageBreakInside: 'avoid'}}>
             {/* Header */}
-            <div className="text-center mb-0.5 pb-0.5 border-b-2 border-black">
+            <div style={{textAlign: 'center', marginBottom: '10px', paddingBottom: '10px', borderBottom: '2px solid black'}}>
               {companySettings.company_logo_url && (
-                <img src={companySettings.company_logo_url} alt="Logo" className="h-12 mx-auto mb-1" />
+                <img src={companySettings.company_logo_url} alt="Logo" style={{height: '48px', margin: '0 auto 5px'}} />
               )}
-              <h1 className="text-xl font-bold">{companySettings.company_name}</h1>
-              <p className="text-[10px]">{companySettings.godown_address}</p>
-              <p className="text-[10px]">Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
-              <p className="text-[8px] font-semibold mt-0.5">SUBJECT TO SANAWAD JURISDICTION</p>
+              <h1 style={{fontSize: '20px', fontWeight: 'bold', margin: '5px 0'}}>{companySettings.company_name}</h1>
+              <p style={{fontSize: '10px', margin: '2px 0'}}>{companySettings.godown_address}</p>
+              <p style={{fontSize: '10px', margin: '2px 0'}}>Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
+              <p style={{fontSize: '8px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
             </div>
 
             {/* Invoice Details */}
-            <div className="grid grid-cols-4 gap-1 text-[10px] mb-0.5">
-              <div><span className="font-semibold">Invoice No:</span> {savedInvoice.invoice_number}</div>
-              <div><span className="font-semibold">Date:</span> {savedInvoice.invoice_date}</div>
-              <div><span className="font-semibold">Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
-              <div><span className="font-semibold">Anugya No:</span> {savedInvoice.anugya_no || 'N/A'}</div>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px'}}>
+              <div><span style={{fontWeight: 'bold'}}>Invoice No:</span> {savedInvoice.invoice_number}</div>
+              <div><span style={{fontWeight: 'bold'}}>Date:</span> {savedInvoice.invoice_date}</div>
+              <div><span style={{fontWeight: 'bold'}}>Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
+              <div><span style={{fontWeight: 'bold'}}>Anugya No:</span> {savedInvoice.anugya_no || 'N/A'}</div>
             </div>
 
             {/* Bill To & Broker */}
-            <div className="grid grid-cols-2 gap-1 mb-0.5 text-[10px]">
-              <div className="border border-black p-1">
-                <p className="font-bold text-[11px] mb-0.5">Bill To:</p>
-                <p className="font-bold">{savedInvoice.customer_name}</p>
-                <p>{savedInvoice.customer_address || 'N/A'}</p>
-                <p>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
-                <p>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
-                <p>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '10px', fontSize: '10px'}}>
+              <div style={{border: '1px solid black', padding: '5px'}}>
+                <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Bill To:</p>
+                <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
+                <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
               </div>
-              <div className="border border-black p-1">
-                <p className="font-bold text-[11px] mb-0.5">Broker:</p>
-                <p className="font-bold">{savedInvoice.broker_name || 'N/A'}</p>
-                <p>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
+              <div style={{border: '1px solid black', padding: '5px'}}>
+                <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Broker:</p>
+                <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
               </div>
             </div>
 
             {/* Items Table */}
-            <table className="w-full text-[9px] border-collapse border border-black mb-0.5">
+            <table style={{width: '100%', fontSize: '9px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '10px'}}>
               <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-black p-0.5">PO No</th>
-                  <th className="border border-black p-0.5">PO Date</th>
-                  <th className="border border-black p-0.5">Item/HSN/Marka</th>
-                  <th className="border border-black p-0.5">No Bag</th>
-                  <th className="border border-black p-0.5">No Kgs</th>
-                  <th className="border border-black p-0.5">Pkg Size</th>
-                  <th className="border border-black p-0.5">Quantity (Qtl)</th>
-                  <th className="border border-black p-0.5">Rate</th>
-                  <th className="border border-black p-0.5">Amount</th>
+                <tr style={{backgroundColor: '#e5e7eb'}}>
+                  <th style={{border: '1px solid black', padding: '3px'}}>PO No</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>PO Date</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>Item/HSN/Marka</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>No Bag</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>No Kgs</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>Pkg Size</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>Quantity (Qtl)</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>Rate</th>
+                  <th style={{border: '1px solid black', padding: '3px'}}>Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {savedInvoice.line_items?.map((item, idx) => (
                   <tr key={idx}>
-                    <td className="border border-black p-0.5">{item.po_number || '-'}</td>
-                    <td className="border border-black p-0.5">{item.po_date || '-'}</td>
-                    <td className="border border-black p-0.5">
+                    <td style={{border: '1px solid black', padding: '3px'}}>{item.po_number || '-'}</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>{item.po_date || '-'}</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>
                       {item.item_name}<br/>
-                      {item.hsn_code && <span className="text-[8px]">HSN: {item.hsn_code}</span>}<br/>
-                      {item.marka && <span className="text-[8px]">Marka: {item.marka}</span>}
+                      {item.hsn_code && <span style={{fontSize: '8px'}}>HSN: {item.hsn_code}</span>}<br/>
+                      {item.marka && <span style={{fontSize: '8px'}}>Marka: {item.marka}</span>}
                     </td>
-                    <td className="border border-black p-0.5 text-right">{item.bags}</td>
-                    <td className="border border-black p-0.5 text-right">{item.kgs}</td>
-                    <td className="border border-black p-0.5 text-right">{item.bharti}</td>
-                    <td className="border border-black p-0.5 text-right font-bold">{item.actual_qtl}</td>
-                    <td className="border border-black p-0.5 text-right">₹{item.rate}</td>
-                    <td className="border border-black p-0.5 text-right font-bold">₹{item.amount.toFixed(2)}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.bags}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.kgs}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.bharti}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold'}}>{item.actual_qtl}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right'}}>₹{item.rate}</td>
+                    <td style={{border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold'}}>₹{item.amount.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
