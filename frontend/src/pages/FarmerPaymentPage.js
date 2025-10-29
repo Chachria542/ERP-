@@ -1084,17 +1084,24 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Hide the dialog/modal overlay and content */
-                      [role="dialog"], [data-radix-dialog-overlay], [data-radix-dialog-content] {
-                        background: none !important;
-                        border: none !important;
-                        box-shadow: none !important;
+                      /* Hide ALL modal content */
+                      .print-hide-modal, .print-hide-modal * {
+                        display: none !important;
                       }
                       
-                      /* Show print container */
-                      .print-voucher-container {
+                      /* Show ONLY print container */
+                      .print-voucher-container,
+                      .print-voucher-container * {
                         display: block !important;
                       }
+                      
+                      /* Tables need special display */
+                      .print-voucher-container table { display: table !important; }
+                      .print-voucher-container thead { display: table-header-group !important; }
+                      .print-voucher-container tbody { display: table-row-group !important; }
+                      .print-voucher-container tr { display: table-row !important; }
+                      .print-voucher-container td,
+                      .print-voucher-container th { display: table-cell !important; }
                       
                       .no-break { page-break-inside: avoid; }
                     }
