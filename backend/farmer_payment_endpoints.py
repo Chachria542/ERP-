@@ -424,6 +424,9 @@ async def create_farmer_payment(payment_data: FarmerPaymentCreate):
     """Create farmer payment with voucher generation"""
     
     try:
+        # Translate farmer name to Hindi
+        hindi_name = await translate_to_hindi(payment_data.farmer_name)
+        
         # Generate book number
         fy_year = get_financial_year()
         book_no = await generate_book_number(payment_data.location, fy_year)
@@ -436,6 +439,7 @@ async def create_farmer_payment(payment_data: FarmerPaymentCreate):
         farmer_payment = FarmerPayment(
             book_no=book_no,
             total_amount=total_amount,
+            farmer_name_hindi=hindi_name,  # Add Hindi name
             **payment_data.model_dump()
         )
         
