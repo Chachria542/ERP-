@@ -1703,7 +1703,7 @@ function SalesInvoicePage({ user, onLogout }) {
 
               {/* Bill To & Broker */}
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '10px', fontSize: '10px'}}>
-                <div style={{border: '1px solid black', padding: '5px'}}>
+                <div style={{padding: '5px'}}>
                   <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Bill To:</p>
                   <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
                   <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
@@ -1711,7 +1711,7 @@ function SalesInvoicePage({ user, onLogout }) {
                   <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
                 </div>
-                <div style={{border: '1px solid black', padding: '5px'}}>
+                <div style={{padding: '5px'}}>
                   <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Broker:</p>
                   <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
