@@ -214,6 +214,7 @@ class SalesInvoice(BaseModel):
     location_name: Optional[str] = None
     
     # Broker details (always optional)
+    broker_id: Optional[str] = None  # FK to brokers collection
     broker_name: Optional[str] = None
     brokerage_type: Optional[str] = None
     brokerage_rate: Optional[float] = None
