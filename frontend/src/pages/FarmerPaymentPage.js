@@ -1157,7 +1157,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                       <div className="grid grid-cols-2 gap-1 mt-1 text-[10px]">
                         <div>
                           <p className="font-semibold text-[9px] mb-0">Name of Seller</p>
-                          <p className="font-bold text-[10px]">{savedPayment.farmer_name}</p>
+                          <p className="font-bold text-[10px]">{savedPayment.farmer_name_hindi || savedPayment.farmer_name}</p>
                         </div>
                         <div>
                           <p className="font-semibold text-[9px] mb-0">Mob. No. :</p>
