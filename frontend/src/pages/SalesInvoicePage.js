@@ -1681,7 +1681,7 @@ function SalesInvoicePage({ user, onLogout }) {
 
           <div style={{fontFamily: 'Arial, sans-serif', padding: '5px', pageBreakInside: 'avoid'}}>
             {/* Header */}
-            <div style={{textAlign: 'center', marginBottom: '10px', paddingBottom: '10px', borderBottom: '2px solid black'}}>
+            <div style={{textAlign: 'center', marginBottom: '10px'}}>
               {companySettings.company_logo_url && (
                 <img src={companySettings.company_logo_url} alt="Logo" style={{height: '48px', margin: '0 auto 5px'}} />
               )}
@@ -1689,6 +1689,7 @@ function SalesInvoicePage({ user, onLogout }) {
               <p style={{fontSize: '10px', margin: '2px 0'}}>Ward No.18, Omkareshwar Road, Sanawad, PIN -451111</p>
               <p style={{fontSize: '10px', margin: '2px 0'}}>Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
               <p style={{fontSize: '8px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
+              <h2 style={{fontSize: '18px', fontWeight: 'bold', margin: '10px 0 5px 0'}}>INVOICE</h2>
             </div>
 
             {/* Invoice Body - Bordered Container */}
