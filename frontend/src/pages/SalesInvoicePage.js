@@ -1753,56 +1753,56 @@ function SalesInvoicePage({ user, onLogout }) {
             </table>
 
             {/* Transportation Details */}
-            <div className="grid grid-cols-3 gap-1 text-[9px] mb-0.5">
-              <div className="border border-black p-0.5">
-                <p><span className="font-semibold">From:</span> {savedInvoice.from_city || 'N/A'}</p>
-                <p><span className="font-semibold">To:</span> {savedInvoice.to_city || 'N/A'}</p>
-                <p><span className="font-semibold">Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
-                <p><span className="font-semibold">Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '9px', marginBottom: '10px'}}>
+              <div style={{border: '1px solid black', padding: '3px'}}>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.from_city || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.to_city || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
               </div>
-              <div className="border border-black p-0.5">
-                <p><span className="font-semibold">Tare:</span> {savedInvoice.tare_weight || 'N/A'} kg</p>
-                <p><span className="font-semibold">Gross:</span> {savedInvoice.gross_weight || 'N/A'} kg</p>
-                <p><span className="font-semibold">Net:</span> {savedInvoice.net_weight || 'N/A'} kg</p>
+              <div style={{border: '1px solid black', padding: '3px'}}>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Tare:</span> {savedInvoice.tare_weight || 'N/A'} kg</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Gross:</span> {savedInvoice.gross_weight || 'N/A'} kg</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Net:</span> {savedInvoice.net_weight || 'N/A'} kg</p>
               </div>
-              <div className="border border-black p-0.5">
-                <p><span className="font-semibold">Transporter:</span> {savedInvoice.transporter_name || 'N/A'}</p>
-                <p><span className="font-semibold">Bilty No:</span> {savedInvoice.bilty_no || 'N/A'}</p>
-                <p><span className="font-semibold">Freight:</span> ₹{savedInvoice.freight_amount || '0.00'}</p>
+              <div style={{border: '1px solid black', padding: '3px'}}>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Transporter:</span> {savedInvoice.transporter_name || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Bilty No:</span> {savedInvoice.bilty_no || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Freight:</span> ₹{savedInvoice.freight_amount || '0.00'}</p>
               </div>
             </div>
 
             {/* Totals */}
-            <div className="flex justify-end mb-0.5">
-              <div className="w-1/3 text-[10px]">
-                <div className="flex justify-between py-0.5"><span>Subtotal:</span><span>₹{savedInvoice.subtotal?.toFixed(2)}</span></div>
-                {savedInvoice.cgst > 0 && <div className="flex justify-between py-0.5"><span>CGST:</span><span>₹{savedInvoice.cgst?.toFixed(2)}</span></div>}
-                {savedInvoice.sgst > 0 && <div className="flex justify-between py-0.5"><span>SGST:</span><span>₹{savedInvoice.sgst?.toFixed(2)}</span></div>}
-                {savedInvoice.igst > 0 && <div className="flex justify-between py-0.5"><span>IGST:</span><span>₹{savedInvoice.igst?.toFixed(2)}</span></div>}
-                {savedInvoice.tcs_amount > 0 && <div className="flex justify-between py-0.5"><span>TCS:</span><span>₹{savedInvoice.tcs_amount?.toFixed(2)}</span></div>}
-                <div className="flex justify-between py-0.5 border-t border-black font-bold"><span>Grand Total:</span><span>₹{savedInvoice.grand_total?.toFixed(2)}</span></div>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '10px'}}>
+              <div style={{width: '33%', fontSize: '10px'}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>Subtotal:</span><span>₹{savedInvoice.subtotal?.toFixed(2)}</span></div>
+                {savedInvoice.cgst > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>CGST:</span><span>₹{savedInvoice.cgst?.toFixed(2)}</span></div>}
+                {savedInvoice.sgst > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>SGST:</span><span>₹{savedInvoice.sgst?.toFixed(2)}</span></div>}
+                {savedInvoice.igst > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>IGST:</span><span>₹{savedInvoice.igst?.toFixed(2)}</span></div>}
+                {savedInvoice.tcs_amount > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>TCS:</span><span>₹{savedInvoice.tcs_amount?.toFixed(2)}</span></div>}
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderTop: '1px solid black', fontWeight: 'bold'}}><span>Grand Total:</span><span>₹{savedInvoice.grand_total?.toFixed(2)}</span></div>
               </div>
             </div>
 
             {/* Bank Details */}
-            <div className="border border-black p-1 text-[9px] mb-0.5">
-              <p className="font-bold mb-0.5">Bank Details:</p>
-              <p>{companySettings.bank_name} | A/C: {companySettings.account_number}</p>
-              <p>IFSC: {companySettings.ifsc_code} | Branch: {companySettings.branch}</p>
+            <div style={{border: '1px solid black', padding: '5px', fontSize: '9px', marginBottom: '10px'}}>
+              <p style={{fontWeight: 'bold', marginBottom: '3px'}}>Bank Details:</p>
+              <p style={{margin: '2px 0'}}>{companySettings.bank_name} | A/C: {companySettings.account_number}</p>
+              <p style={{margin: '2px 0'}}>IFSC: {companySettings.ifsc_code} | Branch: {companySettings.branch}</p>
             </div>
 
             {/* Terms & FSSAI */}
-            <div className="text-[8px] mb-0.5">
-              <p className="font-semibold">Warranty/Declaration:</p>
-              <p>{companySettings.terms_and_conditions || 'Standard terms and conditions apply.'}</p>
-              <p className="mt-0.5"><span className="font-semibold">FSSAI No:</span> {companySettings.ifssai_no || 'N/A'}</p>
+            <div style={{fontSize: '8px', marginBottom: '10px'}}>
+              <p style={{fontWeight: 'bold', margin: '2px 0'}}>Warranty/Declaration:</p>
+              <p style={{margin: '2px 0'}}>{companySettings.terms_and_conditions || 'Standard terms and conditions apply.'}</p>
+              <p style={{margin: '5px 0 2px'}}><span style={{fontWeight: 'bold'}}>FSSAI No:</span> {companySettings.ifssai_no || 'N/A'}</p>
             </div>
 
             {/* Signature */}
-            <div className="flex justify-end mt-2">
-              <div className="text-center text-[10px]">
-                <div className="h-8"></div>
-                <div className="border-t border-black pt-0.5">Authorized Signatory</div>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px'}}>
+              <div style={{textAlign: 'center', fontSize: '10px'}}>
+                <div style={{height: '32px'}}></div>
+                <div style={{borderTop: '1px solid black', paddingTop: '3px'}}>Authorized Signatory</div>
               </div>
             </div>
           </div>
