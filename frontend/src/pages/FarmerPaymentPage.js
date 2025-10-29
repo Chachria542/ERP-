@@ -1079,43 +1079,14 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <div style={{display: 'none'}} className="print-voucher-container">
                   <style>{`
                     @media print {
-                      /* Reset all margins/padding globally */
-                      html, body {
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        height: auto !important;
-                      }
-                      
-                      /* Hide all body children */
-                      body > * {
-                        display: none !important;
-                      }
-                      
-                      /* Show only root div and print container path */
-                      body > #root,
-                      #root > *,
-                      .print-voucher-container {
-                        display: block !important;
-                      }
-                      
-                      /* Hide everything inside root except print container */
-                      #root > *:not(:has(.print-voucher-container)) {
-                        display: none !important;
-                      }
-                      
-                      /* Position print voucher at absolute top */
-                      .print-voucher-container {
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        width: 100% !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                      }
-                      
                       @page { 
                         size: A4; 
                         margin: 5mm 8mm;
+                      }
+                      
+                      /* Simple approach - just show print container */
+                      .print-voucher-container {
+                        display: block !important;
                       }
                       
                       .no-break { page-break-inside: avoid; }
