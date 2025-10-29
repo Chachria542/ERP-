@@ -1010,7 +1010,7 @@ function FarmerPaymentPage({ user, onLogout }) {
             </DialogHeader>
             
             {savedPayment && (
-              <div className="space-y-6">
+              <div className="space-y-6 print-modal-content">
                 {/* Voucher Details */}
                 <div className="grid grid-cols-2 gap-4">
                   <Card className="p-4" style={{background: 'rgba(107, 142, 35, 0.1)'}}>
