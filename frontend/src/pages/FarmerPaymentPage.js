@@ -1120,13 +1120,13 @@ function FarmerPaymentPage({ user, onLogout }) {
                   {/* HINDI COPY - Profarma-4 Payment Voucher */}
                   <div className="p-1 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
-                    <div className="text-center mb-1 pb-1 border-b border-black">
-                      <h2 className="text-sm font-bold">Profarma - 4 Payment Voucher</h2>
+                    <div className="text-center mb-0.5 pb-0.5 border-b border-black">
+                      <h2 className="text-sm font-bold mb-0">Profarma - 4 Payment Voucher</h2>
                       <p className="text-[8px]">(Under Bye Law - 17(4))</p>
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-1 mb-1 text-[10px]">
+                    <div className="grid grid-cols-3 gap-1 mb-0.5 text-[10px]">
                       <div>
                         <span className="font-semibold">Date :</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}
                       </div>
