@@ -780,7 +780,7 @@ function SalesInvoicePage({ user, onLogout }) {
 
         {/* Invoice Form Modal - Will be implemented in next phase */}
         <Dialog open={showInvoiceModal} onOpenChange={setShowInvoiceModal}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto print-hide-invoice-modal">
             <DialogHeader>
               <DialogTitle>
                 {savedInvoice ? (
