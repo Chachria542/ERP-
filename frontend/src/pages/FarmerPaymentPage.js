@@ -1114,7 +1114,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                   `}</style>
 
                   {/* HINDI COPY - Profarma-4 Payment Voucher */}
-                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <div className="p-1 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
                     <div className="text-center mb-1 pb-1 border-b border-black">
                       <h2 className="text-sm font-bold">Profarma - 4 Payment Voucher</h2>
