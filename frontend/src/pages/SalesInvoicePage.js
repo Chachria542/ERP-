@@ -1716,24 +1716,25 @@ function SalesInvoicePage({ user, onLogout }) {
               </div>
             </div>
 
-            {/* Items Table */}
-            <table style={{width: '100%', fontSize: '9px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '10px'}}>
+            {/* Items Table - Fixed Height */}
+            <table style={{width: '100%', fontSize: '9px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '10px', tableLayout: 'fixed'}}>
               <thead>
                 <tr style={{backgroundColor: '#e5e7eb'}}>
-                  <th style={{border: '1px solid black', padding: '3px'}}>PO No</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>PO Date</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>Item/HSN/Marka</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>No Bag</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>No Kgs</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>Pkg Size</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>Quantity (Qtl)</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>Rate</th>
-                  <th style={{border: '1px solid black', padding: '3px'}}>Amount</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '6%'}}>PO No</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '7%'}}>PO Date</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '20%'}}>Item/HSN/Marka</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '7%'}}>No Bag</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '7%'}}>No Kgs</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '7%'}}>Pkg Size</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '9%'}}>Quantity (Qtl)</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '10%'}}>Rate</th>
+                  <th style={{border: '1px solid black', padding: '3px', width: '12%'}}>Amount</th>
                 </tr>
               </thead>
               <tbody>
+                {/* Actual line items */}
                 {savedInvoice.line_items?.map((item, idx) => (
-                  <tr key={idx}>
+                  <tr key={idx} style={{height: '30px'}}>
                     <td style={{border: '1px solid black', padding: '3px'}}>{item.po_number || '-'}</td>
                     <td style={{border: '1px solid black', padding: '3px'}}>{item.po_date || '-'}</td>
                     <td style={{border: '1px solid black', padding: '3px'}}>
@@ -1747,6 +1748,21 @@ function SalesInvoicePage({ user, onLogout }) {
                     <td style={{border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold'}}>{item.actual_qtl}</td>
                     <td style={{border: '1px solid black', padding: '3px', textAlign: 'right'}}>₹{item.rate}</td>
                     <td style={{border: '1px solid black', padding: '3px', textAlign: 'right', fontWeight: 'bold'}}>₹{item.amount.toFixed(2)}</td>
+                  </tr>
+                ))}
+                
+                {/* Empty rows to maintain fixed height - always show at least 5 rows total */}
+                {Array.from({ length: Math.max(0, 5 - (savedInvoice.line_items?.length || 0)) }).map((_, idx) => (
+                  <tr key={`empty-${idx}`} style={{height: '30px'}}>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
+                    <td style={{border: '1px solid black', padding: '3px'}}>&nbsp;</td>
                   </tr>
                 ))}
               </tbody>
