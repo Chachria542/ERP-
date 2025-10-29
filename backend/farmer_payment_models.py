@@ -102,6 +102,7 @@ class FarmerPayment(BaseModel):
     
     # Farmer details
     farmer_name: str
+    farmer_name_hindi: Optional[str] = None  # Hindi translated name for print
     mobile: str
     village: Optional[str] = None  # Changed from city to village
     vehicle_number: Optional[str] = None  # Fetched from weighbridge entry for print
