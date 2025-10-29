@@ -1084,14 +1084,13 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Hide ALL modal content */
-                      .print-hide-modal, .print-hide-modal * {
+                      /* Hide modal content EXCEPT print container */
+                      .print-hide-modal > *:not(.print-voucher-container) {
                         display: none !important;
                       }
                       
-                      /* Show ONLY print container */
-                      .print-voucher-container,
-                      .print-voucher-container * {
+                      /* Show print container */
+                      .print-voucher-container {
                         display: block !important;
                       }
                       
