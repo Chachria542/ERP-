@@ -10,7 +10,7 @@ import time
 from datetime import datetime, timezone, timedelta
 
 # Backend URL from frontend/.env
-BASE_URL = "https://grain-trade-erp.preview.emergentagent.com/api"
+BASE_URL = "https://tradingdocs.preview.emergentagent.com/api"
 
 class FocusedMixedLoadTester:
     def __init__(self):

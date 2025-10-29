@@ -1,75 +1,61 @@
 <analysis>
-The AI engineer's work primarily focused on expanding an ERP application, specifically the Sales and Weighbridge modules. Initial tasks involved comprehensive data model and UI updates for print functionality, followed by several critical bug fixes. The print template analysis identified numerous missing fields, leading to significant backend model restructuring across Company Settings, Party (Customer/Supplier), Sales Invoice, Farmer, and Farmer Payment models. This included adding structured addresses, consignee details, company logo URL, and replacing 'city' with 'village' for farmers.
-
-A major architectural shift consolidated farmer master data into the  collection, using a farmer role. A mobile-first pre-entry flow was implemented, featuring farmer existence checks, OTP verification, and master data registration. Throughout, the engineer meticulously handled backend endpoint updates for new fields and frontend UI adjustments for forms and display logic. Crucial bug fixes addressed weighbridge tare weight entry, incorrect farmer payment queue data ( always zero), and UI/caching inconsistencies, ensuring data integrity and correct calculations. The latest user request involves detailed refinement of the Farmer Payment Voucher print template, starting with a field rename.
+The AI engineer's work primarily focused on enhancing print functionalities for the ERP application's Sales and Farmer Payment modules, alongside critical data model updates and bug fixes. The trajectory details the process of refining the Farmer Payment Voucher print template, addressing user feedback for exact field names, bilingual support, and layout adjustments to fit two slips on one A4 page. This involved extensive CSS debugging to ensure only the voucher printed correctly. Subsequently, the engineer implemented an auto-translation feature for farmer names to Hindi using an Emergent LLM key. The work then transitioned to creating a Sales Invoice print template, including significant backend model updates for new invoice fields and the initial setup of the frontend print view, before encountering a bug with the print button for saved invoices.
 </analysis>
 
 <product_requirements>
-The ERP application aims to manage Grain Trading, Custody, and Funding for Sudarshan Trading. The Sales module includes Sales Pre-Entry (supporting Mixed Load for multi-customer, multi-item orders with weight validation), Weighbridge Integration (TARE → GROSS), and Sales Invoice/Return with auto-allocation and photo approval. Recent enhancements added fields for Transportation, Anugya No., Company/Bank details, and Broker details. Broker and Transporter master data management is integrated.
+The ERP application manages Grain Trading, Custody, and Funding for Sudarshan Trading. It features a Sales module with Pre-Entry (supporting mixed loads), Weighbridge Integration (TARE → GROSS), and Sales Invoice/Return with auto-allocation and photo approval. Recent updates added fields for Transportation, Anugya No., Company/Bank details, and Broker details, with integrated master data for Brokers and Transporters.
 
-The current focus is robust print functionality for Sales Invoice, Farmer Payment Vouchers, and Bill Purchase Voucher. This involves aligning application data models with user-provided print templates. Key additions include structured addresses for parties, consignee details in sales, company details (logo URL, godown address, terms & conditions), and specific farmer details (village, vehicle number, weighbridge slip number). A mobile-first farmer pre-entry flow ensures farmer master data integrity. The latest specific requirement is to refine the Farmer Payment Voucher print template, including dual-language copies and precise field mapping from the backend.
+The current focus is on robust print functionality for Sales Invoice, Farmer Payment Vouchers, and Bill Purchase Voucher, aligning data models with print templates. This includes structured party addresses, consignee details in sales, company details (logo URL, godown address, terms & conditions), and specific farmer details (village, vehicle number, weighbridge slip number). A mobile-first farmer pre-entry flow ensures master data integrity. The immediate task involved refining the Farmer Payment Voucher print template for dual-language copies and precise field mapping, and now extending similar print capabilities to Sales Invoices, with auto-translation for farmer names.
 </product_requirements>
 
 <key_technical_concepts>
 -   **Backend**: FastAPI, Python, MongoDB (UUIDs, UTC ISO timestamps), Pydantic, file uploads.
--   **Frontend**: React (, Shadcn/UI, Tailwind CSS), , ,  for API.
+-   **Frontend**: React (, Shadcn/UI, Tailwind CSS), , , .
 -   **API Design**:  prefix, RESTful endpoints, data validation.
 -   **UI Components**: Autocomplete, Modals, Toasts, Tabs.
--   **Data Handling**: Mixed load logic, weight allocation, form validation, consolidated party/farmer master data.
+-   **Data Handling**: Mixed load logic, form validation, consolidated party/farmer master data.
+-   **LLM Integration**:  library for text translation.
 </key_technical_concepts>
 
 <code_architecture>
 
--   : Main FastAPI entry point.
-    -   *Changes*:  model updated with , ,  fields and  extended to include consignee.  helper added. New endpoint  added.
--   : Defines sales-related models.
-    -   *Changes*:  model updated to include , , , , , ,  for detailed delivery information.
--   : FastAPI routes for Sales.
-    -   *Changes*: Invoice creation logic updated to handle new consignee and transportation details.
--   : Defines models for universal weighbridge.
-    -   *Changes*:  model now has  (mandatory) replacing .
--   : FastAPI routes for weighbridge.
-    -   *Changes*:  function rewritten to interact with  collection, storing  in the  field. New endpoints  and  added for mobile-first farmer flow.  logic updated to correctly persist  and other calculated weights to existing weighbridge entries upon second weight capture.
--   : Defines models for weighbridge queue.
-    -   *Changes*:  updated to include , , .
--   : Defines models for company settings.
-    -   *Changes*: Added , , .
--   : FastAPI routes for company settings.
-    -   *Changes*: Added  endpoint. Fixed a syntax error during implementation.
--   : Defines models for farmer payments.
-    -   *Changes*:  and  models updated to replace  with , and  with .
--   : FastAPI routes for farmer payments.
-    -   *Changes*: Queue fetching logic improved to correctly calculate and display quantity and estimated amount by ensuring  and other fields are correctly pulled and used for calculations.
--   : Frontend for company settings.
-    -   *Changes*: Added UI for logo upload, godown address, terms & conditions.
--   : Autocomplete for customers.
-    -   *Changes*: UI updated to include , ,  fields with GSTIN auto-extraction.
--   : Autocomplete for suppliers.
-    -   *Changes*: UI updated to include , ,  fields with GSTIN auto-extraction.
--   : Frontend form for pre-entries.
-    -   *Changes*: Implemented mobile-first farmer flow:  to check farmer existence,  to register new farmers, dynamic UI for name/village fields (locked for existing, editable for new), OTP verification. GSTIN field for farmers is now explicitly excluded from the payload. UI updated to show a blue checkmark for verified farmers. Disabled fields for verified farmers have enhanced styling.  updated for new states.
--   : Frontend for weighbridge entries.
-    -   *Changes*: Fixed logic making second weight entry dimmed for purchase transactions. Replaced static gross-tare image with , , and  from pre-entry.
--   : Frontend for farmer payment.
-    -   *Changes*: Updated to use  instead of  for farmer details. UI updated to reflect this. Currently being updated to use  instead of .
--   : Master data management.
-    -   *Changes*: UI updated to display  array and show  (village) for farmers in the parties table.
+-   : Main FastAPI entry.  model updated,  added.  model updated with .
+-   : Defines sales models.  updated with consignee details, , , , , , , , , .  updated with , .
+-   : FastAPI routes for Sales. Invoice creation logic updated to handle new fields and auto-generate .
+-   : Defines models for universal weighbridge.  model now has  replacing .
+-   : FastAPI routes for weighbridge.  rewritten, new farmer endpoints,  fixed.
+-   : Defines models for weighbridge queue.  updated.
+-   : Defines models for company settings. Added , , .
+-   : FastAPI routes for company settings. Added  endpoint.
+-   : Defines models for farmer payments.  updated to replace  with ,  with , and added .
+-   : FastAPI routes for farmer payments. Queue fetching logic improved. Added  function and incorporated it into payment creation for .
+-   :  added.
+-   : Updated to include .
+-   : Frontend for company settings. Added UI for logo upload, godown address, terms & conditions.
+-   : Autocomplete for customers. UI updated for address fields, GSTIN auto-extraction.
+-   : Autocomplete for suppliers. UI updated for address fields, GSTIN auto-extraction.
+-   : Frontend form for pre-entries. Implemented mobile-first farmer flow, OTP verification.
+-   : Frontend for weighbridge entries. Fixed second weight entry.
+-   : Frontend for farmer payment. Replaced  with  in state, UI, and API payload. Implemented a comprehensive bilingual (Hindi/English) print template for payment vouchers, including exact PDF field names, compact single-page layout, perforation line, conditional bank details, and only two signature fields. Extensively debugged print CSS to ensure only the voucher printed, removed watermarks, and adjusted margins. Uses  for the Hindi copy.
+-   : Frontend for sales invoice creation. Added state for  and fetched them. Updated to store complete  data. Implemented a client-side Sales Invoice print template. Added  class to the invoice modal dialog. Added a print button in the invoice list for  items and its handler .
+-   : Master data management. UI updated to display  and  (village).
 </code_architecture>
 
 <pending_tasks>
 -   Integrate real S3-compatible storage for weighbridge photos (existing).
--   Complete Farmer Payment Voucher print template implementation (HTML template, bilingual labels, conditional bank details, signature sections).
--   Implement Sales Invoice print view.
+-   Implement Sales Invoice print view (still pending full functionality for the print button).
 -   Implement Freight Slip print view.
 -   Implement Bill Purchase voucher print view.
 </pending_tasks>
 
 <current_work>
-The AI engineer is currently working on the Farmer Payment Voucher print template. Following a detailed analysis of the user-provided  and subsequent clarifications, it was decided to replace the  field with  in the  model to capture the weighbridge slip reference.
+The AI engineer is currently working on the Sales Invoice print functionality. Backend models (, ) and endpoints () have been updated to include new fields like , , , , etc., and  auto-generation. The frontend () has been updated to incorporate a client-side print template for Sales Invoices, similar to the Farmer Payment Voucher, including fetching company settings and handling  data. A print button has also been added to the invoice list for  items, along with a  function.
 
-The backend model () has already been updated to reflect this change. The current task is to propagate this change to the frontend. Specifically, the engineer is in the process of updating  to rename the existing  state variable to , ensuring that the UI correctly captures and displays the weighbridge slip number for farmer payments. This is a preparatory step before fully implementing the print-friendly HTML view for the payment vouchers, which will include dual-language support (Hindi for farmer, English for records) and conditional display of bank details.
+However, the user has reported that:
+the print invoice button which appears after invoice creation is not working it seems ?
+The engineer is investigating why the newly added print button for generated sales invoices is not functioning as expected.
 </current_work>
 
 <optional_next_step>
-Complete the renaming of  to  in .
+Investigate and fix why the Sales Invoice print button for saved invoices is not working.
 </optional_next_step>
