@@ -1629,40 +1629,53 @@ function SalesInvoicePage({ user, onLogout }) {
 
       {/* Print Template (Hidden on Screen) - Sales Invoice */}
       {savedInvoice && companySettings && (
-        <div style={{display: 'none'}} className="print-invoice-container">
+        <div className="print-invoice-container" style={{display: 'none'}}>
           <style>{`
             @media print {
-              @page { size: A4; margin: 5mm 10mm; }
-              
-              /* Hide ALL web interface elements */
-              body > *:not(#root) { display: none !important; }
-              #root > *:not(.print-invoice-container) { display: none !important; }
-              header, nav, aside, footer { display: none !important; }
-              [class*="sidebar"] { display: none !important; }
-              [class*="navigation"] { display: none !important; }
-              [class*="header"] { display: none !important; }
-              button, input, select, textarea { display: none !important; }
-              [role="navigation"] { display: none !important; }
-              [role="banner"] { display: none !important; }
-              
-              /* Hide the "Made with Emergent" watermark */
-              [href*="emergent"], [class*="emergent"], [class*="watermark"] { display: none !important; }
-              
-              /* Show only the print template */
-              .print-invoice-container { 
-                display: block !important; 
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                background: white;
+              @page { 
+                size: A4; 
+                margin: 10mm; 
               }
-              .print-invoice-container table { display: table !important; }
+              
+              /* Hide ALL page elements except print template */
+              body * {
+                visibility: hidden !important;
+              }
+              
+              /* Make print template and its children visible */
+              .print-invoice-container,
+              .print-invoice-container * {
+                visibility: visible !important;
+              }
+              
+              /* Position print template at top of page */
+              .print-invoice-container {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                display: block !important;
+                background: white !important;
+                padding: 10mm !important;
+              }
+              
+              /* Ensure table displays correctly */
+              .print-invoice-container table { 
+                display: table !important; 
+                width: 100% !important;
+              }
               .print-invoice-container thead { display: table-header-group !important; }
               .print-invoice-container tbody { display: table-row-group !important; }
               .print-invoice-container tr { display: table-row !important; }
-              .print-invoice-container td, .print-invoice-container th { display: table-cell !important; }
-              .no-break { page-break-inside: avoid; }
+              .print-invoice-container td, 
+              .print-invoice-container th { 
+                display: table-cell !important; 
+              }
+              
+              /* Prevent page breaks inside important sections */
+              .no-break { 
+                page-break-inside: avoid !important; 
+              }
             }
           `}</style>
 
