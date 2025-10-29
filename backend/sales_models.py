@@ -383,6 +383,7 @@ class SalesQueueItem(BaseModel):
     brokerage_rate: Optional[float] = None  # For broker details
     status: str
     weighbridge_completed: bool
+    invoice_number: Optional[str] = None  # For print button (when status = invoice_generated)
     created_at: datetime
     weighed_at: Optional[datetime] = None
 
