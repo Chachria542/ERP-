@@ -1002,7 +1002,7 @@ function FarmerPaymentPage({ user, onLogout }) {
 
         {/* Success Modal with Print Option */}
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl print:hidden">
             <DialogHeader>
               <DialogTitle className="text-2xl text-center" style={{color: '#3E2723'}}>
                 ✅ Payment Saved Successfully!
