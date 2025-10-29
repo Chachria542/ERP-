@@ -86,8 +86,8 @@ function Layout({ children, user, onLogout }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">
+      <main className="flex-1 overflow-auto print:overflow-visible">
+        <div className="p-8 print:p-0">
           {children}
         </div>
       </main>
