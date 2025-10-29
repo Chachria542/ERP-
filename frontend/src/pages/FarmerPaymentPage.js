@@ -1205,7 +1205,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Payment Details & Totals - Single Line */}
-                    <div className="mb-1">
+                    <div className="mb-0.5">
                       <div className="flex justify-between items-center text-[10px] border-t border-black pt-1">
                         <div>
                           {savedPayment.pay_type === 'Cash' && (
