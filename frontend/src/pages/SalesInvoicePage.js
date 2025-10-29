@@ -1830,6 +1830,9 @@ function SalesInvoicePage({ user, onLogout }) {
                 <div style={{borderTop: '1px solid black', paddingTop: '3px'}}>Authorized Signatory</div>
               </div>
             </div>
+            </div>
+            {/* End of Invoice Body Border */}
+
           </div>
         </div>
       )}
