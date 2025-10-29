@@ -1282,11 +1282,12 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </div>
                       <div className="grid grid-cols-3 gap-1 mt-1 text-[10px]">
                         <div>
-                          <span className="font-semibold text-[9px]">Seller:</span>
+                          <p className="font-semibold text-[9px] mb-0">Seller:</p>
                           <p className="font-bold text-[10px]">{savedPayment.farmer_name}</p>
                         </div>
                         <div>
-                          <span className="font-semibold text-[9px]">Mobile:</span> {savedPayment.mobile}
+                          <p className="font-semibold text-[9px] mb-0">Mobile:</p>
+                          <p className="font-bold text-[10px]">{savedPayment.mobile}</p>
                         </div>
                         <div>
                           {savedPayment.village && (
