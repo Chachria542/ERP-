@@ -1242,7 +1242,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                   </div>
 
                   {/* PERFORATION LINE - Dashed Border */}
-                  <div className="border-t-2 border-dashed border-gray-400 my-2"></div>
+                  <div className="border-t-2 border-dashed border-gray-400" style={{margin: '2px 0'}}></div>
 
                   {/* ENGLISH COPY - Office Record */}
                   <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
