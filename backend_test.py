@@ -175,49 +175,51 @@ class SalesInvoicePrintTester:
         
         return overall_success, successful_tests
     
-    def test_missing_pre_entry_id(self):
+    def test_non_existent_invoice_number(self):
         """
-        Test 3: Edge Case - Missing pre_entry_id
-        Should fail with 422 validation error
+        Test 3: Non-existent Invoice Number
+        GET /api/sales/invoice/by-number/{non_existent_number}
+        Should return 404 error with appropriate message
         """
-        print("🔍 Test 3: Edge Case - Missing pre_entry_id...")
+        print("🔍 Test 3: Non-existent Invoice Number...")
         
-        try:
-            payload = {
-                "sale_type": "normal_sale",
-                "invoice_date": datetime.now().strftime("%Y-%m-%d"),
-                # Missing pre_entry_id
-                "line_items": [
-                    {
-                        "item_id": "test-item-id",
-                        "item_name": "Test Item",
-                        "bags": 10,
-                        "actual_qtl": 10.0,
-                        "rate": 2500.0,
-                        "amount": 25000.0
-                    }
-                ],
-                "grand_total": 25000.0,
-                "created_by": "test-user"
-            }
-            
-            response = requests.post(f"{self.base_url}/sales/invoice", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
-            
-            if response.status_code == 422:
-                self.log_test("Missing pre_entry_id Edge Case", True, 
-                            "✅ Correctly returned 422 validation error for missing pre_entry_id")
-                return True
-            else:
-                self.log_test("Missing pre_entry_id Edge Case", False, 
-                            f"❌ Expected 422, got {response.status_code}: {response.text}")
-                return False
+        non_existent_numbers = [
+            "SAL-25-999999",
+            "SAL-24-000001", 
+            "SAL-26-123456",
+            "INVALID-FORMAT"
+        ]
+        
+        successful_tests = 0
+        total_tests = len(non_existent_numbers)
+        
+        for invoice_number in non_existent_numbers:
+            try:
+                response = requests.get(f"{self.base_url}/sales/invoice/by-number/{invoice_number}", timeout=10)
                 
-        except Exception as e:
-            self.log_test("Missing pre_entry_id Edge Case", False, f"Request failed: {str(e)}")
-            return False
+                if response.status_code == 404:
+                    data = response.json()
+                    error_message = data.get('detail', '')
+                    
+                    if invoice_number in error_message or 'not found' in error_message.lower():
+                        successful_tests += 1
+                        self.log_test(f"Non-existent Invoice - {invoice_number}", True, 
+                                    f"✅ Correctly returned 404 with message: {error_message}")
+                    else:
+                        self.log_test(f"Non-existent Invoice - {invoice_number}", False, 
+                                    f"❌ 404 returned but message unclear: {error_message}")
+                else:
+                    self.log_test(f"Non-existent Invoice - {invoice_number}", False, 
+                                f"❌ Expected 404, got {response.status_code}: {response.text}")
+                    
+            except Exception as e:
+                self.log_test(f"Non-existent Invoice - {invoice_number}", False, f"Request failed: {str(e)}")
+        
+        overall_success = successful_tests == total_tests
+        self.log_test("Non-existent Invoice Numbers", overall_success, 
+                    f"✅ {successful_tests}/{total_tests} non-existent invoice tests passed")
+        
+        return overall_success
     
     def test_invalid_pre_entry_id(self):
         """
