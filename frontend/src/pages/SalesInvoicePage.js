@@ -716,6 +716,15 @@ function SalesInvoicePage({ user, onLogout }) {
                             {item.is_mixed_load ? '📦 Split Load' : '⚙️ Process'}
                           </Button>
                         )}
+                        {item.status === 'invoice_generated' && item.invoice_number && (
+                          <Button
+                            size="sm"
+                            onClick={() => handlePrintInvoice(item.invoice_number)}
+                            className="btn-secondary"
+                          >
+                            🖨️ Print
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}
