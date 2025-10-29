@@ -1167,7 +1167,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Items Table - Hindi Labels */}
-                    <div className="mb-1">
+                    <div className="mb-0.5">
                       <table className="w-full text-[10px] border-collapse border border-black">
                         <thead>
                           <tr className="bg-gray-200">
