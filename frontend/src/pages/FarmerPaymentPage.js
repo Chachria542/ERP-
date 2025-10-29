@@ -1365,6 +1365,35 @@ function FarmerPaymentPage({ user, onLogout }) {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Print View (Outside Dialog) - Profarma-4 Payment Voucher */}
+        {savedPayment && (
+          <div style={{display: 'none'}} className="print-voucher-container">
+            <style>{`
+              @media print {
+                @page { 
+                  size: A4; 
+                  margin: 5mm 8mm;
+                }
+                
+                /* Hide everything except print container */
+                body > * { visibility: hidden; }
+                .print-voucher-container,
+                .print-voucher-container * { 
+                  visibility: visible !important; 
+                }
+                .print-voucher-container {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                }
+              }
+            `}</style>
+            
+            {/* Copy the entire print template here - I'll do this in next step */}
+            <div>Print voucher will go here</div>
+          </div>
+        )}
       </div>
     </Layout>
   );
