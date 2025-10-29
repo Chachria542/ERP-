@@ -1694,7 +1694,7 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* Invoice Body - Bordered Container */}
             <div style={{border: '2px solid black', padding: '10px'}}>
               {/* Invoice Details */}
-              <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px'}}>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px', border: '1px solid black', padding: '5px'}}>
                 <div><span style={{fontWeight: 'bold'}}>Invoice No:</span> {savedInvoice.invoice_number}</div>
                 <div><span style={{fontWeight: 'bold'}}>Date:</span> {savedInvoice.invoice_date}</div>
                 <div><span style={{fontWeight: 'bold'}}>Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
