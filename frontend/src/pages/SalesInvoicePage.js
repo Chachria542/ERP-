@@ -124,7 +124,17 @@ function SalesInvoicePage({ user, onLogout }) {
 
   useEffect(() => {
     fetchQueue();
+    fetchCompanySettings(); // Fetch for print template
   }, [statusFilter]);
+
+  const fetchCompanySettings = async () => {
+    try {
+      const response = await axios.get(`${API}/company-settings`);
+      setCompanySettings(response.data);
+    } catch (error) {
+      console.error('Error fetching company settings:', error);
+    }
+  };
 
   const fetchQueue = async () => {
     try {
