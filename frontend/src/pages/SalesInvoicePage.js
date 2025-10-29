@@ -1632,9 +1632,31 @@ function SalesInvoicePage({ user, onLogout }) {
         <div style={{display: 'none'}} className="print-invoice-container">
           <style>{`
             @media print {
-              @page { size: A4; margin: 2mm 8mm; }
-              .print-hide-invoice-modal > *:not(.print-invoice-container) { display: none !important; }
-              .print-invoice-container { display: block !important; }
+              @page { size: A4; margin: 5mm 10mm; }
+              
+              /* Hide ALL web interface elements */
+              body > *:not(#root) { display: none !important; }
+              #root > *:not(.print-invoice-container) { display: none !important; }
+              header, nav, aside, footer { display: none !important; }
+              [class*="sidebar"] { display: none !important; }
+              [class*="navigation"] { display: none !important; }
+              [class*="header"] { display: none !important; }
+              button, input, select, textarea { display: none !important; }
+              [role="navigation"] { display: none !important; }
+              [role="banner"] { display: none !important; }
+              
+              /* Hide the "Made with Emergent" watermark */
+              [href*="emergent"], [class*="emergent"], [class*="watermark"] { display: none !important; }
+              
+              /* Show only the print template */
+              .print-invoice-container { 
+                display: block !important; 
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+              }
               .print-invoice-container table { display: table !important; }
               .print-invoice-container thead { display: table-header-group !important; }
               .print-invoice-container tbody { display: table-row-group !important; }
