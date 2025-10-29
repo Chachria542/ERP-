@@ -2023,3 +2023,84 @@ agent_communication:
       
       **NEXT STEPS:**
       Recommend comprehensive print testing with actual payment flow to verify all fields display correctly and print layout matches requirements.
+
+
+backend:
+  - task: "Sales Invoice Print - Get Invoice by Number Endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/sales_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "CRITICAL FIX: Created new endpoint GET /api/sales/invoice/by-number/{invoice_number} to fetch sales invoice by invoice_number (e.g., SAL-25-000001) instead of by UUID. The frontend print button was failing because it was calling /api/sales/invoice/{invoiceNumber} with an invoice_number, but the existing endpoint only accepted invoice_id (UUID). New endpoint searches MongoDB with {'invoice_number': invoice_number} and returns complete invoice data for printing. Needs backend testing to verify endpoint works correctly."
+
+frontend:
+  - task: "Sales Invoice Print Button Fix"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/SalesInvoicePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORTED ISSUE: 'the print invoice button which appears after invoice creation is not working it seems ?' The print button in the invoice list for invoice_generated items was not functioning."
+      - working: "NA"
+        agent: "main"
+        comment: "ROOT CAUSE IDENTIFIED: The handlePrintInvoice function was calling /api/sales/invoice/${invoiceNumber} but the backend endpoint expected invoice_id (UUID) not invoice_number. FIXED: Updated handlePrintInvoice to call the correct endpoint /api/sales/invoice/by-number/${invoiceNumber}. The function now fetches the full invoice data and triggers window.print() after setting savedInvoice state. Needs testing to verify print button works and invoice data loads correctly."
+
+metadata:
+  test_sequence: 5
+
+test_plan:
+  current_focus:
+    - "Sales Invoice Print - Get Invoice by Number Endpoint"
+    - "Sales Invoice Print Button Fix"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      🔧 **SALES INVOICE PRINT BUTTON FIX IMPLEMENTED**
+      
+      **ISSUE IDENTIFIED:**
+      User reported that the print invoice button which appears after invoice creation is not working.
+      
+      **ROOT CAUSE:**
+      - Frontend was calling `/api/sales/invoice/{invoiceNumber}` where invoiceNumber = "SAL-25-000001"
+      - Backend endpoint `/api/sales/invoice/{invoice_id}` expected invoice_id (UUID), not invoice_number
+      - This caused 404 errors when trying to print saved invoices from the list
+      
+      **FIX IMPLEMENTED:**
+      1. **Backend Fix (sales_endpoints.py):**
+         - Created new endpoint: `GET /api/sales/invoice/by-number/{invoice_number}`
+         - Searches MongoDB with `{"invoice_number": invoice_number}`
+         - Returns complete invoice data with all fields needed for print template
+         - Returns 404 if invoice_number not found
+      
+      2. **Frontend Fix (SalesInvoicePage.js):**
+         - Updated `handlePrintInvoice` function to call `/api/sales/invoice/by-number/${invoiceNumber}`
+         - Function fetches invoice data and stores in `savedInvoice` state
+         - Triggers `window.print()` after 500ms delay to ensure state updates
+         - Shows error toast if invoice fetch fails
+      
+      **READY FOR BACKEND TESTING:**
+      - Test new endpoint: `GET /api/sales/invoice/by-number/SAL-25-000001`
+      - Verify it returns complete invoice data with all fields
+      - Test with non-existent invoice numbers (should return 404)
+      - Test with multiple invoice numbers to ensure consistency
+      
+      **READY FOR FRONTEND TESTING:**
+      - Create a sales invoice
+      - Verify print button appears in the invoice list for invoice_generated items
+      - Click print button and verify invoice data loads
+      - Verify browser print dialog opens with invoice template
+      - Test with multiple saved invoices
+
