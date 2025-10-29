@@ -1686,7 +1686,7 @@ function SalesInvoicePage({ user, onLogout }) {
                 <img src={companySettings.company_logo_url} alt="Logo" style={{height: '48px', margin: '0 auto 5px'}} />
               )}
               <h1 style={{fontSize: '20px', fontWeight: 'bold', margin: '5px 0'}}>{companySettings.company_name}</h1>
-              <p style={{fontSize: '10px', margin: '2px 0'}}>{companySettings.godown_address}</p>
+              <p style={{fontSize: '10px', margin: '2px 0'}}>Ward No.18, Omkareshwar Road, Sanawad, PIN -451111</p>
               <p style={{fontSize: '10px', margin: '2px 0'}}>Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
               <p style={{fontSize: '8px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
             </div>
