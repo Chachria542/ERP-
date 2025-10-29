@@ -40,66 +40,67 @@ class SalesInvoicePrintTester:
             "response": response_data
         })
     
-    def test_sales_queue_endpoint(self):
+    def test_list_existing_invoices(self):
         """
-        Test 1: Sales Queue Endpoint Testing
-        GET /api/sales/queue?status=pending
-        Verify response includes ALL new fields and at least one entry with weighbridge_completed=true
+        Test 1: List Existing Sales Invoices
+        GET /api/sales/invoices or similar endpoint to find existing invoice numbers
         """
-        print("🔍 Test 1: Sales Queue Endpoint Testing...")
+        print("🔍 Test 1: Listing Existing Sales Invoices...")
         
         try:
-            response = requests.get(f"{self.base_url}/sales/queue?status=pending", timeout=10)
+            # Try to get existing invoices - we'll check multiple possible endpoints
+            endpoints_to_try = [
+                "/sales/invoices",
+                "/sales/invoice",
+                "/sales"
+            ]
             
-            if response.status_code == 200:
-                queue_items = response.json()
-                
-                if not queue_items:
-                    self.log_test("Sales Queue Endpoint", False, 
-                                "❌ No pending sales entries found in queue")
-                    return False, None
-                
-                # Check first item for required fields
-                item = queue_items[0]
-                required_fields = [
-                    'pre_entry_id', 'customer_id', 'place_of_supply', 'item_id', 
-                    'bharti', 'is_entry', 'brokerage_type', 'brokerage_rate'
-                ]
-                
-                missing_fields = []
-                for field in required_fields:
-                    if field not in item:
-                        missing_fields.append(field)
-                
-                # Find entry with weighbridge_completed=true
-                completed_entry = None
-                for entry in queue_items:
-                    if entry.get('weighbridge_completed') == True and entry.get('status') == 'pending':
-                        completed_entry = entry
-                        break
-                
-                if missing_fields:
-                    self.log_test("Sales Queue Endpoint", False, 
-                                f"❌ Missing required fields: {missing_fields}")
-                    return False, None
-                elif not completed_entry:
-                    self.log_test("Sales Queue Endpoint", False, 
-                                "❌ No entry found with weighbridge_completed=true and status=pending")
-                    return False, None
-                else:
-                    self.log_test("Sales Queue Endpoint", True, 
-                                f"✅ Queue endpoint working. Found {len(queue_items)} entries, "
-                                f"completed entry: {completed_entry.get('pre_entry_number')}")
-                    return True, completed_entry
-                    
+            invoices_found = []
+            
+            for endpoint in endpoints_to_try:
+                try:
+                    response = requests.get(f"{self.base_url}{endpoint}", timeout=10)
+                    if response.status_code == 200:
+                        data = response.json()
+                        if isinstance(data, list) and data:
+                            invoices_found = data
+                            break
+                        elif isinstance(data, dict) and 'invoices' in data:
+                            invoices_found = data['invoices']
+                            break
+                except:
+                    continue
+            
+            if not invoices_found:
+                # Try to find invoices through database query or create test data
+                self.log_test("List Existing Invoices", False, 
+                            "❌ No existing invoices found. Will test with mock invoice numbers.")
+                # Use mock invoice numbers for testing
+                self.test_invoice_numbers = ["SAL-25-000001", "SAL-25-000002", "SAL-25-000003"]
+                return False, self.test_invoice_numbers
+            
+            # Extract invoice numbers
+            for invoice in invoices_found[:5]:  # Test with first 5 invoices
+                invoice_number = invoice.get('invoice_number')
+                if invoice_number and invoice_number.startswith('SAL-'):
+                    self.test_invoice_numbers.append(invoice_number)
+            
+            if self.test_invoice_numbers:
+                self.log_test("List Existing Invoices", True, 
+                            f"✅ Found {len(self.test_invoice_numbers)} existing invoices: {', '.join(self.test_invoice_numbers[:3])}...")
+                return True, self.test_invoice_numbers
             else:
-                self.log_test("Sales Queue Endpoint", False, 
-                            f"HTTP {response.status_code}: {response.text}")
-                return False, None
+                self.log_test("List Existing Invoices", False, 
+                            "❌ No valid SAL-XX-XXXXXX format invoice numbers found")
+                # Use mock invoice numbers for testing
+                self.test_invoice_numbers = ["SAL-25-000001", "SAL-25-000002", "SAL-25-000003"]
+                return False, self.test_invoice_numbers
                 
         except Exception as e:
-            self.log_test("Sales Queue Endpoint", False, f"Request failed: {str(e)}")
-            return False, None
+            self.log_test("List Existing Invoices", False, f"Request failed: {str(e)}")
+            # Use mock invoice numbers for testing
+            self.test_invoice_numbers = ["SAL-25-000001", "SAL-25-000002", "SAL-25-000003"]
+            return False, self.test_invoice_numbers
     
     def test_sales_invoice_creation_success(self, queue_entry):
         """
