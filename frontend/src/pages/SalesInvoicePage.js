@@ -172,8 +172,8 @@ function SalesInvoicePage({ user, onLogout }) {
 
   const handlePrintInvoice = async (invoiceNumber) => {
     try {
-      // Fetch full invoice details
-      const response = await axios.get(`${API}/sales/invoice/${invoiceNumber}`);
+      // Fetch full invoice details by invoice number
+      const response = await axios.get(`${API}/sales/invoice/by-number/${invoiceNumber}`);
       setSavedInvoice(response.data);
       
       // Trigger print after a short delay to ensure state updates
