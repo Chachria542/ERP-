@@ -1081,7 +1081,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     @media print {
                       @page { 
                         size: A4; 
-                        margin: 5mm 8mm;
+                        margin: 2mm 8mm;
                       }
                       
                       /* Hide modal dialog elements */
