@@ -183,6 +183,7 @@ class SalesInvoice(BaseModel):
     # Header
     sale_type: SaleType = SaleType.NORMAL_SALE
     invoice_date: str  # ISO date string
+    invoice_time: Optional[str] = None  # Time of invoice generation (HH:MM:SS)
     
     # Reference
     pre_entry_id: str  # FK to sales_pre_entries
