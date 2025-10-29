@@ -533,13 +533,8 @@ function SalesInvoicePage({ user, onLogout }) {
       
       const response = await axios.post(`${API}/sales/invoice`, payload);
       
-      // Store saved invoice data
-      setSavedInvoice({
-        invoice_number: response.data.invoice_number,
-        sale_type: response.data.sale_type,
-        grand_total: response.data.grand_total,
-        status: response.data.status
-      });
+      // Store complete invoice data for print
+      setSavedInvoice(response.data);
       
       toast.success(`${isReturn ? 'Sales Return' : 'Sales Invoice'} saved: ${response.data.invoice_number}`);
       
