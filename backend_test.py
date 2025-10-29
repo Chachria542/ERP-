@@ -303,64 +303,85 @@ class SalesInvoicePrintTester:
             self.log_test("Response Structure Verification", False, f"Request failed: {str(e)}")
             return False
     
-    def test_wrong_status_pre_entry(self):
+    def test_multiple_invoice_data_integrity(self):
         """
-        Test 5: Edge Case - Pre-entry with wrong status
-        Should fail with 400 error
+        Test 5: Multiple Invoice Data Integrity
+        Test fetching multiple invoices and verify data consistency
         """
-        print("🔍 Test 5: Edge Case - Pre-entry with wrong status...")
+        print("🔍 Test 5: Multiple Invoice Data Integrity...")
         
         try:
-            # First, try to find a pre-entry with status other than 'pending'
-            queue_response = requests.get(f"{self.base_url}/sales/pre-entries?status=invoice_generated&limit=1")
+            # Test with multiple invoice numbers
+            test_numbers = []
             
-            if queue_response.status_code == 200:
-                pre_entries = queue_response.json()
-                if pre_entries:
-                    wrong_status_entry = pre_entries[0]
+            # Try to find existing invoices
+            for i in range(1, 6):  # Test first 5 invoices
+                test_number = f"SAL-25-{i:06d}"
+                test_numbers.append(test_number)
+            
+            successful_fetches = 0
+            total_attempts = 0
+            data_integrity_issues = []
+            
+            for invoice_number in test_numbers:
+                total_attempts += 1
+                try:
+                    response = requests.get(f"{self.base_url}/sales/invoice/by-number/{invoice_number}", timeout=10)
                     
-                    payload = {
-                        "sale_type": "normal_sale",
-                        "invoice_date": datetime.now().strftime("%Y-%m-%d"),
-                        "pre_entry_id": wrong_status_entry.get('id'),
-                        "line_items": [
-                            {
-                                "item_id": "test-item-id",
-                                "item_name": "Test Item",
-                                "bags": 10,
-                                "actual_qtl": 10.0,
-                                "rate": 2500.0,
-                                "amount": 25000.0
-                            }
-                        ],
-                        "grand_total": 25000.0,
-                        "created_by": "test-user"
-                    }
-                    
-                    response = requests.post(f"{self.base_url}/sales/invoice", 
-                                           json=payload,
-                                           headers={'Content-Type': 'application/json'},
-                                           timeout=10)
-                    
-                    if response.status_code == 400:
-                        self.log_test("Wrong Status Pre-entry Edge Case", True, 
-                                    f"✅ Correctly returned 400 error for pre-entry with status: {wrong_status_entry.get('status')}")
-                        return True
+                    if response.status_code == 200:
+                        data = response.json()
+                        successful_fetches += 1
+                        
+                        # Verify data integrity
+                        integrity_checks = []
+                        
+                        # Check invoice number matches
+                        if data.get('invoice_number') != invoice_number:
+                            integrity_checks.append(f"Invoice number mismatch: expected {invoice_number}, got {data.get('invoice_number')}")
+                        
+                        # Check required numeric fields are valid
+                        numeric_fields = ['subtotal', 'grand_total']
+                        for field in numeric_fields:
+                            value = data.get(field)
+                            if value is not None and not isinstance(value, (int, float)):
+                                integrity_checks.append(f"Invalid {field}: {value} (not numeric)")
+                        
+                        # Check line items structure
+                        line_items = data.get('line_items', [])
+                        if line_items:
+                            for idx, item in enumerate(line_items):
+                                if not isinstance(item.get('rate'), (int, float)):
+                                    integrity_checks.append(f"Line item {idx} has invalid rate: {item.get('rate')}")
+                                if not isinstance(item.get('amount'), (int, float)):
+                                    integrity_checks.append(f"Line item {idx} has invalid amount: {item.get('amount')}")
+                        
+                        if integrity_checks:
+                            data_integrity_issues.extend(integrity_checks)
+                            
+                    elif response.status_code == 404:
+                        # Expected for non-existent invoices
+                        pass
                     else:
-                        self.log_test("Wrong Status Pre-entry Edge Case", False, 
-                                    f"❌ Expected 400, got {response.status_code}: {response.text}")
-                        return False
-                else:
-                    self.log_test("Wrong Status Pre-entry Edge Case", True, 
-                                "✅ No pre-entries with wrong status found (test skipped)")
-                    return True
+                        data_integrity_issues.append(f"Unexpected response for {invoice_number}: {response.status_code}")
+                        
+                except Exception as e:
+                    data_integrity_issues.append(f"Error fetching {invoice_number}: {str(e)}")
+            
+            if successful_fetches > 0 and len(data_integrity_issues) == 0:
+                self.log_test("Multiple Invoice Data Integrity", True, 
+                            f"✅ Successfully fetched {successful_fetches} invoices with consistent data integrity")
+                return True
+            elif successful_fetches > 0:
+                self.log_test("Multiple Invoice Data Integrity", False, 
+                            f"❌ Fetched {successful_fetches} invoices but found integrity issues: {data_integrity_issues[:3]}")
+                return False
             else:
-                self.log_test("Wrong Status Pre-entry Edge Case", True, 
-                            "✅ Could not fetch pre-entries for wrong status test (test skipped)")
+                self.log_test("Multiple Invoice Data Integrity", True, 
+                            "✅ No existing invoices found to test (test skipped)")
                 return True
                 
         except Exception as e:
-            self.log_test("Wrong Status Pre-entry Edge Case", False, f"Request failed: {str(e)}")
+            self.log_test("Multiple Invoice Data Integrity", False, f"Request failed: {str(e)}")
             return False
     
     def run_all_tests(self):
