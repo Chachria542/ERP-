@@ -374,6 +374,7 @@ async def get_sales_queue(
             brokerage_rate=entry.get('brokerage_rate'),  # For broker details
             status=entry['status'],
             weighbridge_completed=entry['weighbridge_completed'],
+            invoice_number=entry.get('invoice_number'),  # For print button (when status = invoice_generated)
             created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
             weighed_at=None  # TODO: Get from weighbridge entries
         )
