@@ -415,7 +415,7 @@ class SalesInvoicePrintTester:
     def print_summary(self):
         """Print test summary"""
         print("\n" + "=" * 80)
-        print("📊 SALES INVOICE CREATION FIX TEST SUMMARY")
+        print("📊 SALES INVOICE PRINT ENDPOINT TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -434,23 +434,22 @@ class SalesInvoicePrintTester:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
             
-            print("\n🚨 SALES INVOICE CREATION ISSUES FOUND:")
-            print("The 422 validation error fix may not be working correctly.")
+            print("\n🚨 SALES INVOICE PRINT ENDPOINT ISSUES FOUND:")
+            print("The new print endpoint may not be working correctly.")
             print("Please review the failed tests above and check the implementation.")
         else:
-            print("\n🎉 SALES INVOICE CREATION FIX VERIFIED!")
-            print("✅ Test 1: Sales Queue Endpoint - All required fields present")
-            print("✅ Test 2: Sales Invoice Creation - Success with SAL-YY-###### format")
-            print("✅ Test 3: Missing pre_entry_id - Correctly returns 422 validation error")
-            print("✅ Test 4: Invalid pre_entry_id - Correctly returns 404 error")
-            print("✅ Test 5: Wrong status pre-entry - Correctly returns 400 error")
+            print("\n🎉 SALES INVOICE PRINT ENDPOINT FIX VERIFIED!")
+            print("✅ Test 1: List Existing Invoices - Found invoice numbers to test")
+            print("✅ Test 2: New Print Endpoint - Returns complete invoice data")
+            print("✅ Test 3: Non-existent Invoices - Correctly returns 404 errors")
+            print("✅ Test 4: Response Structure - Includes all fields for print template")
+            print("✅ Test 5: Data Integrity - Multiple invoices have consistent data")
             print("\n🎯 SUCCESS CRITERIA MET:")
-            print("- Sales queue includes all new required fields")
-            print("- Invoice creation works with complete payload")
-            print("- Invoice numbers generated in SAL-YY-###### format")
-            print("- Pre-entry status updates to invoice_generated")
-            print("- Proper validation errors for edge cases")
-            print("- No 422 validation errors for valid requests")
+            print("- Endpoint returns complete invoice data for existing invoice numbers")
+            print("- Returns 404 for non-existent invoice numbers")
+            print("- Response includes all fields needed for printing")
+            print("- Data is accurate and matches invoice creation")
+            print("- Print button issue should now be resolved")
         
         print("\n" + "=" * 80)
         return failed_tests == 0
