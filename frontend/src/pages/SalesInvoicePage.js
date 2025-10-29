@@ -170,6 +170,22 @@ function SalesInvoicePage({ user, onLogout }) {
     }
   };
 
+  const handlePrintInvoice = async (invoiceNumber) => {
+    try {
+      // Fetch full invoice details
+      const response = await axios.get(`${API}/sales/invoice/${invoiceNumber}`);
+      setSavedInvoice(response.data);
+      
+      // Trigger print after a short delay to ensure state updates
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      toast.error('Failed to load invoice for printing');
+    }
+  };
+
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
     
