@@ -1217,10 +1217,10 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Signatures - 2 Only */}
-                    <div className="mt-2 pt-2">
+                    <div className="mt-1 pt-1">
                       <div className="grid grid-cols-2 gap-4 text-center text-[10px]">
                         <div>
-                          <div className="h-6"></div>
+                          <div className="h-4"></div>
                           <div className="border-t border-black pt-0.5">
                             <p className="font-semibold">क्रेता के हस्ताक्षर</p>
                             <p className="text-[8px]">Kretaa ke Hastakshar</p>
