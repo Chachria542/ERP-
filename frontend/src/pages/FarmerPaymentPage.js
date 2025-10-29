@@ -1084,7 +1084,14 @@ function FarmerPaymentPage({ user, onLogout }) {
                         margin: 5mm 8mm;
                       }
                       
-                      /* Simple approach - just show print container */
+                      /* Hide the dialog/modal overlay and content */
+                      [role="dialog"], [data-radix-dialog-overlay], [data-radix-dialog-content] {
+                        background: none !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                      }
+                      
+                      /* Show print container */
                       .print-voucher-container {
                         display: block !important;
                       }
