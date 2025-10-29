@@ -21,9 +21,9 @@ function Layout({ children, user, onLogout }) {
   ];
 
   return (
-    <div className="min-h-screen flex" style={{background: 'linear-gradient(135deg, #FDF6E3 0%, #F5E6D3 100%)'}}>
+    <div className="min-h-screen flex print:block" style={{background: 'linear-gradient(135deg, #FDF6E3 0%, #F5E6D3 100%)'}}>
       {/* Sidebar */}
-      <aside className="w-64 shadow-elevated animate-slide-in" 
+      <aside className="w-64 shadow-elevated animate-slide-in print:hidden" 
              style={{background: 'linear-gradient(180deg, #6B8E23 0%, #5A7A1E 100%)'}}>
         <div className="p-6 border-b border-white/20">
           <div className="flex items-center space-x-3">
