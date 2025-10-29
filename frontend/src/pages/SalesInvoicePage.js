@@ -1691,30 +1691,32 @@ function SalesInvoicePage({ user, onLogout }) {
               <p style={{fontSize: '8px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
             </div>
 
-            {/* Invoice Details */}
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px'}}>
-              <div><span style={{fontWeight: 'bold'}}>Invoice No:</span> {savedInvoice.invoice_number}</div>
-              <div><span style={{fontWeight: 'bold'}}>Date:</span> {savedInvoice.invoice_date}</div>
-              <div><span style={{fontWeight: 'bold'}}>Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
-              <div><span style={{fontWeight: 'bold'}}>Anugya No:</span> {savedInvoice.anugya_no || 'N/A'}</div>
-            </div>
+            {/* Invoice Body - Bordered Container */}
+            <div style={{border: '2px solid black', padding: '10px'}}>
+              {/* Invoice Details */}
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px'}}>
+                <div><span style={{fontWeight: 'bold'}}>Invoice No:</span> {savedInvoice.invoice_number}</div>
+                <div><span style={{fontWeight: 'bold'}}>Date:</span> {savedInvoice.invoice_date}</div>
+                <div><span style={{fontWeight: 'bold'}}>Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
+                <div><span style={{fontWeight: 'bold'}}>Anugya No:</span> {savedInvoice.anugya_no || 'N/A'}</div>
+              </div>
 
-            {/* Bill To & Broker */}
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '10px', fontSize: '10px'}}>
-              <div style={{border: '1px solid black', padding: '5px'}}>
-                <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Bill To:</p>
-                <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
-                <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
+              {/* Bill To & Broker */}
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '10px', fontSize: '10px'}}>
+                <div style={{border: '1px solid black', padding: '5px'}}>
+                  <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Bill To:</p>
+                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
+                  <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
+                </div>
+                <div style={{border: '1px solid black', padding: '5px'}}>
+                  <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Broker:</p>
+                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
+                </div>
               </div>
-              <div style={{border: '1px solid black', padding: '5px'}}>
-                <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Broker:</p>
-                <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
-              </div>
-            </div>
 
             {/* Items Table - Fixed Height */}
             <table style={{width: '100%', fontSize: '9px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '10px', tableLayout: 'fixed'}}>
