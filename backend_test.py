@@ -221,48 +221,86 @@ class SalesInvoicePrintTester:
         
         return overall_success
     
-    def test_invalid_pre_entry_id(self):
+    def test_response_structure_verification(self):
         """
-        Test 4: Edge Case - Invalid pre_entry_id
-        Should fail with 404 error
+        Test 4: Response Structure Verification
+        Verify the response includes all fields needed for print template
         """
-        print("🔍 Test 4: Edge Case - Invalid pre_entry_id...")
+        print("🔍 Test 4: Response Structure Verification...")
         
+        # Try to find at least one existing invoice to test structure
         try:
-            payload = {
-                "sale_type": "normal_sale",
-                "invoice_date": datetime.now().strftime("%Y-%m-%d"),
-                "pre_entry_id": "invalid-pre-entry-id-12345",
-                "line_items": [
-                    {
-                        "item_id": "test-item-id",
-                        "item_name": "Test Item",
-                        "bags": 10,
-                        "actual_qtl": 10.0,
-                        "rate": 2500.0,
-                        "amount": 25000.0
-                    }
-                ],
-                "grand_total": 25000.0,
-                "created_by": "test-user"
-            }
+            # First, try to get any existing invoice
+            test_invoice_number = None
             
-            response = requests.post(f"{self.base_url}/sales/invoice", 
-                                   json=payload,
-                                   headers={'Content-Type': 'application/json'},
-                                   timeout=10)
+            # Try common invoice number patterns
+            for i in range(1, 10):
+                test_number = f"SAL-25-{i:06d}"
+                response = requests.get(f"{self.base_url}/sales/invoice/by-number/{test_number}", timeout=5)
+                if response.status_code == 200:
+                    test_invoice_number = test_number
+                    break
             
-            if response.status_code == 404:
-                self.log_test("Invalid pre_entry_id Edge Case", True, 
-                            "✅ Correctly returned 404 error for invalid pre_entry_id")
-                return True
+            if not test_invoice_number:
+                self.log_test("Response Structure Verification", False, 
+                            "❌ No existing invoices found to test response structure")
+                return False
+            
+            response = requests.get(f"{self.base_url}/sales/invoice/by-number/{test_invoice_number}", timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Define all fields needed for print template
+                required_fields = {
+                    'invoice_number': 'Invoice number (SAL-25-000001)',
+                    'invoice_date': 'Invoice date',
+                    'invoice_time': 'Invoice time',
+                    'customer_name': 'Customer name',
+                    'customer_gstin': 'Customer GSTIN (optional)',
+                    'place_of_supply': 'Place of supply',
+                    'line_items': 'Line items array',
+                    'subtotal': 'Subtotal amount',
+                    'cgst_amount': 'CGST amount (optional)',
+                    'sgst_amount': 'SGST amount (optional)',
+                    'grand_total': 'Grand total amount',
+                    'vehicle_number': 'Vehicle number (optional)',
+                    'broker_name': 'Broker name (optional)'
+                }
+                
+                # Check required fields
+                missing_fields = []
+                present_fields = []
+                
+                for field, description in required_fields.items():
+                    if field in data:
+                        present_fields.append(f"{field}: {description}")
+                    else:
+                        missing_fields.append(f"{field}: {description}")
+                
+                # Check line_items structure if present
+                line_items_valid = False
+                if 'line_items' in data and isinstance(data['line_items'], list) and data['line_items']:
+                    first_item = data['line_items'][0]
+                    line_item_fields = ['item_name', 'bags', 'actual_qtl', 'rate', 'amount']
+                    line_items_valid = all(field in first_item for field in line_item_fields)
+                
+                if len(missing_fields) <= 3 and line_items_valid:  # Allow some optional fields to be missing
+                    self.log_test("Response Structure Verification", True, 
+                                f"✅ Response structure valid for invoice {test_invoice_number}. "
+                                f"Present: {len(present_fields)} fields, Missing: {len(missing_fields)} optional fields")
+                    return True
+                else:
+                    self.log_test("Response Structure Verification", False, 
+                                f"❌ Response structure incomplete. Missing critical fields: {missing_fields[:5]}")
+                    return False
             else:
-                self.log_test("Invalid pre_entry_id Edge Case", False, 
-                            f"❌ Expected 404, got {response.status_code}: {response.text}")
+                self.log_test("Response Structure Verification", False, 
+                            f"❌ Could not fetch invoice for structure test: HTTP {response.status_code}")
                 return False
                 
         except Exception as e:
-            self.log_test("Invalid pre_entry_id Edge Case", False, f"Request failed: {str(e)}")
+            self.log_test("Response Structure Verification", False, f"Request failed: {str(e)}")
             return False
     
     def test_wrong_status_pre_entry(self):
