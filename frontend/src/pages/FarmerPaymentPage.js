@@ -1350,7 +1350,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Voucher IDs */}
-                    <div className="mb-1 p-1 bg-gray-100 text-[8px]">
+                    <div className="mb-0.5 p-1 bg-gray-100 text-[8px]">
                       <div><span className="font-semibold">Purchase:</span> {savedPayment.purchase_voucher_id}</div>
                       <div><span className="font-semibold">Payment:</span> {savedPayment.payment_voucher_id}</div>
                     </div>
