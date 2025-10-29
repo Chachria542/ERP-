@@ -607,6 +607,15 @@ async def get_sales_invoice(invoice_id: str):
         raise HTTPException(status_code=404, detail="Invoice not found")
     return invoice
 
+@router.get("/sales/invoice/by-number/{invoice_number}")
+async def get_sales_invoice_by_number(invoice_number: str):
+    """Get sales invoice by invoice number (e.g., SAL-25-000001)"""
+    invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number}, {"_id": 0})
+    if not invoice:
+        raise HTTPException(status_code=404, detail=f"Invoice {invoice_number} not found")
+    return invoice
+
+
 # ============= MIXED LOAD INVOICE ENDPOINTS =============
 
 @router.post("/sales/mixed-load-invoice/bulk", response_model=dict)
