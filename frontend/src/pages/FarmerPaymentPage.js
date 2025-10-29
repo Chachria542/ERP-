@@ -1139,7 +1139,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Purchaser & Seller Details */}
-                    <div className="mb-1 p-1 border border-gray-400">
+                    <div className="mb-0.5 p-1 border border-gray-400">
                       <div className="grid grid-cols-2 gap-1 text-[10px]">
                         <div>
                           <p className="font-semibold text-[9px]">Name and License No. of Purchaser</p>
@@ -1265,7 +1265,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Purchaser & Seller Details */}
-                    <div className="mb-1 p-1 border border-gray-400">
+                    <div className="mb-0.5 p-1 border border-gray-400">
                       <div className="grid grid-cols-2 gap-1 text-[10px]">
                         <div>
                           <p className="font-semibold text-[9px]">Purchaser</p>
