@@ -1079,18 +1079,22 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <div style={{display: 'none'}} className="print-voucher-container">
                   <style>{`
                     @media print {
-                      /* Hide the modal/dialog and all screen UI */
-                      [role="dialog"], .modal, .card, button, 
-                      h2:contains("Payment Saved"), 
-                      .success-banner,
-                      [class*="Dialog"],
-                      [class*="Card"] {
-                        display: none !important;
+                      /* Hide everything by default */
+                      * { visibility: hidden; }
+                      
+                      /* Show only print voucher and its children */
+                      .print-voucher-container,
+                      .print-voucher-container * {
+                        visibility: visible !important;
                       }
                       
-                      /* Show ONLY print voucher */
+                      /* Position print voucher at top left */
                       .print-voucher-container {
                         display: block !important;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
                       }
                       
                       @page { 
