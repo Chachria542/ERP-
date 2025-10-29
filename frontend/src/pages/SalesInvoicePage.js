@@ -52,6 +52,7 @@ function SalesInvoicePage({ user, onLogout }) {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [isReturn, setIsReturn] = useState(false);
   const [savedInvoice, setSavedInvoice] = useState(null); // Store saved invoice with bill no
+  const [companySettings, setCompanySettings] = useState(null); // For print template
   const [invoiceData, setInvoiceData] = useState({
     invoice_date: new Date().toISOString().split('T')[0],
     weighbridge_slip_no: '',
