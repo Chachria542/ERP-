@@ -1808,14 +1808,14 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Bank Details */}
-            <div style={{border: '1px solid black', padding: '5px', fontSize: '9px', marginBottom: '10px'}}>
+            <div style={{padding: '5px', fontSize: '9px', marginBottom: '10px'}}>
               <p style={{fontWeight: 'bold', marginBottom: '3px'}}>Bank Details:</p>
               <p style={{margin: '2px 0'}}>PUNJAB NATIONAL BANK A/C NO. 2892008700001656</p>
               <p style={{margin: '2px 0'}}>IFSC CODE - PUNB0289200 BRANCH - INDORE (M.P.)</p>
             </div>
 
             {/* Warranty & FSSAI */}
-            <div style={{fontSize: '8px', marginBottom: '10px', border: '1px solid black', padding: '5px'}}>
+            <div style={{fontSize: '8px', marginBottom: '10px', padding: '5px'}}>
               <p style={{fontWeight: 'bold', margin: '2px 0'}}>Warranty:</p>
               <p style={{margin: '2px 0', lineHeight: '1.4'}}>
                 I/We hereby certify that Foods/Food mention in this Invoice is/are wanted tot be of the nature and quality which it/these purport/purports to be, certified that particulars given above are true and correct
