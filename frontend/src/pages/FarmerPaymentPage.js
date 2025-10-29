@@ -1227,7 +1227,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                           </div>
                         </div>
                         <div>
-                          <div className="h-6"></div>
+                          <div className="h-4"></div>
                           <div className="border-t border-black pt-0.5">
                             <p className="font-semibold">विक्रेता के भुगतान प्राप्ति के हस्ताक्षर</p>
                             <p className="text-[8px]">Vikretaa ke Bhugtaan prapti ke Hastakshar</p>
