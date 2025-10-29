@@ -121,6 +121,7 @@ class Item(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     category: str  # wheat, rice, corn, etc.
+    hsn_code: Optional[str] = None  # HSN code for GST compliance
     unit: str  # kg, quintal, ton
     current_price: float
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -128,6 +129,7 @@ class Item(BaseModel):
 class ItemCreate(BaseModel):
     name: str
     category: str
+    hsn_code: Optional[str] = None
     unit: str
     current_price: float
 
