@@ -1258,7 +1258,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Document Details */}
-                    <div className="grid grid-cols-3 gap-1 mb-1 text-[10px]">
+                    <div className="grid grid-cols-3 gap-1 mb-0.5 text-[10px]">
                       <div><span className="font-semibold">Date:</span> {new Date(savedPayment.date).toLocaleDateString('en-IN')}</div>
                       <div><span className="font-semibold">Book No:</span> {savedPayment.book_no}</div>
                       <div className="text-right"><span className="font-semibold">Location:</span> {savedPayment.location}</div>
