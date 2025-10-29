@@ -1245,7 +1245,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                   <div className="border-t-2 border-dashed border-gray-400" style={{margin: '2px 0'}}></div>
 
                   {/* ENGLISH COPY - Office Record */}
-                  <div className="p-2 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <div className="p-1 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
                     {/* Header */}
                     <div className="text-center mb-1 pb-1 border-b border-black">
                       <h2 className="text-sm font-bold">Payment Voucher (Office Record)</h2>
