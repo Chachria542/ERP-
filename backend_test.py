@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Mixed Load Invoice Processing Endpoints
-Tests the new Mixed Load Sales Pre-Entry & Processing endpoints as requested in review
+Backend API Testing for Sales Invoice Print Endpoint
+Tests the new Sales Invoice Print endpoint that was created to fix the print button issue
 """
 import requests
 import json
@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://tradingdocs.preview.emergentagent.com/api"
 
-class MixedLoadInvoiceTester:
+class SalesInvoicePrintTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
