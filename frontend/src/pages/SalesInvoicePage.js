@@ -1405,13 +1405,13 @@ function SalesInvoicePage({ user, onLogout }) {
                   {savedInvoice && (
                     <>
                       <Button 
-                        onClick={() => window.open(`${API}/sales/invoice/${savedInvoice.invoice_number}/print`, '_blank')}
+                        onClick={() => handlePrintInvoice(savedInvoice.invoice_number)}
                         className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         🖨️ Print Invoice
                       </Button>
                       <Button 
-                        onClick={() => window.open(`${API}/sales/invoice/${savedInvoice.invoice_number}/print-freight-slip`, '_blank')}
+                        onClick={() => toast.info('Freight slip print feature coming soon')}
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
                         🖨️ Print Freight Slip
