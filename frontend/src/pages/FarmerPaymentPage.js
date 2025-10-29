@@ -1350,14 +1350,14 @@ function FarmerPaymentPage({ user, onLogout }) {
                     </div>
 
                     {/* Signatures */}
-                    <div className="mt-2 pt-2">
+                    <div className="mt-1 pt-1">
                       <div className="grid grid-cols-2 gap-4 text-center text-[10px]">
                         <div>
-                          <div className="h-6"></div>
+                          <div className="h-4"></div>
                           <div className="border-t border-black pt-0.5">Buyer's Signature</div>
                         </div>
                         <div>
-                          <div className="h-6"></div>
+                          <div className="h-4"></div>
                           <div className="border-t border-black pt-0.5">Seller's Payment Receipt Signature</div>
                         </div>
                       </div>
