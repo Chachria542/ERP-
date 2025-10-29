@@ -469,6 +469,7 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "invoice_number": invoice_number,
             "sale_type": invoice_data.sale_type.value,
             "invoice_date": invoice_data.invoice_date,
+            "invoice_time": invoice_time,  # Auto-generated time
             "pre_entry_id": invoice_data.pre_entry_id,
             "pre_entry_number": pre_entry['pre_entry_number'],
             "weighbridge_slip_no": invoice_data.weighbridge_slip_no,
