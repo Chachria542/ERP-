@@ -99,22 +99,8 @@ code {
 
 /* Global Print Styles */
 @media print {
-  /* Hide all UI elements globally */
-  body > div:not(#root) { display: none !important; }
-  nav, aside, header[role="banner"], footer { display: none !important; }
-  button:not(.print-invoice-container button) { display: none !important; }
-  input, select, textarea { display: none !important; }
-  
-  /* Remove shadows, borders, backgrounds from print */
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-  
-  /* Ensure print content is visible */
-  .print-invoice-container {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+  /* Let the print-invoice-container handle its own visibility */
+  body {
+    background: white !important;
   }
 }
