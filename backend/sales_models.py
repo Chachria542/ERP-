@@ -158,7 +158,10 @@ class SalesInvoiceLineItem(BaseModel):
     """Individual line item in sales invoice"""
     item_id: str
     item_name: str
+    hsn_code: Optional[str] = None  # HSN code for GST compliance
     marka: Optional[str] = None
+    po_number: Optional[str] = None  # Purchase order number
+    po_date: Optional[str] = None  # Purchase order date
     
     # Quantity
     bags: int
