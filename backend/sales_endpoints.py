@@ -416,14 +416,25 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
         # Generate invoice number (SAL-YY-######)
         invoice_number = await generate_sales_invoice_number()
         
-        # Process line items
+        # Auto-generate invoice time
+        from datetime import datetime, timezone
+        invoice_time = datetime.now(timezone.utc).strftime("%H:%M:%S")
+        
+        # Process line items with HSN code from item master
         line_items_processed = []
         subtotal = 0.0
         for item_data in invoice_data.line_items:
+            # Fetch item to get HSN code
+            item = await db.items.find_one({"id": item_data.get("item_id")})
+            hsn_code = item.get("hsn_code") if item else None
+            
             line_item = {
                 "item_id": item_data.get("item_id"),
                 "item_name": item_data.get("item_name"),
+                "hsn_code": hsn_code,  # Auto-filled from item master
                 "marka": item_data.get("marka"),
+                "po_number": item_data.get("po_number"),  # New field
+                "po_date": item_data.get("po_date"),  # New field
                 "bags": item_data.get("bags", 0),
                 "kgs": item_data.get("kgs", 0.0),
                 "bharti": item_data.get("bharti", 50),
