@@ -1777,18 +1777,18 @@ function SalesInvoicePage({ user, onLogout }) {
 
             {/* Transportation Details */}
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '9px', marginBottom: '10px'}}>
-              <div style={{border: '1px solid black', padding: '3px'}}>
+              <div style={{padding: '3px'}}>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.from_city || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.to_city || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
               </div>
-              <div style={{border: '1px solid black', padding: '3px'}}>
+              <div style={{padding: '3px'}}>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Tare:</span> {savedInvoice.tare_weight || 'N/A'} kg</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Gross:</span> {savedInvoice.gross_weight || 'N/A'} kg</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Net:</span> {savedInvoice.net_weight || 'N/A'} kg</p>
               </div>
-              <div style={{border: '1px solid black', padding: '3px'}}>
+              <div style={{padding: '3px'}}>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Transporter:</span> {savedInvoice.transporter_name || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Bilty No:</span> {savedInvoice.bilty_no || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Freight:</span> ₹{savedInvoice.freight_amount || '0.00'}</p>
