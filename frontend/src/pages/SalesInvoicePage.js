@@ -1600,6 +1600,155 @@ function SalesInvoicePage({ user, onLogout }) {
           </DialogContent>
         </Dialog>
       </div>
+
+
+      {/* Print Template (Hidden on Screen) - Sales Invoice */}
+      {savedInvoice && companySettings && (
+        <div style={{display: 'none'}} className="print-invoice-container">
+          <style>{`
+            @media print {
+              @page { size: A4; margin: 2mm 8mm; }
+              .print-hide-invoice-modal > *:not(.print-invoice-container) { display: none !important; }
+              .print-invoice-container { display: block !important; }
+              .print-invoice-container table { display: table !important; }
+              .print-invoice-container thead { display: table-header-group !important; }
+              .print-invoice-container tbody { display: table-row-group !important; }
+              .print-invoice-container tr { display: table-row !important; }
+              .print-invoice-container td, .print-invoice-container th { display: table-cell !important; }
+              .no-break { page-break-inside: avoid; }
+            }
+          `}</style>
+
+          <div className="p-1 no-break" style={{fontFamily: 'Arial, sans-serif'}}>
+            {/* Header */}
+            <div className="text-center mb-0.5 pb-0.5 border-b-2 border-black">
+              {companySettings.company_logo_url && (
+                <img src={companySettings.company_logo_url} alt="Logo" className="h-12 mx-auto mb-1" />
+              )}
+              <h1 className="text-xl font-bold">{companySettings.company_name}</h1>
+              <p className="text-[10px]">{companySettings.godown_address}</p>
+              <p className="text-[10px]">Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
+              <p className="text-[8px] font-semibold mt-0.5">SUBJECT TO SANAWAD JURISDICTION</p>
+            </div>
+
+            {/* Invoice Details */}
+            <div className="grid grid-cols-4 gap-1 text-[10px] mb-0.5">
+              <div><span className="font-semibold">Invoice No:</span> {savedInvoice.invoice_number}</div>
+              <div><span className="font-semibold">Date:</span> {savedInvoice.invoice_date}</div>
+              <div><span className="font-semibold">Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
+              <div><span className="font-semibold">Anugya No:</span> {savedInvoice.anugya_no || 'N/A'}</div>
+            </div>
+
+            {/* Bill To & Broker */}
+            <div className="grid grid-cols-2 gap-1 mb-0.5 text-[10px]">
+              <div className="border border-black p-1">
+                <p className="font-bold text-[11px] mb-0.5">Bill To:</p>
+                <p className="font-bold">{savedInvoice.customer_name}</p>
+                <p>{savedInvoice.customer_address || 'N/A'}</p>
+                <p>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
+                <p>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
+                <p>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
+              </div>
+              <div className="border border-black p-1">
+                <p className="font-bold text-[11px] mb-0.5">Broker:</p>
+                <p className="font-bold">{savedInvoice.broker_name || 'N/A'}</p>
+                <p>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <table className="w-full text-[9px] border-collapse border border-black mb-0.5">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-black p-0.5">PO No</th>
+                  <th className="border border-black p-0.5">PO Date</th>
+                  <th className="border border-black p-0.5">Item/HSN/Marka</th>
+                  <th className="border border-black p-0.5">No Bag</th>
+                  <th className="border border-black p-0.5">No Kgs</th>
+                  <th className="border border-black p-0.5">Pkg Size</th>
+                  <th className="border border-black p-0.5">Quantity (Qtl)</th>
+                  <th className="border border-black p-0.5">Rate</th>
+                  <th className="border border-black p-0.5">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedInvoice.line_items?.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="border border-black p-0.5">{item.po_number || '-'}</td>
+                    <td className="border border-black p-0.5">{item.po_date || '-'}</td>
+                    <td className="border border-black p-0.5">
+                      {item.item_name}<br/>
+                      {item.hsn_code && <span className="text-[8px]">HSN: {item.hsn_code}</span>}<br/>
+                      {item.marka && <span className="text-[8px]">Marka: {item.marka}</span>}
+                    </td>
+                    <td className="border border-black p-0.5 text-right">{item.bags}</td>
+                    <td className="border border-black p-0.5 text-right">{item.kgs}</td>
+                    <td className="border border-black p-0.5 text-right">{item.bharti}</td>
+                    <td className="border border-black p-0.5 text-right font-bold">{item.actual_qtl}</td>
+                    <td className="border border-black p-0.5 text-right">₹{item.rate}</td>
+                    <td className="border border-black p-0.5 text-right font-bold">₹{item.amount.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Transportation Details */}
+            <div className="grid grid-cols-3 gap-1 text-[9px] mb-0.5">
+              <div className="border border-black p-0.5">
+                <p><span className="font-semibold">From:</span> {savedInvoice.from_city || 'N/A'}</p>
+                <p><span className="font-semibold">To:</span> {savedInvoice.to_city || 'N/A'}</p>
+                <p><span className="font-semibold">Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
+                <p><span className="font-semibold">Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
+              </div>
+              <div className="border border-black p-0.5">
+                <p><span className="font-semibold">Tare:</span> {savedInvoice.tare_weight || 'N/A'} kg</p>
+                <p><span className="font-semibold">Gross:</span> {savedInvoice.gross_weight || 'N/A'} kg</p>
+                <p><span className="font-semibold">Net:</span> {savedInvoice.net_weight || 'N/A'} kg</p>
+              </div>
+              <div className="border border-black p-0.5">
+                <p><span className="font-semibold">Transporter:</span> {savedInvoice.transporter_name || 'N/A'}</p>
+                <p><span className="font-semibold">Bilty No:</span> {savedInvoice.bilty_no || 'N/A'}</p>
+                <p><span className="font-semibold">Freight:</span> ₹{savedInvoice.freight_amount || '0.00'}</p>
+              </div>
+            </div>
+
+            {/* Totals */}
+            <div className="flex justify-end mb-0.5">
+              <div className="w-1/3 text-[10px]">
+                <div className="flex justify-between py-0.5"><span>Subtotal:</span><span>₹{savedInvoice.subtotal?.toFixed(2)}</span></div>
+                {savedInvoice.cgst > 0 && <div className="flex justify-between py-0.5"><span>CGST:</span><span>₹{savedInvoice.cgst?.toFixed(2)}</span></div>}
+                {savedInvoice.sgst > 0 && <div className="flex justify-between py-0.5"><span>SGST:</span><span>₹{savedInvoice.sgst?.toFixed(2)}</span></div>}
+                {savedInvoice.igst > 0 && <div className="flex justify-between py-0.5"><span>IGST:</span><span>₹{savedInvoice.igst?.toFixed(2)}</span></div>}
+                {savedInvoice.tcs_amount > 0 && <div className="flex justify-between py-0.5"><span>TCS:</span><span>₹{savedInvoice.tcs_amount?.toFixed(2)}</span></div>}
+                <div className="flex justify-between py-0.5 border-t border-black font-bold"><span>Grand Total:</span><span>₹{savedInvoice.grand_total?.toFixed(2)}</span></div>
+              </div>
+            </div>
+
+            {/* Bank Details */}
+            <div className="border border-black p-1 text-[9px] mb-0.5">
+              <p className="font-bold mb-0.5">Bank Details:</p>
+              <p>{companySettings.bank_name} | A/C: {companySettings.account_number}</p>
+              <p>IFSC: {companySettings.ifsc_code} | Branch: {companySettings.branch}</p>
+            </div>
+
+            {/* Terms & FSSAI */}
+            <div className="text-[8px] mb-0.5">
+              <p className="font-semibold">Warranty/Declaration:</p>
+              <p>{companySettings.terms_and_conditions || 'Standard terms and conditions apply.'}</p>
+              <p className="mt-0.5"><span className="font-semibold">FSSAI No:</span> {companySettings.ifssai_no || 'N/A'}</p>
+            </div>
+
+            {/* Signature */}
+            <div className="flex justify-end mt-2">
+              <div className="text-center text-[10px]">
+                <div className="h-8"></div>
+                <div className="border-t border-black pt-0.5">Authorized Signatory</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </Layout>
   );
 }
