@@ -12,6 +12,11 @@ from farmer_payment_models import (
 from typing import List, Optional
 import logging
 import uuid
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +26,42 @@ db = None
 def init_db(database):
     global db
     db = database
+
+# ============= TRANSLATION HELPER =============
+
+async def translate_to_hindi(english_name: str) -> str:
+    """Translate English farmer name to Hindi using Emergent LLM"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        
+        api_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not api_key:
+            logger.warning("EMERGENT_LLM_KEY not found, skipping translation")
+            return english_name
+        
+        # Initialize chat with simple system message
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"translate-{uuid.uuid4()}",
+            system_message="You are a translator. Translate the given English name to Hindi (Devanagari script). Return ONLY the Hindi translation, nothing else."
+        ).with_model("openai", "gpt-4o-mini")
+        
+        # Create translation request
+        user_message = UserMessage(
+            text=f"Translate this name to Hindi: {english_name}"
+        )
+        
+        # Get translation
+        response = await chat.send_message(user_message)
+        hindi_name = response.strip()
+        
+        logger.info(f"Translated '{english_name}' to '{hindi_name}'")
+        return hindi_name
+        
+    except Exception as e:
+        logger.error(f"Translation error: {str(e)}")
+        # Return original name if translation fails
+        return english_name
 
 # ============= FARMER PAYMENT QUEUE =============
 
