@@ -694,7 +694,12 @@ class SalesInvoiceEditTester:
             test_transporter_id = available_transporters[0] if available_transporters else "test-transporter-id"
             
             update_payload = {
+                # Required non-editable fields
+                "invoice_date": self.test_invoice_data.get('invoice_date', '2025-01-01'),
                 "pre_entry_id": self.test_invoice_data['pre_entry_id'],
+                "sale_type": self.test_invoice_data.get('sale_type', 'normal_sale'),
+                
+                # Editable fields
                 "line_items": [
                     {
                         "item_name": "Transporter Test Item",
