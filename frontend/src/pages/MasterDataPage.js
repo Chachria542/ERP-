@@ -298,11 +298,7 @@ function MasterDataPage({ user, onLogout }) {
                 setShowPartyDialog(open);
                 if (!open) {
                   setEditingParty(null);
-                  setPartyName('');
-                  setPartyType('farmer');
-                  setPartyContact('');
-                  setPartyAddress('');
-                  setPartyGstin('');
+                  resetPartyForm();
                 }
               }}>
                 <DialogTrigger asChild>
