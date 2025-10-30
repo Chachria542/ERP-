@@ -151,6 +151,7 @@ class SalesPreEntryCreate(BaseModel):
     brokerage_type: Optional[BrokerageType] = BrokerageType.PER_QUINTAL
     brokerage_rate: Optional[float] = None
     remarks: Optional[str] = None
+    vehicle_number: Optional[str] = None  # Vehicle number from weighbridge
     created_by: str
 
 # ============= SALES INVOICE MODELS =============
