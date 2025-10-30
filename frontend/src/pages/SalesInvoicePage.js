@@ -180,6 +180,7 @@ function SalesInvoicePage({ user, onLogout }) {
       // Fetch full invoice details by invoice number
       const response = await axios.get(`${API}/sales/invoice/by-number/${invoiceNumber}`);
       setSavedInvoice(response.data);
+      setFreightSlipData(null); // Clear freight slip data
       
       // Trigger print after a short delay to ensure state updates
       setTimeout(() => {
@@ -188,6 +189,23 @@ function SalesInvoicePage({ user, onLogout }) {
     } catch (error) {
       console.error('Error fetching invoice:', error);
       toast.error('Failed to load invoice for printing');
+    }
+  };
+
+  const handlePrintFreightSlip = async (invoiceNumber) => {
+    try {
+      // Fetch freight slip data (will generate if doesn't exist)
+      const response = await axios.get(`${API}/sales/freight-slip/${invoiceNumber}`);
+      setFreightSlipData(response.data);
+      setSavedInvoice(null); // Clear invoice data
+      
+      // Trigger print after a short delay to ensure state updates
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching freight slip:', error);
+      toast.error('Failed to load freight slip for printing');
     }
   };
 
