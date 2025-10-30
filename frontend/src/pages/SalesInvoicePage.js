@@ -2132,56 +2132,38 @@ function SalesInvoicePage({ user, onLogout }) {
               <strong>Invoice No:</strong> {freightSlipData.invoice_data.invoice_number}
             </div>
 
-            {/* Consignee & Vehicle Details */}
-            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
-              <tbody>
-                <tr>
-                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
-                    CONSIGNEE DETAILS
-                  </td>
-                  <td style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
-                    DRIVER DETAILS
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px', width: '20%'}}><strong>M/S.</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px', width: '40%'}}>{freightSlipData.invoice_data.customer_name}</td>
-                  <td style={{border: '1px solid #000', padding: '4px', width: '40%', verticalAlign: 'top', rowSpan: '4'}}>
-                    <p style={{margin: '2px 0'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
-                    <p style={{margin: '2px 0'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Address</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_address || '-'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>GSTIN</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_gstin || '-'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Contact No.</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_mobile || '-'}</td>
-                </tr>
-                <tr>
-                  <td colSpan="3" style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
-                    VEHICLE & TRANSPORT DETAILS
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Vehicle No.</strong></td>
-                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.vehicle_number || '-'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Owner</strong></td>
-                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.owner_name || '-'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Transporter</strong></td>
-                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.transporter_name || '-'}</td>
-                </tr>
-              </tbody>
-            </table>
+            {/* Consignee & Vehicle Details - Side by Side Boxes */}
+            <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
+              {/* Consignee Details Box */}
+              <div style={{flex: '1', border: '2px solid #000', padding: '8px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+                  CONSIGNEE DETAILS
+                </div>
+                <p style={{margin: '3px 0'}}><strong>M/S.:</strong> {freightSlipData.invoice_data.customer_name}</p>
+                <p style={{margin: '3px 0'}}><strong>Address:</strong> {freightSlipData.invoice_data.customer_address || '-'}</p>
+                <p style={{margin: '3px 0'}}><strong>GSTIN:</strong> {freightSlipData.invoice_data.customer_gstin || '-'}</p>
+                <p style={{margin: '3px 0'}}><strong>Contact No.:</strong> {freightSlipData.invoice_data.customer_mobile || '-'}</p>
+              </div>
+              
+              {/* Driver Details Box */}
+              <div style={{flex: '1', border: '2px solid #000', padding: '8px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+                  DRIVER DETAILS
+                </div>
+                <p style={{margin: '3px 0'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
+                <p style={{margin: '3px 0'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
+              </div>
+            </div>
+
+            {/* Vehicle & Transport Details Box */}
+            <div style={{border: '2px solid #000', padding: '8px', marginBottom: '15px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+                VEHICLE & TRANSPORT DETAILS
+              </div>
+              <p style={{margin: '3px 0'}}><strong>Vehicle No.:</strong> {freightSlipData.invoice_data.vehicle_number || '-'}</p>
+              <p style={{margin: '3px 0'}}><strong>Owner:</strong> {freightSlipData.invoice_data.owner_name || '-'}</p>
+              <p style={{margin: '3px 0'}}><strong>Transporter:</strong> {freightSlipData.invoice_data.transporter_name || '-'}</p>
+            </div>
 
             {/* Commodity Table */}
             <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
