@@ -2199,54 +2199,29 @@ function SalesInvoicePage({ user, onLogout }) {
               </tbody>
             </table>
 
-            {/* Route & Freight Details */}
-            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
-              <thead>
-                <tr style={{backgroundColor: '#f0f0f0'}}>
-                  <th colSpan="2" style={{border: '1px solid #000', padding: '4px', textAlign: 'left'}}>ROUTE & FREIGHT INFORMATION</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px', width: '30%'}}><strong>From</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.city_from || 'Sanawad'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>To</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.city_to || '-'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Total Weight</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>
-                    {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.actual_qtl, 0).toFixed(2)} Quintals
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Freight Per Qtl.</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.freight_rate || '0.00'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Total Freight</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.freight_amount?.toFixed(2) || '0.00'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Advance</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.advance_freight?.toFixed(2) || '0.00'}</td>
-                </tr>
-                <tr>
-                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Balance</strong></td>
-                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.net_freight?.toFixed(2) || '0.00'}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* Notes Section */}
-            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '10px'}}>
-              <strong>Note:</strong> {freightSlipData.invoice_data.remarks || 'Handle with care'}
+            {/* Route & Freight Details Box */}
+            <div style={{border: '2px solid #000', padding: '8px', marginBottom: '15px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+                ROUTE & FREIGHT INFORMATION
+              </div>
+              <p style={{margin: '3px 0'}}><strong>From:</strong> {freightSlipData.invoice_data.city_from || 'Sanawad'}</p>
+              <p style={{margin: '3px 0'}}><strong>To:</strong> {freightSlipData.invoice_data.city_to || '-'}</p>
+              <p style={{margin: '3px 0'}}><strong>Total Weight:</strong> {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.actual_qtl, 0).toFixed(2)} Quintals</p>
+              <p style={{margin: '3px 0'}}><strong>Freight Per Qtl.:</strong> ₹ {freightSlipData.invoice_data.freight_rate || '0.00'}</p>
+              <p style={{margin: '3px 0'}}><strong>Total Freight:</strong> ₹ {freightSlipData.invoice_data.freight_amount?.toFixed(2) || '0.00'}</p>
+              <p style={{margin: '3px 0'}}><strong>Advance:</strong> ₹ {freightSlipData.invoice_data.advance_freight?.toFixed(2) || '0.00'}</p>
+              <p style={{margin: '3px 0'}}><strong>Balance:</strong> ₹ {freightSlipData.invoice_data.net_freight?.toFixed(2) || '0.00'}</p>
             </div>
 
-            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '10px', minHeight: '40px'}}>
-              <strong>Description:</strong> {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
+            {/* Remarks Section - Combined Note and Description */}
+            <div style={{border: '2px solid #000', padding: '8px', marginBottom: '15px', minHeight: '60px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+                REMARKS
+              </div>
+              <p style={{margin: '3px 0'}}>{freightSlipData.invoice_data.remarks || 'Handle with care'}</p>
+              <p style={{margin: '3px 0', fontStyle: 'italic', color: '#555'}}>
+                Item: {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
+              </p>
             </div>
 
             {/* Important Terms */}
