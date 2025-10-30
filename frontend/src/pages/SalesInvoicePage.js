@@ -849,13 +849,24 @@ function SalesInvoicePage({ user, onLogout }) {
                           </Button>
                         )}
                         {item.status === 'invoice_generated' && item.invoice_number && (
-                          <Button
-                            size="sm"
-                            onClick={() => handlePrintInvoice(item.invoice_number)}
-                            className="btn-secondary"
-                          >
-                            🖨️ Print
-                          </Button>
+                          <div className="flex gap-2 justify-center">
+                            {isAdmin && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleEditInvoice(item.invoice_number)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                              >
+                                ✏️ Edit
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              onClick={() => handlePrintInvoice(item.invoice_number)}
+                              className="btn-secondary"
+                            >
+                              🖨️ Print
+                            </Button>
+                          </div>
                         )}
                       </td>
                     </tr>
