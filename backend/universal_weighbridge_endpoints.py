@@ -469,6 +469,7 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
                 # Sales: TARE first, then GROSS
                 update_data = {
                     "tare_weight": measured_weight,
+                    "vehicle_number": entry_data.vehicle_number,  # Save vehicle number
                     "status": "tare_completed",
                     "updated_at": datetime.now(timezone.utc).isoformat()
                 }
