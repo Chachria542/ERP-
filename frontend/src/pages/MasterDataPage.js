@@ -454,6 +454,8 @@ function MasterDataPage({ user, onLogout }) {
                         </div>
                       </div>
                     </div>
+                      </>
+                    )}
 
                     <Button type="submit" className="w-full btn-primary">
                       {editingParty ? 'Update Party' : 'Add Party'}
