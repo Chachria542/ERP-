@@ -104,7 +104,7 @@ function MasterDataPage({ user, onLogout }) {
           ifsc_code: partyIfscCode || null
         };
       } else {
-        // Supplier/Buyer: Full structured fields
+        // Supplier/Customer: Full structured fields
         partyData = {
           name: partyName,
           roles: [partyType],
