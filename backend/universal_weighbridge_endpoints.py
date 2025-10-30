@@ -546,6 +546,7 @@ async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
             # Mark as completed (both weights captured)
             update_data = {
                 "weighbridge_completed": True,
+                "vehicle_number": entry_data.vehicle_number,  # Save vehicle number
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }
             
