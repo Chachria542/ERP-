@@ -326,6 +326,7 @@ function MasterDataPage({ user, onLogout }) {
                       <th>Contact</th>
                       <th>Village/City</th>
                       <th>GSTIN</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -344,6 +345,26 @@ function MasterDataPage({ user, onLogout }) {
                         <td>{party.contact || '-'}</td>
                         <td>{party.city || '-'}</td>
                         <td>{party.gstin || '-'}</td>
+                        <td>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditParty(party)}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              ✏️ Edit
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteParty(party.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              🗑️ Delete
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
