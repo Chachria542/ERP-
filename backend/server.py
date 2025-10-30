@@ -501,6 +501,44 @@ async def delete_party(party_id: str):
     return {"message": f"Party {existing_party.get('name')} deleted successfully"}
 
 
+@api_router.post("/parties/migrate-buyer-to-customer")
+async def migrate_buyer_to_customer():
+    """Migrate all parties with 'buyer' role to 'customer' role"""
+    try:
+        # Find all parties with 'buyer' in their roles
+        parties_with_buyer = await db.parties.find(
+            {"roles": "buyer"},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        if not parties_with_buyer:
+            return {
+                "message": "No parties with 'buyer' role found",
+                "updated_count": 0
+            }
+        
+        updated_count = 0
+        for party in parties_with_buyer:
+            # Replace 'buyer' with 'customer' in roles array
+            updated_roles = [role if role != 'buyer' else 'customer' for role in party.get('roles', [])]
+            
+            await db.parties.update_one(
+                {"id": party['id']},
+                {"$set": {"roles": updated_roles}}
+            )
+            updated_count += 1
+            print(f"[MIGRATION] Updated party {party['name']} (ID: {party['id']}): roles {party.get('roles')} -> {updated_roles}")
+        
+        return {
+            "message": f"Successfully migrated {updated_count} parties from 'buyer' to 'customer' role",
+            "updated_count": updated_count
+        }
+    except Exception as e:
+        print(f"[MIGRATION ERROR] {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
+
+
+
 @api_router.get("/consignees", response_model=List[Party])
 async def get_consignees():
     """Get all parties with consignee role"""
