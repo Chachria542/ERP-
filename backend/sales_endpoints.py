@@ -540,7 +540,7 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "subtotal": subtotal,
             "round_off": round_off,
             "grand_total": grand_total,
-            "vehicle_number": pre_entry.get('vehicle_number'),
+            "vehicle_number": invoice_data.vehicle_number or pre_entry.get('vehicle_number'),
             
             # Transportation details (from frontend)
             "city_from": invoice_data.city_from,
