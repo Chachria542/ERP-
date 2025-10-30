@@ -652,6 +652,164 @@ async def get_sales_invoice_by_number(invoice_number: str):
     return invoice
 
 
+@router.put("/sales/invoice/{invoice_number}")
+async def update_sales_invoice(invoice_number: str, update_data: SalesInvoiceCreate):
+    """
+    Update existing sales invoice.
+    Non-editable fields (invoice_number, invoice_date, customer_id, pre_entry_id, created_at) are preserved.
+    Only editable fields like line items, taxes, transportation, broker details can be updated.
+    """
+    try:
+        # 1. Check if invoice exists
+        existing_invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number})
+        if not existing_invoice:
+            raise HTTPException(status_code=404, detail=f"Invoice {invoice_number} not found")
+        
+        # 2. Prevent editing if invoice is cancelled
+        if existing_invoice.get('status') == 'cancelled':
+            raise HTTPException(status_code=400, detail="Cannot edit cancelled invoice")
+        
+        # 3. Fetch pre-entry for customer details (non-editable)
+        pre_entry = await db.sales_pre_entries.find_one({"id": update_data.pre_entry_id})
+        if not pre_entry:
+            raise HTTPException(status_code=404, detail="Pre-entry not found")
+        
+        # 4. Fetch customer details
+        customer = await db.parties.find_one({"id": pre_entry['customer_id']}, {"_id": 0})
+        if not customer:
+            raise HTTPException(status_code=404, detail="Customer not found")
+        
+        # 5. Calculate totals
+        line_items_total = sum(item.amount for item in update_data.line_items)
+        
+        # Additional charges
+        freight = update_data.freight or 0
+        loading_charges = update_data.loading_charges or 0
+        other_charges = update_data.other_charges or 0
+        
+        # TCS (Tax Collected at Source) - before GST
+        tcs_amount = update_data.tcs_amount or 0
+        
+        # GST
+        cgst_amount = update_data.cgst_amount or 0
+        sgst_amount = update_data.sgst_amount or 0
+        
+        # Grand Total = Line Items + Freight + Loading + Other + TCS + CGST + SGST + Round-off
+        subtotal_before_tax = line_items_total + freight + loading_charges + other_charges + tcs_amount
+        tax_total = cgst_amount + sgst_amount
+        grand_total = subtotal_before_tax + tax_total + update_data.round_off
+        
+        # 6. Fetch broker details if broker_name is provided
+        broker_name_full = None
+        broker_contact = None
+        broker_gstin = None
+        if update_data.broker_name:
+            broker_party = await db.parties.find_one({
+                "name": update_data.broker_name,
+                "roles": "broker"
+            }, {"_id": 0})
+            if broker_party:
+                broker_name_full = broker_party.get('name')
+                broker_contact = broker_party.get('mobile')
+                broker_gstin = broker_party.get('gstin')
+        
+        # 7. Fetch transporter details if transporter_id is provided
+        transporter_name_full = None
+        transporter_contact = None
+        transporter_gstin = None
+        if update_data.transporter_id:
+            transporter_party = await db.parties.find_one({
+                "id": update_data.transporter_id
+            }, {"_id": 0})
+            if transporter_party:
+                transporter_name_full = transporter_party.get('name')
+                transporter_contact = transporter_party.get('mobile')
+                transporter_gstin = transporter_party.get('gstin')
+        
+        # 8. Prepare update document (only editable fields)
+        update_doc = {
+            # Line items (editable)
+            "line_items": [item.dict() for item in update_data.line_items],
+            
+            # Taxes (editable)
+            "cgst_rate": update_data.cgst_rate,
+            "cgst_amount": cgst_amount,
+            "sgst_rate": update_data.sgst_rate,
+            "sgst_amount": sgst_amount,
+            
+            # Additional charges (editable)
+            "freight": freight,
+            "loading_charges": loading_charges,
+            "other_charges": other_charges,
+            
+            # TCS (editable)
+            "tcs_applicable": update_data.tcs_applicable,
+            "tcs_rate": update_data.tcs_rate,
+            "tcs_amount": tcs_amount,
+            
+            # Totals (editable - recalculated)
+            "round_off": update_data.round_off,
+            "grand_total": grand_total,
+            
+            # Broker details (editable)
+            "broker_name": broker_name_full,
+            "broker_contact": broker_contact,
+            "broker_gstin": broker_gstin,
+            "brokerage_type": update_data.brokerage_type,
+            "brokerage_rate": update_data.brokerage_rate,
+            
+            # Transportation details (editable)
+            "city_from": update_data.city_from,
+            "city_to": update_data.city_to,
+            "driver_name": update_data.driver_name,
+            "driver_license_no": update_data.driver_license_no,
+            "driver_license_expiry": update_data.driver_license_expiry,
+            "vehicle_number": update_data.vehicle_number or pre_entry.get('vehicle_number'),
+            "freight_type": update_data.freight_type,
+            "freight_amount": update_data.freight_amount,
+            "freight_rate": update_data.freight_rate,
+            "advance_freight": update_data.advance_freight,
+            "net_freight": update_data.net_freight,
+            "owner_name": update_data.owner_name,
+            "bilty_no": update_data.bilty_no,
+            "transporter_name": transporter_name_full,
+            "transporter_id": update_data.transporter_id,
+            "transporter_contact": transporter_contact,
+            "transporter_gstin": transporter_gstin,
+            "anugya_no": update_data.anugya_no,
+            
+            # Remarks (editable)
+            "remarks": update_data.remarks,
+            
+            # Metadata
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": update_data.created_by  # Reusing created_by field for updater
+        }
+        
+        # 9. Update invoice in database
+        result = await db.sales_invoices.update_one(
+            {"invoice_number": invoice_number},
+            {"$set": update_doc}
+        )
+        
+        if result.modified_count == 0:
+            # Fetch and return current invoice even if nothing changed
+            updated_invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number}, {"_id": 0})
+            return updated_invoice
+        
+        # 10. Fetch and return updated invoice
+        updated_invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number}, {"_id": 0})
+        
+        print(f"[BACKEND] Updated invoice: {invoice_number}")
+        return updated_invoice
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error updating invoice: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update invoice: {str(e)}")
+
+
 # ============= MIXED LOAD INVOICE ENDPOINTS =============
 
 @router.post("/sales/mixed-load-invoice/bulk", response_model=dict)
