@@ -2214,30 +2214,75 @@ function SalesInvoicePage({ user, onLogout }) {
             </table>
 
             {/* Route & Freight Details Box - Two Column Layout */}
-            <div style={{border: '2px solid #000', marginBottom: '15px'}}>
-              <div style={{fontWeight: 'bold', padding: '6px 8px', fontSize: '11px', borderBottom: '1px solid #000'}}>
+            <div style={{border: '2px solid #000', marginBottom: '10px'}}>
+              <div style={{fontWeight: 'bold', padding: '4px 6px', fontSize: '10px', borderBottom: '1px solid #000'}}>
                 ROUTE & FREIGHT INFORMATION
               </div>
               <div style={{display: 'flex'}}>
                 {/* Left Column - Route Details */}
-                <div style={{flex: '0 0 40%', padding: '12px', borderRight: '1px solid #000'}}>
-                  <p style={{margin: '0 0 8px 0', fontSize: '10px', color: '#666'}}>From:</p>
-                  <p style={{margin: '0 0 20px 0', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase'}}>
+                <div style={{flex: '0 0 40%', padding: '8px', borderRight: '1px solid #000'}}>
+                  <p style={{margin: '0 0 4px 0', fontSize: '8px', color: '#666'}}>From:</p>
+                  <p style={{margin: '0 0 12px 0', fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase'}}>
                     {freightSlipData.invoice_data.city_from || 'SANAWAD'}
                   </p>
                   
-                  <p style={{margin: '0 0 8px 0', fontSize: '10px', color: '#666'}}>To:</p>
-                  <p style={{margin: '0', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase'}}>
+                  <p style={{margin: '0 0 4px 0', fontSize: '8px', color: '#666'}}>To:</p>
+                  <p style={{margin: '0', fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase'}}>
                     {freightSlipData.invoice_data.city_to || '-'}
                   </p>
                 </div>
                 
                 {/* Right Column - Freight Details */}
-                <div style={{flex: '1', padding: '12px'}}>
-                  <p style={{margin: '0 0 8px 0'}}>
+                <div style={{flex: '1', padding: '8px', fontSize: '9px'}}>
+                  <p style={{margin: '0 0 4px 0'}}>
                     <strong>Total Weight:</strong> {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.actual_qtl, 0).toFixed(2)} Qtl
                   </p>
-                  <p style={{margin: '0 0 8px 0'}}>
+                  <p style={{margin: '0 0 4px 0'}}>
+                    <strong>Freight Per Qtl:</strong> ₹ {freightSlipData.invoice_data.freight_rate || '0.00'}
+                  </p>
+                  <p style={{margin: '0 0 4px 0'}}>
+                    <strong>Total Freight:</strong> ₹ {freightSlipData.invoice_data.freight_amount?.toFixed(2) || '0.00'}
+                  </p>
+                  <p style={{margin: '0 0 4px 0'}}>
+                    <strong>Advance:</strong> ₹ {freightSlipData.invoice_data.advance_freight?.toFixed(2) || '0.00'}
+                  </p>
+                  <p style={{margin: '0'}}>
+                    <strong>Balance:</strong> ₹ {freightSlipData.invoice_data.net_freight?.toFixed(2) || '0.00'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Remarks Section - Combined Note and Description */}
+            <div style={{border: '2px solid #000', padding: '6px', marginBottom: '10px', minHeight: '40px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
+                REMARKS
+              </div>
+              <p style={{margin: '2px 0', fontSize: '9px'}}>{freightSlipData.invoice_data.remarks || 'Handle with care'}</p>
+              <p style={{margin: '2px 0', fontStyle: 'italic', color: '#555', fontSize: '8px'}}>
+                Item: {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
+              </p>
+            </div>
+
+            {/* Important Terms - No Box */}
+            <div style={{marginBottom: '15px', fontSize: '9px'}}>
+              <strong style={{fontSize: '10px'}}>N.B. (Important Terms):</strong>
+              <ol style={{margin: '2px 0 0 18px', padding: 0, lineHeight: '1.5'}}>
+                <li>We are not responsible if the goods are delivered to any address other than mentioned above.</li>
+                <li>Shortage should be deducted from freight.</li>
+              </ol>
+            </div>
+
+            {/* Signature Section */}
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '20px'}}>
+              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '4px', textAlign: 'center', fontSize: '9px'}}>
+                <strong>Motor Driver's Sign</strong>
+              </div>
+              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '4px', textAlign: 'center', fontSize: '9px'}}>
+                <strong>For M/S {companySettings.company_name || 'Sudarshan Trading Company'}</strong>
+                <p style={{margin: '3px 0 0 0', fontSize: '8px'}}>Authorized Signatory</p>
+              </div>
+            </div>
                     <strong>Freight Per Qtl:</strong> ₹ {freightSlipData.invoice_data.freight_rate || '0.00'}
                   </p>
                   <p style={{margin: '0 0 8px 0'}}>
