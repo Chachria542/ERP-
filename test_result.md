@@ -2273,9 +2273,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Sales Invoice Update Endpoint"
-    - "Edit Invoice Feature - Frontend Implementation"
-  stuck_tasks: []
+    - "Sales Invoice Edit/Update Feature - PUT Endpoint"
+  stuck_tasks:
+    - "Sales Invoice Edit/Update Feature - PUT Endpoint"
   test_all: false
   test_priority: "high_first"
 
