@@ -973,11 +973,16 @@ function SalesInvoicePage({ user, onLogout }) {
               </div>
 
               {/* Pre-Entry Details */}
-              <Card className="p-4 bg-gray-50">
-                <h3 className="font-bold mb-3">Pre-Entry Details</h3>
+              <Card className={`p-4 ${editingInvoice ? 'bg-yellow-50 border-yellow-300' : 'bg-gray-50'}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold">Pre-Entry Details</h3>
+                  {editingInvoice && (
+                    <Badge className="bg-yellow-600 text-white">🔒 Locked Fields</Badge>
+                  )}
+                </div>
                 <div className="grid grid-cols-4 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Customer</p>
+                    <p className="text-gray-600">Customer {editingInvoice && '🔒'}</p>
                     <p className="font-medium">{selectedPreEntry?.customer_name}</p>
                   </div>
                   <div>
@@ -998,12 +1003,13 @@ function SalesInvoicePage({ user, onLogout }) {
               {/* Invoice Header */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Label>Invoice Date *</Label>
+                  <Label>Invoice Date * {editingInvoice && '🔒'}</Label>
                   <Input
                     type="date"
                     value={invoiceData.invoice_date}
                     onChange={(e) => setInvoiceData({...invoiceData, invoice_date: e.target.value})}
-                    className="mt-1"
+                    className={`mt-1 ${editingInvoice ? 'bg-yellow-100 cursor-not-allowed' : ''}`}
+                    disabled={editingInvoice}
                   />
                 </div>
                 <div>
