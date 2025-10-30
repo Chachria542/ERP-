@@ -390,7 +390,7 @@ function MasterDataPage({ user, onLogout }) {
                         </div>
                       </>
                     ) : (
-                      /* SUPPLIER/BUYER FORM - Full structured fields */
+                      /* SUPPLIER/CUSTOMER FORM - Full structured fields */
                       <>
                         {/* Address Section */}
                         <div className="border-t pt-3 mt-2">
