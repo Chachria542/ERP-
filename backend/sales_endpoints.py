@@ -761,12 +761,13 @@ async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, 
             # Fetch complete broker details (same for all line items in mixed load)
             line_broker_details = {}
             if invoice_data.broker_name:
-                # Try to find broker by name in parties master table
-                broker = await db.parties.find_one({"name": invoice_data.broker_name, "party_type": "broker"})
+                # Try to find broker by name in brokers master table first
+                broker = await db.brokers.find_one({"name": invoice_data.broker_name})
                 if broker:
                     line_broker_details = {
                         "broker_id": broker['id'],
                         "broker_name": broker['name'],
+                        "broker_mobile": broker.get('mobile') or broker.get('phone'),
                         "broker_address": broker.get('address'),
                         "broker_city": broker.get('city'),
                         "broker_state": broker.get('state'),
