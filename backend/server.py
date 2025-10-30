@@ -75,7 +75,7 @@ class Party(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
-    roles: List[str] = Field(default_factory=list)  # ["supplier", "trader", "buyer", "farmer", "customer", "consignee"]
+    roles: List[str] = Field(default_factory=list)  # ["supplier", "trader", "customer", "farmer", "consignee"]
     
     # Contact details
     contact: Optional[str] = None  # Mobile number
