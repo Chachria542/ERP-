@@ -1103,6 +1103,52 @@ agent_communication:
       - Implement Prints & Vouchers (Phase 5)
   - agent: "testing"
     message: |
+      🚨 **SALES INVOICE EDIT/UPDATE FEATURE TESTING COMPLETED - CRITICAL BACKEND BUG IDENTIFIED**
+      
+      **COMPREHENSIVE TEST RESULTS (45% SUCCESS RATE - 9/20 tests passed):**
+      
+      **✅ PHASE 1 - INVOICE FETCH FOR EDITING (100% SUCCESS):**
+      - GET /api/sales/invoice/by-number/{invoice_number} working perfectly
+      - Successfully fetched SAL-25-000032 with complete invoice data
+      - Proper 404 handling for non-existent invoices (SAL-25-000046, SAL-25-000044, SAL-25-999999)
+      - All required fields present: invoice_number, invoice_date, customer_id, pre_entry_id, line_items, taxes, totals
+      
+      **❌ PHASE 2 - INVOICE UPDATE ENDPOINT (66.7% SUCCESS - CRITICAL BUG):**
+      - PUT /api/sales/invoice/{invoice_number} has critical backend implementation bug
+      - **ROOT CAUSE:** Line 683 in sales_endpoints.py: `line_items_total = sum(item.amount for item in update_data.line_items)`
+      - **ERROR:** 'dict' object has no attribute 'amount' - code expects Pydantic objects but receives dictionaries
+      - **VALIDATION WORKING:** 404 errors correctly returned for invalid invoices and pre_entry_ids
+      - **UPDATE FUNCTIONALITY BROKEN:** Cannot process any invoice updates due to this bug
+      
+      **❌ PHASE 3 - UPDATE VALIDATION (0% SUCCESS):**
+      - Cannot test validation scenarios due to same backend bug
+      - All update attempts result in 500 Internal Server Error
+      
+      **❌ PHASE 4 - END-TO-END UPDATE FLOW (40% SUCCESS):**
+      - Step 1 (Fetch Original): ✅ Working
+      - Step 2 (Prepare Data): ✅ Working  
+      - Step 3 (Send PUT): ❌ Fails due to backend bug
+      - Steps 4-5: Cannot complete due to PUT failure
+      
+      **❌ PHASE 5 - BROKER & TRANSPORTER INTEGRATION (0% SUCCESS):**
+      - Cannot test master data integration due to same backend bug
+      - Broker and transporter endpoints accessible but update functionality blocked
+      
+      **CRITICAL FINDINGS:**
+      ✅ **GET endpoint fully functional** - can fetch invoices for editing
+      ❌ **PUT endpoint completely broken** - backend implementation bug prevents all updates
+      ✅ **Validation logic working** - proper error handling for invalid requests
+      ❌ **Core update functionality non-operational** - requires immediate backend fix
+      
+      **BACKEND FIX REQUIRED:**
+      The PUT endpoint needs to handle line_items as dictionaries, not Pydantic objects. The error occurs because the code tries to access `item.amount` as an attribute when `item` is a dictionary. Should use `item.get('amount', 0)` or similar dictionary access.
+      
+      **PRODUCTION STATUS:** 
+      - ✅ Invoice fetch for editing: READY
+      - ❌ Invoice update functionality: BLOCKED (critical bug)
+      - ❌ Complete edit/update feature: NOT FUNCTIONAL until backend fix
+  - agent: "testing"
+    message: |
       🎉 **COMPLETE SALES PRE-ENTRY TO INVOICE FLOW TESTING COMPLETED - 100% SUCCESS RATE**
       
       **COMPREHENSIVE END-TO-END FLOW TEST RESULTS:**
