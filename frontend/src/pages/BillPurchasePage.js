@@ -509,19 +509,24 @@ function BillPurchasePage({ user, onLogout }) {
                       <th className="text-left p-3">Pre-Entry No.</th>
                       <th className="text-left p-3">Date</th>
                       <th className="text-left p-3">Weight (Qtls)</th>
-                      <th className="text-left p-3">Status</th>
                       <th className="text-left p-3">Broker</th>
                       <th className="text-left p-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {queue.map((item) => (
-                      <tr key={item.pre_entry_id} className="border-b hover:bg-gray-50">
+                      <tr 
+                        key={item.pre_entry_id} 
+                        className={`border-b hover:opacity-90 ${
+                          item.status === 'completed' || item.status === 'voucher_generated' ? 'bg-green-50' : 
+                          item.status === 'pending' ? 'bg-red-50' : 
+                          'bg-white'
+                        }`}
+                      >
                         <td className="p-3 font-medium">{item.supplier_name}</td>
                         <td className="p-3 font-mono text-sm">{item.pre_entry_number}</td>
                         <td className="p-3 text-sm">{item.date}</td>
                         <td className="p-3 text-sm">{item.weighbridge_weight || '-'}</td>
-                        <td className="p-3">{getStatusBadge(item.status)}</td>
                         <td className="p-3 text-sm">{item.broker_name || '-'}</td>
                         <td className="p-3">
                           {item.status === 'pending' ? (
