@@ -2149,34 +2149,34 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* Consignee & Vehicle Details - Side by Side Boxes */}
             <div style={{display: 'flex', gap: '8px', marginBottom: '10px'}}>
               {/* Consignee Details Box */}
-              <div style={{flex: '1', border: '2px solid #000', padding: '6px'}}>
-                <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
+              <div style={{flex: '1', border: '1px solid #000', padding: '8px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
                   CONSIGNEE DETAILS
                 </div>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>M/S.:</strong> {freightSlipData.invoice_data.customer_name}</p>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Address:</strong> {freightSlipData.invoice_data.customer_address || '-'}</p>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>GSTIN:</strong> {freightSlipData.invoice_data.customer_gstin || '-'}</p>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Contact No.:</strong> {freightSlipData.invoice_data.customer_mobile || '-'}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>M/S.:</strong> {freightSlipData.invoice_data.customer_name}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Address:</strong> {freightSlipData.invoice_data.customer_address || '-'}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>GSTIN:</strong> {freightSlipData.invoice_data.customer_gstin || '-'}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Contact No.:</strong> {freightSlipData.invoice_data.customer_mobile || '-'}</p>
               </div>
               
               {/* Driver Details Box */}
-              <div style={{flex: '1', border: '2px solid #000', padding: '6px'}}>
-                <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
+              <div style={{flex: '1', border: '1px solid #000', padding: '8px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
                   DRIVER DETAILS
                 </div>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
-                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
+                <p style={{margin: '4px 0', fontSize: '10px'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
               </div>
             </div>
 
             {/* Vehicle & Transport Details Box */}
-            <div style={{border: '2px solid #000', padding: '6px', marginBottom: '10px'}}>
-              <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
+            <div style={{border: '1px solid #000', padding: '8px', marginBottom: '10px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
                 VEHICLE & TRANSPORT DETAILS
               </div>
-              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Vehicle No.:</strong> {freightSlipData.invoice_data.vehicle_number || '-'}</p>
-              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Owner:</strong> {freightSlipData.invoice_data.owner_name || '-'}</p>
-              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Transporter:</strong> {freightSlipData.invoice_data.transporter_name || '-'}</p>
+              <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Vehicle No.:</strong> {freightSlipData.invoice_data.vehicle_number || '-'}</p>
+              <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Owner:</strong> {freightSlipData.invoice_data.owner_name || '-'}</p>
+              <p style={{margin: '4px 0', fontSize: '10px'}}><strong>Transporter:</strong> {freightSlipData.invoice_data.transporter_name || '-'}</p>
             </div>
 
             {/* Commodity Table */}
