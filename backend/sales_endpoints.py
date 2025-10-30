@@ -752,6 +752,32 @@ async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, 
             rounded_total = round(grand_total)
             round_off = rounded_total - grand_total
             
+            # Fetch complete customer details for this line item
+            line_customer = await db.parties.find_one({"id": pre_line['customer_id']})
+            if not line_customer:
+                raise HTTPException(status_code=404, detail=f"Customer {pre_line['customer_id']} not found in master table")
+            
+            # Fetch complete broker details (same for all line items in mixed load)
+            line_broker_details = {}
+            if invoice_data.broker_name:
+                # Try to find broker by name in parties master table
+                broker = await db.parties.find_one({"name": invoice_data.broker_name, "party_type": "broker"})
+                if broker:
+                    line_broker_details = {
+                        "broker_id": broker['id'],
+                        "broker_name": broker['name'],
+                        "broker_address": broker.get('address'),
+                        "broker_city": broker.get('city'),
+                        "broker_state": broker.get('state'),
+                        "broker_gstin": broker.get('gstin'),
+                        "broker_pan": broker.get('pan')
+                    }
+                else:
+                    # Fallback to form data if broker not found in master
+                    line_broker_details = {
+                        "broker_name": invoice_data.broker_name
+                    }
+            
             # Prepare line item for invoice
             invoice_line_item = {
                 "item_id": pre_line['item_id'],
