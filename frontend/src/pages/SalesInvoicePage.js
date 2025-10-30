@@ -810,8 +810,7 @@ function SalesInvoicePage({ user, onLogout }) {
                     <th className="text-left p-3">Customer</th>
                     <th className="text-left p-3">Item</th>
                     <th className="text-left p-3">Marka</th>
-                    <th className="text-right p-3">Net Weight (kg)</th>
-                    <th className="text-right p-3">Quintals</th>
+                    <th className="text-right p-3">Net Wt (Qtls)</th>
                     <th className="text-left p-3">Broker</th>
                     <th className="text-left p-3">Status</th>
                     <th className="text-center p-3">Actions</th>
