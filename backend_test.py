@@ -129,8 +129,14 @@ class SalesInvoiceEditTester:
         total_tests += 1
         try:
             # Create update payload with modified editable fields
+            # Include required non-editable fields from original invoice
             update_payload = {
+                # Non-editable fields (preserved from original)
+                "invoice_date": self.test_invoice_data.get('invoice_date', '2025-01-01'),
                 "pre_entry_id": self.test_invoice_data['pre_entry_id'],
+                "sale_type": self.test_invoice_data.get('sale_type', 'normal_sale'),
+                
+                # Editable fields (modified for testing)
                 "line_items": [
                     {
                         "item_name": "Updated Wheat",
