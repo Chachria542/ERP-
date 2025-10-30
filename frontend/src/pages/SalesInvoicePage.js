@@ -1707,7 +1707,7 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* Invoice Body - Bordered Container */}
             <div style={{border: '2px solid black', padding: '10px'}}>
               {/* Invoice Details */}
-              <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '10px', marginBottom: '10px', border: '1px solid black', borderLeft: 'none', borderRight: 'none', padding: '5px', margin: '0 -10px 10px -10px', paddingLeft: '15px', paddingRight: '15px'}}>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '5px', fontSize: '12px', marginBottom: '8px', border: '1px solid black', borderLeft: 'none', borderRight: 'none', padding: '5px', margin: '0 -10px 8px -10px', paddingLeft: '15px', paddingRight: '15px'}}>
                 <div><span style={{fontWeight: 'bold'}}>Invoice No:</span> {savedInvoice.invoice_number}</div>
                 <div><span style={{fontWeight: 'bold'}}>Date:</span> {savedInvoice.invoice_date}</div>
                 <div><span style={{fontWeight: 'bold'}}>Time:</span> {savedInvoice.invoice_time || 'N/A'}</div>
@@ -1715,9 +1715,9 @@ function SalesInvoicePage({ user, onLogout }) {
               </div>
 
               {/* Bill To & Broker */}
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '10px', fontSize: '10px'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '8px', fontSize: '12px'}}>
                 <div style={{padding: '5px'}}>
-                  <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Bill To:</p>
+                  <p style={{fontWeight: 'bold', fontSize: '13px', marginBottom: '3px'}}>Bill To:</p>
                   <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
                   <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
@@ -1725,7 +1725,7 @@ function SalesInvoicePage({ user, onLogout }) {
                   <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
                 </div>
                 <div style={{padding: '5px'}}>
-                  <p style={{fontWeight: 'bold', fontSize: '11px', marginBottom: '3px'}}>Broker:</p>
+                  <p style={{fontWeight: 'bold', fontSize: '13px', marginBottom: '3px'}}>Broker:</p>
                   <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
                 </div>
