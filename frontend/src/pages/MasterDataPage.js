@@ -306,7 +306,7 @@ function MasterDataPage({ user, onLogout }) {
                     Add Party
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>{editingParty ? 'Edit Party' : 'Add New Party'}</DialogTitle>
                   </DialogHeader>
