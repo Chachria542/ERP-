@@ -74,6 +74,7 @@ function FarmerPaymentPage({ user, onLogout }) {
     setLoading(true);
     try {
       const params = new URLSearchParams();
+      params.append('status', statusFilter); // Add status filter
       if (searchQuery) params.append('search', searchQuery);
       if (dateFilter !== 'all') params.append('date_filter', dateFilter);
       params.append('sort_by', sortBy);
