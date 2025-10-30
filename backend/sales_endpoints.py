@@ -471,8 +471,9 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
         
         # Fetch complete broker details from master table if broker is specified
         broker_details = {}
-        if invoice_data.broker_name and hasattr(invoice_data, 'broker_id') and invoice_data.broker_id:
-            broker = await db.parties.find_one({"id": invoice_data.broker_id})
+        if invoice_data.broker_name:
+            # Try to find broker by name in parties master table
+            broker = await db.parties.find_one({"name": invoice_data.broker_name, "party_type": "broker"})
             if broker:
                 broker_details = {
                     "broker_id": broker['id'],
@@ -488,11 +489,6 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
                 broker_details = {
                     "broker_name": invoice_data.broker_name
                 }
-        elif invoice_data.broker_name:
-            # Only broker name provided from form
-            broker_details = {
-                "broker_name": invoice_data.broker_name
-            }
         
         # Create invoice document
         invoice_doc = {
