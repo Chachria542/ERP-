@@ -377,6 +377,7 @@ class SalesQueueItem(BaseModel):
     tare_weight: Optional[float] = None
     gross_weight: Optional[float] = None
     net_weight: Optional[float] = None
+    vehicle_number: Optional[str] = None  # Vehicle number from weighbridge/pre-entry
     is_entry: Optional[bool] = False  # Godown/Entry toggle from pre-entry
     is_mixed_load: Optional[bool] = False  # Mixed load indicator
     broker_name: Optional[str] = None
