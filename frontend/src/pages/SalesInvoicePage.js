@@ -802,18 +802,18 @@ function SalesInvoicePage({ user, onLogout }) {
             <div className="text-center py-8 text-gray-500">No sales pre-entries found</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full table-fixed">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-3">Pre-Entry No.</th>
-                    <th className="text-left p-3">Date</th>
-                    <th className="text-left p-3">Customer</th>
-                    <th className="text-left p-3">Item</th>
-                    <th className="text-left p-3">Marka</th>
-                    <th className="text-right p-3">Net Wt (Qtls)</th>
-                    <th className="text-left p-3">Broker</th>
-                    <th className="text-left p-3">Status</th>
-                    <th className="text-center p-3">Actions</th>
+                    <th className="text-left p-3 w-[12%]">Pre-Entry No.</th>
+                    <th className="text-left p-3 w-[10%]">Date</th>
+                    <th className="text-left p-3 w-[15%]">Customer</th>
+                    <th className="text-left p-3 w-[12%]">Item</th>
+                    <th className="text-left p-3 w-[10%]">Marka</th>
+                    <th className="text-right p-3 w-[10%]">Net Wt (Qtls)</th>
+                    <th className="text-left p-3 w-[12%]">Broker</th>
+                    <th className="text-left p-3 w-[8%]">Status</th>
+                    <th className="text-center p-3 w-[11%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
