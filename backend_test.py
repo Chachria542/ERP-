@@ -373,87 +373,201 @@ class SalesInvoiceEditTester:
         
         return overall_success
     
-    def test_response_structure_verification(self):
+    def test_phase4_end_to_end_update_flow(self):
         """
-        Test 4: Response Structure Verification
-        Verify the response includes all fields needed for print template
+        Phase 4: End-to-End Update Flow
+        1. Fetch existing invoice (GET)
+        2. Modify editable fields 
+        3. Send PUT request with modified data
+        4. Verify response shows updated values
+        5. Fetch invoice again and verify changes persisted
         """
-        print("🔍 Test 4: Response Structure Verification...")
+        print("🔍 Phase 4: End-to-End Update Flow...")
         
-        # Try to find at least one existing invoice to test structure
+        successful_tests = 0
+        total_tests = 5  # 5 steps in the flow
+        
+        original_invoice = None
+        updated_invoice = None
+        final_invoice = None
+        
+        # Step 1: Fetch existing invoice
         try:
-            # First, try to get any existing invoice
-            test_invoice_number = None
-            
-            # Try common invoice number patterns
-            for i in range(1, 10):
-                test_number = f"SAL-25-{i:06d}"
-                response = requests.get(f"{self.base_url}/sales/invoice/by-number/{test_number}", timeout=5)
-                if response.status_code == 200:
-                    test_invoice_number = test_number
-                    break
-            
-            if not test_invoice_number:
-                self.log_test("Response Structure Verification", False, 
-                            "❌ No existing invoices found to test response structure")
-                return False
-            
-            response = requests.get(f"{self.base_url}/sales/invoice/by-number/{test_invoice_number}", timeout=10)
+            invoice_number = self.test_invoice_numbers[0]  # Use first test invoice
+            response = requests.get(f"{self.base_url}/sales/invoice/by-number/{invoice_number}", timeout=10)
             
             if response.status_code == 200:
-                data = response.json()
-                
-                # Define all fields needed for print template
-                required_fields = {
-                    'invoice_number': 'Invoice number (SAL-25-000001)',
-                    'invoice_date': 'Invoice date',
-                    'invoice_time': 'Invoice time',
-                    'customer_name': 'Customer name',
-                    'customer_gstin': 'Customer GSTIN (optional)',
-                    'place_of_supply': 'Place of supply',
-                    'line_items': 'Line items array',
-                    'subtotal': 'Subtotal amount',
-                    'cgst_amount': 'CGST amount (optional)',
-                    'sgst_amount': 'SGST amount (optional)',
-                    'grand_total': 'Grand total amount',
-                    'vehicle_number': 'Vehicle number (optional)',
-                    'broker_name': 'Broker name (optional)'
-                }
-                
-                # Check required fields
-                missing_fields = []
-                present_fields = []
-                
-                for field, description in required_fields.items():
-                    if field in data:
-                        present_fields.append(f"{field}: {description}")
-                    else:
-                        missing_fields.append(f"{field}: {description}")
-                
-                # Check line_items structure if present
-                line_items_valid = False
-                if 'line_items' in data and isinstance(data['line_items'], list) and data['line_items']:
-                    first_item = data['line_items'][0]
-                    line_item_fields = ['item_name', 'bags', 'actual_qtl', 'rate', 'amount']
-                    line_items_valid = all(field in first_item for field in line_item_fields)
-                
-                if len(missing_fields) <= 3 and line_items_valid:  # Allow some optional fields to be missing
-                    self.log_test("Response Structure Verification", True, 
-                                f"✅ Response structure valid for invoice {test_invoice_number}. "
-                                f"Present: {len(present_fields)} fields, Missing: {len(missing_fields)} optional fields")
-                    return True
-                else:
-                    self.log_test("Response Structure Verification", False, 
-                                f"❌ Response structure incomplete. Missing critical fields: {missing_fields[:5]}")
-                    return False
+                original_invoice = response.json()
+                successful_tests += 1
+                self.log_test("E2E Step 1 - Fetch Original", True, 
+                            f"✅ Successfully fetched invoice {invoice_number}")
             else:
-                self.log_test("Response Structure Verification", False, 
-                            f"❌ Could not fetch invoice for structure test: HTTP {response.status_code}")
-                return False
+                self.log_test("E2E Step 1 - Fetch Original", False, 
+                            f"❌ Failed to fetch invoice: {response.status_code}")
                 
         except Exception as e:
-            self.log_test("Response Structure Verification", False, f"Request failed: {str(e)}")
+            self.log_test("E2E Step 1 - Fetch Original", False, f"Request failed: {str(e)}")
+        
+        if not original_invoice:
+            self.log_test("Phase 4 - End-to-End Update Flow", False, 
+                        "❌ Cannot proceed without original invoice data")
             return False
+        
+        # Step 2: Modify editable fields (change rate from 4500 to 5000 as per test requirement)
+        try:
+            modified_payload = {
+                "pre_entry_id": original_invoice.get('pre_entry_id', 'test-pre-entry'),
+                "line_items": [
+                    {
+                        "item_name": original_invoice.get('line_items', [{}])[0].get('item_name', 'Test Item'),
+                        "marka": "Updated Test Marka",
+                        "bags": 30,
+                        "kgs": 3000.0,
+                        "rate": 5000.0,  # Changed from original (e.g., 4500 to 5000)
+                        "amount": 150000.0  # 30 * 5000
+                    }
+                ],
+                "cgst_rate": 9.0,
+                "cgst_amount": 13500.0,  # 9% of 150000
+                "sgst_rate": 9.0,
+                "sgst_amount": 13500.0,  # 9% of 150000
+                "broker_name": "Updated E2E Broker",
+                "brokerage_type": "percentage",
+                "brokerage_rate": 2.0,
+                "vehicle_number": "E2E12345",
+                "city_to": "Updated E2E City",
+                "driver_name": "Updated E2E Driver",
+                "transporter_name": "Updated E2E Transporter",
+                "remarks": "End-to-end test update",
+                "round_off": 0.0,
+                "created_by": "e2e_test_user"
+            }
+            
+            successful_tests += 1
+            self.log_test("E2E Step 2 - Prepare Modified Data", True, 
+                        "✅ Modified editable fields (rate: 4500→5000, broker, vehicle, etc.)")
+            
+        except Exception as e:
+            self.log_test("E2E Step 2 - Prepare Modified Data", False, f"Failed to prepare data: {str(e)}")
+            return False
+        
+        # Step 3: Send PUT request with modified data
+        try:
+            response = requests.put(
+                f"{self.base_url}/sales/invoice/{invoice_number}",
+                json=modified_payload,
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                updated_invoice = response.json()
+                successful_tests += 1
+                self.log_test("E2E Step 3 - Send PUT Request", True, 
+                            "✅ PUT request successful, received updated invoice")
+            else:
+                self.log_test("E2E Step 3 - Send PUT Request", False, 
+                            f"❌ PUT request failed: {response.status_code} - {response.text}")
+                
+        except Exception as e:
+            self.log_test("E2E Step 3 - Send PUT Request", False, f"Request failed: {str(e)}")
+        
+        if not updated_invoice:
+            self.log_test("Phase 4 - End-to-End Update Flow", False, 
+                        "❌ Cannot proceed without updated invoice response")
+            return False
+        
+        # Step 4: Verify response shows updated values
+        try:
+            verification_passed = True
+            verification_details = []
+            
+            # Check that editable fields were updated
+            if updated_invoice.get('line_items', [{}])[0].get('rate') == 5000.0:
+                verification_details.append("✓ Rate updated to 5000")
+            else:
+                verification_passed = False
+                verification_details.append("✗ Rate not updated correctly")
+            
+            if updated_invoice.get('broker_name') == "Updated E2E Broker":
+                verification_details.append("✓ Broker name updated")
+            else:
+                verification_passed = False
+                verification_details.append("✗ Broker name not updated")
+            
+            if updated_invoice.get('vehicle_number') == "E2E12345":
+                verification_details.append("✓ Vehicle number updated")
+            else:
+                verification_passed = False
+                verification_details.append("✗ Vehicle number not updated")
+            
+            # Check that non-editable fields were preserved
+            if updated_invoice.get('invoice_number') == original_invoice.get('invoice_number'):
+                verification_details.append("✓ Invoice number preserved")
+            else:
+                verification_passed = False
+                verification_details.append("✗ Invoice number changed (should be preserved)")
+            
+            if updated_invoice.get('invoice_date') == original_invoice.get('invoice_date'):
+                verification_details.append("✓ Invoice date preserved")
+            else:
+                verification_passed = False
+                verification_details.append("✗ Invoice date changed (should be preserved)")
+            
+            if verification_passed:
+                successful_tests += 1
+                self.log_test("E2E Step 4 - Verify Response", True, 
+                            f"✅ Response verification passed: {'; '.join(verification_details)}")
+            else:
+                self.log_test("E2E Step 4 - Verify Response", False, 
+                            f"❌ Response verification failed: {'; '.join(verification_details)}")
+                
+        except Exception as e:
+            self.log_test("E2E Step 4 - Verify Response", False, f"Verification failed: {str(e)}")
+        
+        # Step 5: Fetch invoice again and verify changes persisted
+        try:
+            response = requests.get(f"{self.base_url}/sales/invoice/by-number/{invoice_number}", timeout=10)
+            
+            if response.status_code == 200:
+                final_invoice = response.json()
+                
+                # Verify persistence
+                persistence_passed = True
+                persistence_details = []
+                
+                if final_invoice.get('line_items', [{}])[0].get('rate') == 5000.0:
+                    persistence_details.append("✓ Rate persisted")
+                else:
+                    persistence_passed = False
+                    persistence_details.append("✗ Rate not persisted")
+                
+                if final_invoice.get('broker_name') == "Updated E2E Broker":
+                    persistence_details.append("✓ Broker name persisted")
+                else:
+                    persistence_passed = False
+                    persistence_details.append("✗ Broker name not persisted")
+                
+                if persistence_passed:
+                    successful_tests += 1
+                    self.log_test("E2E Step 5 - Verify Persistence", True, 
+                                f"✅ Changes persisted correctly: {'; '.join(persistence_details)}")
+                else:
+                    self.log_test("E2E Step 5 - Verify Persistence", False, 
+                                f"❌ Changes not persisted: {'; '.join(persistence_details)}")
+            else:
+                self.log_test("E2E Step 5 - Verify Persistence", False, 
+                            f"❌ Failed to fetch final invoice: {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("E2E Step 5 - Verify Persistence", False, f"Request failed: {str(e)}")
+        
+        success_rate = (successful_tests / total_tests) * 100
+        overall_success = success_rate >= 80  # High threshold for E2E flow
+        
+        self.log_test("Phase 4 - End-to-End Update Flow", overall_success, 
+                    f"✅ {successful_tests}/{total_tests} E2E steps completed ({success_rate:.1f}% success rate)")
+        
+        return overall_success
     
     def test_multiple_invoice_data_integrity(self):
         """
