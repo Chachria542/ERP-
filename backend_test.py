@@ -325,7 +325,12 @@ class SalesInvoiceEditTester:
             
             # Create payload with specific amounts for calculation verification
             update_payload = {
+                # Required non-editable fields
+                "invoice_date": self.test_invoice_data.get('invoice_date', '2025-01-01'),
                 "pre_entry_id": self.test_invoice_data['pre_entry_id'],
+                "sale_type": self.test_invoice_data.get('sale_type', 'normal_sale'),
+                
+                # Editable fields with specific amounts
                 "line_items": [
                     {
                         "item_name": "Calculation Test Item",
