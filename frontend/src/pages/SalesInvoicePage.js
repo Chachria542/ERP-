@@ -2058,7 +2058,7 @@ function SalesInvoicePage({ user, onLogout }) {
           <style>{`
             @media print {
               @page { 
-                size: A4; 
+                size: A4 portrait; 
                 margin: 8mm; 
               }
               
@@ -2079,15 +2079,29 @@ function SalesInvoicePage({ user, onLogout }) {
                 left: 0 !important;
                 top: 0 !important;
                 width: 100% !important;
+                max-height: 100vh !important;
                 display: block !important;
                 background: white !important;
                 padding: 8mm !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
+              }
+              
+              /* Prevent page breaks inside content */
+              .print-freight-slip-container > div {
+                page-break-inside: avoid !important;
+              }
+              
+              /* Hide other print templates */
+              .print-invoice-container {
+                display: none !important;
               }
             }
           `}</style>
 
           {/* Freight Slip Content */}
-          <div style={{fontFamily: 'Arial, sans-serif', fontSize: '10px', color: '#000', lineHeight: '1.4'}}>
+          <div style={{fontFamily: 'Arial, sans-serif', fontSize: '10px', color: '#000', lineHeight: '1.3', maxWidth: '210mm'}}>
             
             {/* Header */}
             <div style={{borderBottom: '2px solid #000', paddingBottom: '8px', marginBottom: '10px'}}>
