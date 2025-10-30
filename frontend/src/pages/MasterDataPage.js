@@ -352,7 +352,7 @@ function MasterDataPage({ user, onLogout }) {
                       <select value={partyType} onChange={(e) => setPartyType(e.target.value)} className="erp-select">
                         <option value="farmer">Farmer</option>
                         <option value="supplier">Supplier</option>
-                        <option value="buyer">Buyer</option>
+                        <option value="customer">Customer</option>
                       </select>
                     </div>
                     <div>
