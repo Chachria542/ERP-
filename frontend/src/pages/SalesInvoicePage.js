@@ -1794,8 +1794,8 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* Transportation Details */}
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '11px', marginBottom: '8px'}}>
               <div style={{padding: '3px'}}>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.from_city || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.to_city || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.city_from || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.city_to || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
               </div>
