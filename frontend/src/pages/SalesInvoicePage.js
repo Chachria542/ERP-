@@ -1858,6 +1858,8 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* End of Invoice Body Border */}
 
           </div>
+            );
+          })()}
         </div>
       )}
 
