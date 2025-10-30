@@ -1764,9 +1764,9 @@ function SalesInvoicePage({ user, onLogout }) {
                     <td style={{borderLeft: '1px solid black', borderRight: '1px solid black', padding: '3px'}}>{item.po_number || '-'}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>{item.po_date || '-'}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>
-                      {item.item_name}<br/>
+                      {toSentenceCase(item.item_name)}<br/>
                       {item.hsn_code && <span style={{fontSize: '10px'}}>HSN: {item.hsn_code}</span>}<br/>
-                      {item.marka && <span style={{fontSize: '10px'}}>Marka: {item.marka}</span>}
+                      {item.marka && <span style={{fontSize: '10px'}}>Marka: {toSentenceCase(item.marka)}</span>}
                     </td>
                     <td style={{borderRight: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.bags}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.kgs}</td>
