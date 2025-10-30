@@ -2052,6 +2052,245 @@ function SalesInvoicePage({ user, onLogout }) {
         </div>
       )}
 
+      {/* Print Template (Hidden on Screen) - Freight Slip */}
+      {freightSlipData && companySettings && (
+        <div className="print-freight-slip-container" style={{display: 'none'}}>
+          <style>{`
+            @media print {
+              @page { 
+                size: A4; 
+                margin: 8mm; 
+              }
+              
+              /* Hide ALL page elements except print template */
+              body * {
+                visibility: hidden !important;
+              }
+              
+              /* Make print template and its children visible */
+              .print-freight-slip-container,
+              .print-freight-slip-container * {
+                visibility: visible !important;
+              }
+              
+              /* Position print template at top of page */
+              .print-freight-slip-container {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                display: block !important;
+                background: white !important;
+                padding: 8mm !important;
+              }
+            }
+          `}</style>
+
+          {/* Freight Slip Content */}
+          <div style={{fontFamily: 'Arial, sans-serif', fontSize: '10px', color: '#000', lineHeight: '1.4'}}>
+            
+            {/* Header */}
+            <div style={{borderBottom: '2px solid #000', paddingBottom: '8px', marginBottom: '10px'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div>
+                  <h1 style={{fontSize: '18px', fontWeight: 'bold', margin: '0 0 4px 0', textTransform: 'uppercase'}}>
+                    M/S {companySettings.company_name || 'Sudarshan Trading Company'}
+                  </h1>
+                  <p style={{margin: '2px 0', fontSize: '10px'}}>
+                    {companySettings.godown_address || 'Ward No.18, Omkareshwar Road, Sanawad, PIN-451111'}
+                  </p>
+                  <p style={{margin: '2px 0', fontSize: '10px'}}>
+                    GSTIN: {companySettings.gstin || '23ABPPC9083P1Z0'}
+                  </p>
+                  <p style={{margin: '2px 0', fontSize: '9px', color: '#555'}}>
+                    Subject to Sanawad, PIN-451111 Jurisdiction
+                  </p>
+                </div>
+                <div style={{textAlign: 'right'}}>
+                  <p style={{margin: '2px 0', fontSize: '12px', fontWeight: 'bold'}}>📞 {companySettings.mobile || '9826297345'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div style={{textAlign: 'center', margin: '15px 0'}}>
+              <h2 style={{fontSize: '22px', fontWeight: 'bold', margin: '0', letterSpacing: '2px', border: '3px double #000', padding: '8px', display: 'inline-block'}}>
+                FREIGHT SLIP
+              </h2>
+            </div>
+
+            {/* Slip No and Date */}
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '11px'}}>
+              <div>
+                <strong>Freight Slip No:</strong> {freightSlipData.freight_slip_number}
+              </div>
+              <div>
+                <strong>Date:</strong> {new Date(freightSlipData.invoice_data.invoice_date).toLocaleDateString('en-GB')}
+              </div>
+            </div>
+            <div style={{marginBottom: '15px', fontSize: '11px'}}>
+              <strong>Invoice No:</strong> {freightSlipData.invoice_data.invoice_number}
+            </div>
+
+            {/* Consignee & Vehicle Details */}
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
+              <tbody>
+                <tr>
+                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
+                    CONSIGNEE DETAILS
+                  </td>
+                  <td style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
+                    DRIVER DETAILS
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px', width: '20%'}}><strong>M/S.</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px', width: '40%'}}>{freightSlipData.invoice_data.customer_name}</td>
+                  <td style={{border: '1px solid #000', padding: '4px', width: '40%', verticalAlign: 'top', rowSpan: '4'}}>
+                    <p style={{margin: '2px 0'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
+                    <p style={{margin: '2px 0'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Address</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_address || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>GSTIN</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_gstin || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Contact No.</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.customer_mobile || '-'}</td>
+                </tr>
+                <tr>
+                  <td colSpan="3" style={{border: '1px solid #000', padding: '4px', backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
+                    VEHICLE & TRANSPORT DETAILS
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Vehicle No.</strong></td>
+                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.vehicle_number || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Owner</strong></td>
+                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.owner_name || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Transporter</strong></td>
+                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.transporter_name || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Commodity Table */}
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
+              <thead>
+                <tr style={{backgroundColor: '#f0f0f0'}}>
+                  <th style={{border: '1px solid #000', padding: '4px', textAlign: 'left'}}>Commodity</th>
+                  <th style={{border: '1px solid #000', padding: '4px', textAlign: 'left'}}>Brand</th>
+                  <th style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>Bags</th>
+                  <th style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>Packing</th>
+                  <th style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>Actual Wt (Qtl)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {freightSlipData.invoice_data.line_items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td style={{border: '1px solid #000', padding: '4px'}}>{item.item_name}</td>
+                    <td style={{border: '1px solid #000', padding: '4px'}}>{item.marka || '-'}</td>
+                    <td style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>{item.bags}</td>
+                    <td style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>{item.bharti}kg</td>
+                    <td style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>{item.actual_qtl.toFixed(2)}</td>
+                  </tr>
+                ))}
+                <tr style={{fontWeight: 'bold'}}>
+                  <td colSpan="2" style={{border: '1px solid #000', padding: '4px', textAlign: 'right'}}>TOTAL</td>
+                  <td style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>
+                    {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.bags, 0)}
+                  </td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}></td>
+                  <td style={{border: '1px solid #000', padding: '4px', textAlign: 'center'}}>
+                    {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.actual_qtl, 0).toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Route & Freight Details */}
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
+              <thead>
+                <tr style={{backgroundColor: '#f0f0f0'}}>
+                  <th colSpan="2" style={{border: '1px solid #000', padding: '4px', textAlign: 'left'}}>ROUTE & FREIGHT INFORMATION</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px', width: '30%'}}><strong>From</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.city_from || 'Sanawad'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>To</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>{freightSlipData.invoice_data.city_to || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Total Weight</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>
+                    {freightSlipData.invoice_data.line_items.reduce((sum, item) => sum + item.actual_qtl, 0).toFixed(2)} Quintals
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Freight Per Qtl.</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.freight_rate || '0.00'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Total Freight</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.freight_amount?.toFixed(2) || '0.00'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Advance</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.advance_freight?.toFixed(2) || '0.00'}</td>
+                </tr>
+                <tr>
+                  <td style={{border: '1px solid #000', padding: '4px'}}><strong>Balance</strong></td>
+                  <td style={{border: '1px solid #000', padding: '4px'}}>₹ {freightSlipData.invoice_data.net_freight?.toFixed(2) || '0.00'}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Notes Section */}
+            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '10px'}}>
+              <strong>Note:</strong> {freightSlipData.invoice_data.remarks || 'Handle with care'}
+            </div>
+
+            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '10px', minHeight: '40px'}}>
+              <strong>Description:</strong> {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
+            </div>
+
+            {/* Important Terms */}
+            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '15px'}}>
+              <strong>N.B. (Important Terms):</strong>
+              <ol style={{margin: '4px 0 0 20px', padding: 0}}>
+                <li>We are not responsible if the goods are delivered to any address other than mentioned above.</li>
+                <li>Shortage should be deducted from freight.</li>
+              </ol>
+            </div>
+
+            {/* Signature Section */}
+            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '30px'}}>
+              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '5px', textAlign: 'center'}}>
+                <strong>Motor Driver's Sign</strong>
+              </div>
+              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '5px', textAlign: 'center'}}>
+                <strong>For M/S {companySettings.company_name || 'Sudarshan Trading Company'}</strong>
+                <p style={{margin: '5px 0 0 0', fontSize: '9px'}}>Authorized Signatory</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </Layout>
   );
 }
