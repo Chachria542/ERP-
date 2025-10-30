@@ -451,6 +451,56 @@ async def get_party(party_id: str):
         party['created_at'] = datetime.fromisoformat(party['created_at'])
     return party
 
+
+@api_router.put("/parties/{party_id}", response_model=Party)
+async def update_party(party_id: str, party_data: PartyCreate):
+    """Update an existing party"""
+    existing_party = await db.parties.find_one({"id": party_id}, {"_id": 0})
+    if not existing_party:
+        raise HTTPException(status_code=404, detail="Party not found")
+    
+    # Auto-extract state_code from GSTIN if not provided
+    if party_data.gstin and not party_data.state_code:
+        party_data.state_code = extract_state_code_from_gstin(party_data.gstin)
+    
+    # Keep the original ID and created_at
+    updated_data = party_data.model_dump()
+    updated_data['id'] = party_id
+    updated_data['created_at'] = existing_party['created_at']
+    
+    # Convert datetime to ISO string for MongoDB
+    if isinstance(updated_data['created_at'], datetime):
+        updated_data['created_at'] = updated_data['created_at'].isoformat()
+    
+    await db.parties.update_one(
+        {"id": party_id},
+        {"$set": updated_data}
+    )
+    
+    print(f"[BACKEND] Updated party: {party_data.name} (ID: {party_id})")
+    
+    # Return the updated party
+    party = Party(**updated_data)
+    if isinstance(party.created_at, str):
+        party.created_at = datetime.fromisoformat(party.created_at)
+    return party
+
+@api_router.delete("/parties/{party_id}")
+async def delete_party(party_id: str):
+    """Delete a party"""
+    existing_party = await db.parties.find_one({"id": party_id}, {"_id": 0})
+    if not existing_party:
+        raise HTTPException(status_code=404, detail="Party not found")
+    
+    result = await db.parties.delete_one({"id": party_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Party not found")
+    
+    print(f"[BACKEND] Deleted party: {existing_party.get('name')} (ID: {party_id})")
+    return {"message": f"Party {existing_party.get('name')} deleted successfully"}
+
+
 @api_router.get("/consignees", response_model=List[Party])
 async def get_consignees():
     """Get all parties with consignee role"""
