@@ -803,7 +803,7 @@ class SalesInvoiceEditTester:
     def print_summary(self):
         """Print test summary"""
         print("\n" + "=" * 80)
-        print("📊 SALES INVOICE PRINT ENDPOINT TEST SUMMARY")
+        print("📊 SALES INVOICE EDIT/UPDATE FEATURE TEST SUMMARY")
         print("=" * 80)
         
         total_tests = len(self.test_results)
@@ -815,29 +815,50 @@ class SalesInvoiceEditTester:
         print(f"Failed: {failed_tests} ❌")
         print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        # Detailed results
+        # Phase-wise summary
+        phases = {
+            "Phase 1": [r for r in self.test_results if "Phase 1" in r['test']],
+            "Phase 2": [r for r in self.test_results if "Phase 2" in r['test']],
+            "Phase 3": [r for r in self.test_results if "Phase 3" in r['test']],
+            "Phase 4": [r for r in self.test_results if "Phase 4" in r['test']],
+            "Phase 5": [r for r in self.test_results if "Phase 5" in r['test']]
+        }
+        
+        print("\n📋 PHASE-WISE RESULTS:")
+        for phase_name, phase_results in phases.items():
+            if phase_results:
+                phase_passed = sum(1 for r in phase_results if r['success'])
+                phase_total = len(phase_results)
+                status = "✅ PASS" if phase_passed == phase_total else "❌ FAIL"
+                print(f"  {phase_name}: {status} ({phase_passed}/{phase_total})")
+        
+        # Detailed results for failed tests
         if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
             for result in self.test_results:
                 if not result['success']:
                     print(f"  - {result['test']}: {result['details']}")
             
-            print("\n🚨 SALES INVOICE PRINT ENDPOINT ISSUES FOUND:")
-            print("The new print endpoint may not be working correctly.")
+            print("\n🚨 SALES INVOICE EDIT/UPDATE ISSUES FOUND:")
+            print("The Sales Invoice Edit/Update feature may have issues.")
             print("Please review the failed tests above and check the implementation.")
         else:
-            print("\n🎉 SALES INVOICE PRINT ENDPOINT FIX VERIFIED!")
-            print("✅ Test 1: List Existing Invoices - Found invoice numbers to test")
-            print("✅ Test 2: New Print Endpoint - Returns complete invoice data")
-            print("✅ Test 3: Non-existent Invoices - Correctly returns 404 errors")
-            print("✅ Test 4: Response Structure - Includes all fields for print template")
-            print("✅ Test 5: Data Integrity - Multiple invoices have consistent data")
+            print("\n🎉 SALES INVOICE EDIT/UPDATE FEATURE FULLY FUNCTIONAL!")
+            print("✅ Phase 1: Invoice Fetch for Editing - GET endpoint working correctly")
+            print("✅ Phase 2: Invoice Update Endpoint - PUT endpoint accepts updates")
+            print("✅ Phase 3: Update Validation - Proper validation and error handling")
+            print("✅ Phase 4: End-to-End Update Flow - Complete update workflow functional")
+            print("✅ Phase 5: Broker & Transporter Integration - Master data integration working")
+            
             print("\n🎯 SUCCESS CRITERIA MET:")
-            print("- Endpoint returns complete invoice data for existing invoice numbers")
-            print("- Returns 404 for non-existent invoice numbers")
-            print("- Response includes all fields needed for printing")
-            print("- Data is accurate and matches invoice creation")
-            print("- Print button issue should now be resolved")
+            print("- PUT endpoint accepts invoice_number and update payload")
+            print("- Non-editable fields remain unchanged after update")
+            print("- Editable fields update correctly")
+            print("- Totals recalculate accurately")
+            print("- Broker and transporter details fetch from master data")
+            print("- Validation prevents editing cancelled invoices")
+            print("- Updated invoice data persists correctly")
+            print("- Response returns updated invoice with all fields")
         
         print("\n" + "=" * 80)
         return failed_tests == 0
