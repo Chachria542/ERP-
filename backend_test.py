@@ -432,7 +432,12 @@ class SalesInvoiceEditTester:
         # Step 2: Modify editable fields (change rate from 4500 to 5000 as per test requirement)
         try:
             modified_payload = {
+                # Required non-editable fields from original
+                "invoice_date": original_invoice.get('invoice_date', '2025-01-01'),
                 "pre_entry_id": original_invoice.get('pre_entry_id', 'test-pre-entry'),
+                "sale_type": original_invoice.get('sale_type', 'normal_sale'),
+                
+                # Modified editable fields
                 "line_items": [
                     {
                         "item_name": original_invoice.get('line_items', [{}])[0].get('item_name', 'Test Item'),
