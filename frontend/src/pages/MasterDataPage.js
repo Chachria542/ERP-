@@ -89,40 +89,56 @@ function MasterDataPage({ user, onLogout }) {
     e.preventDefault();
     
     try {
+      const partyData = {
+        name: partyName,
+        roles: [partyType], // Convert type to roles array
+        contact: partyContact || null,
+        address: partyAddress || null,
+        city: partyCity || null,
+        state: partyState || null,
+        pin_code: partyPinCode || null,
+        place_of_supply: partyPlaceOfSupply || null,
+        gstin: partyGstin || null,
+        pan: partyPan || null,
+        bank_name: partyBankName || null,
+        account_number: partyAccountNumber || null,
+        ifsc_code: partyIfscCode || null
+      };
+
       if (editingParty) {
         // Update existing party
-        await axios.put(`${API}/parties/${editingParty.id}`, {
-          name: partyName,
-          type: partyType,
-          contact: partyContact || null,
-          address: partyAddress || null,
-          gstin: partyGstin || null
-        });
+        await axios.put(`${API}/parties/${editingParty.id}`, partyData);
         toast.success('Party updated successfully!');
       } else {
         // Create new party
-        await axios.post(`${API}/parties`, {
-          name: partyName,
-          type: partyType,
-          contact: partyContact || null,
-          address: partyAddress || null,
-          gstin: partyGstin || null
-        });
+        await axios.post(`${API}/parties`, partyData);
         toast.success('Party created successfully!');
       }
       
       setShowPartyDialog(false);
       setEditingParty(null);
       // Reset form
-      setPartyName('');
-      setPartyType('farmer');
-      setPartyContact('');
-      setPartyAddress('');
-      setPartyGstin('');
+      resetPartyForm();
       fetchData();
     } catch (error) {
       toast.error(editingParty ? 'Failed to update party' : 'Failed to create party');
     }
+  };
+
+  const resetPartyForm = () => {
+    setPartyName('');
+    setPartyType('farmer');
+    setPartyContact('');
+    setPartyAddress('');
+    setPartyCity('');
+    setPartyState('');
+    setPartyPinCode('');
+    setPartyPlaceOfSupply('');
+    setPartyGstin('');
+    setPartyPan('');
+    setPartyBankName('');
+    setPartyAccountNumber('');
+    setPartyIfscCode('');
   };
 
   const handleEditParty = (party) => {
