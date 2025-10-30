@@ -2224,10 +2224,10 @@ function SalesInvoicePage({ user, onLogout }) {
               </p>
             </div>
 
-            {/* Important Terms */}
-            <div style={{border: '1px solid #000', padding: '6px', marginBottom: '15px'}}>
-              <strong>N.B. (Important Terms):</strong>
-              <ol style={{margin: '4px 0 0 20px', padding: 0}}>
+            {/* Important Terms - No Box */}
+            <div style={{marginBottom: '20px', fontSize: '10px'}}>
+              <strong style={{fontSize: '11px'}}>N.B. (Important Terms):</strong>
+              <ol style={{margin: '4px 0 0 20px', padding: 0, lineHeight: '1.6'}}>
                 <li>We are not responsible if the goods are delivered to any address other than mentioned above.</li>
                 <li>Shortage should be deducted from freight.</li>
               </ol>
