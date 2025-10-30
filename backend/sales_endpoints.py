@@ -680,7 +680,7 @@ async def update_sales_invoice(invoice_number: str, update_data: SalesInvoiceCre
             raise HTTPException(status_code=404, detail="Customer not found")
         
         # 5. Calculate totals
-        line_items_total = sum(item.amount for item in update_data.line_items)
+        line_items_total = sum(item.get('amount', 0) if isinstance(item, dict) else item.amount for item in update_data.line_items)
         
         # Additional charges
         freight = update_data.freight or 0
