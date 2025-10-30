@@ -465,7 +465,7 @@ function FarmerPaymentPage({ user, onLogout }) {
                 <Card 
                   key={item.slip_id} 
                   className={`p-6 hover:shadow-lg transition-shadow ${
-                    item.payment_status === 'paid' ? 'bg-green-50' : 'bg-red-50'
+                    item.payment_status === 'payment_completed' ? 'bg-green-50' : 'bg-red-50'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -494,12 +494,20 @@ function FarmerPaymentPage({ user, onLogout }) {
                       </div>
                     </div>
                     
-                    <Button 
-                      onClick={() => handleProcessPayment(item.slip_id)}
-                      className="btn-primary ml-6"
-                    >
-                      Process →
-                    </Button>
+                    {item.payment_status === 'payment_completed' ? (
+                      <div className="ml-6 text-center">
+                        <div className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold">
+                          ✅ Processed
+                        </div>
+                      </div>
+                    ) : (
+                      <Button 
+                        onClick={() => handleProcessPayment(item.slip_id)}
+                        className="btn-primary ml-6"
+                      >
+                        Process →
+                      </Button>
+                    )}
                   </div>
                 </Card>
               ))}
