@@ -36,8 +36,12 @@ function SalesInvoicePage({ user, onLogout }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('pending');
   
+  // Check if user is admin
+  const isAdmin = user?.role === 'admin';
+  
   // Photo approval modal state
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState(null);
   const [selectedPreEntry, setSelectedPreEntry] = useState(null);
   const [weighbridgeData, setWeighbridgeData] = useState(null);
   
