@@ -1727,6 +1727,9 @@ function SalesInvoicePage({ user, onLogout }) {
                 <div style={{padding: '5px'}}>
                   <p style={{fontWeight: 'bold', fontSize: '13px', marginBottom: '3px'}}>Broker:</p>
                   <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>{savedInvoice.broker_address || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>City: {savedInvoice.broker_city || 'N/A'} | State: {savedInvoice.broker_state || 'N/A'}</p>
+                  <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.broker_gstin || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
                 </div>
               </div>
