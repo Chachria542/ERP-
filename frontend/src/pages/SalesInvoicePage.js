@@ -1593,7 +1593,7 @@ function SalesInvoicePage({ user, onLogout }) {
                         🖨️ Print Invoice
                       </Button>
                       <Button 
-                        onClick={() => toast.info('Freight slip print feature coming soon')}
+                        onClick={() => handlePrintFreightSlip(savedInvoice.invoice_number)}
                         className="bg-purple-600 hover:bg-purple-700 text-white"
                       >
                         🖨️ Print Freight Slip
