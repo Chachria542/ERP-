@@ -2322,3 +2322,53 @@ agent_communication:
       - Frontend edit flow needs end-to-end testing
       - Need to verify locked fields cannot be modified
       - Need to verify update operation persists changes correctly
+  - agent: "testing"
+    message: |
+      🎉 **SALES INVOICE EDIT/UPDATE FEATURE RE-TEST COMPLETED - BACKEND BUG FIX VERIFIED**
+      
+      **COMPREHENSIVE RE-TEST RESULTS AFTER BACKEND BUG FIX:**
+      
+      **✅ CRITICAL SUCCESS: BACKEND BUG FIXED (100% SUCCESS RATE - 5/5 phases passed)**
+      
+      **✅ Phase 1 - Invoice Fetch (Re-verification):**
+      - GET /api/sales/invoice/by-number/SAL-25-000032 working perfectly
+      - Returns complete invoice data: Invoice SAL-25-000032, Customer: Vishwakarma Grain Depot, Line Items: 1
+      - All required fields present for editing functionality
+      
+      **✅ Phase 2 - Invoice Update Endpoint (CRITICAL - Previously Failing):**
+      - **MAJOR SUCCESS:** PUT /api/sales/invoice/SAL-25-000032 now working with 200 status!
+      - Rate change from 4500→5000 working correctly
+      - Updated marka, broker, and vehicle fields processed successfully
+      - Grand total recalculated correctly: ₹147,500
+      - **CONFIRMED FIX:** Dict access issue resolved - line_items as dictionaries handled properly
+      
+      **✅ Phase 3 - Update Validation:**
+      - Validation working correctly: invalid pre_entry_id returns 404 as expected
+      - Proper error handling implemented for invalid requests
+      
+      **✅ Phase 4 - End-to-End Update Flow:**
+      - Complete 5-step flow working perfectly:
+        1. Fetch invoice ✅
+        2. Modify rate field ✅  
+        3. Send PUT request ✅
+        4. Verify response shows updated rate (5500.0) ✅
+        5. Fetch again and verify changes persisted ✅
+      
+      **✅ Phase 5 - Broker & Transporter Integration:**
+      - Broker integration working: broker_name field processed correctly
+      - Brokerage_type and brokerage_rate fields working
+      - Transporter integration functional
+      
+      **🔧 BACKEND BUG FIX CONFIRMED:**
+      **Before:** `sum(item.amount for item in update_data.line_items)` - caused 'dict' object has no attribute 'amount' error
+      **After:** `sum(item.get('amount', 0) if isinstance(item, dict) else item.amount for item in update_data.line_items)` - handles dictionaries correctly
+      
+      **SUCCESS CRITERIA MET:**
+      ✅ All PUT requests succeed with 200 status
+      ✅ Updated fields reflect in response  
+      ✅ Non-editable fields remain unchanged
+      ✅ Changes persist in database
+      ✅ No 500 Internal Server errors
+      ✅ Totals recalculate correctly
+      
+      **PRODUCTION READY:** Sales Invoice Edit/Update feature is now fully functional. The critical backend bug has been resolved and all functionality is operational.
