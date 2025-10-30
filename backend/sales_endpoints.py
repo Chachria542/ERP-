@@ -464,6 +464,36 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
         grand_total = invoice_data.grand_total
         round_off = invoice_data.round_off
         
+        # Fetch complete customer details from master table
+        customer = await db.parties.find_one({"id": pre_entry['customer_id']})
+        if not customer:
+            raise HTTPException(status_code=404, detail="Customer not found in master table")
+        
+        # Fetch complete broker details from master table if broker is specified
+        broker_details = {}
+        if invoice_data.broker_name and hasattr(invoice_data, 'broker_id') and invoice_data.broker_id:
+            broker = await db.parties.find_one({"id": invoice_data.broker_id})
+            if broker:
+                broker_details = {
+                    "broker_id": broker['id'],
+                    "broker_name": broker['name'],
+                    "broker_address": broker.get('address'),
+                    "broker_city": broker.get('city'),
+                    "broker_state": broker.get('state'),
+                    "broker_gstin": broker.get('gstin'),
+                    "broker_pan": broker.get('pan')
+                }
+            else:
+                # Fallback to form data if broker not found in master
+                broker_details = {
+                    "broker_name": invoice_data.broker_name
+                }
+        elif invoice_data.broker_name:
+            # Only broker name provided from form
+            broker_details = {
+                "broker_name": invoice_data.broker_name
+            }
+        
         # Create invoice document
         invoice_doc = {
             "id": str(uuid.uuid4()),
