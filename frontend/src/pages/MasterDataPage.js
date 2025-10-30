@@ -262,7 +262,17 @@ function MasterDataPage({ user, onLogout }) {
 
           <TabsContent value="parties">
             <div className="flex justify-end mb-4">
-              <Dialog open={showPartyDialog} onOpenChange={setShowPartyDialog}>
+              <Dialog open={showPartyDialog} onOpenChange={(open) => {
+                setShowPartyDialog(open);
+                if (!open) {
+                  setEditingParty(null);
+                  setPartyName('');
+                  setPartyType('farmer');
+                  setPartyContact('');
+                  setPartyAddress('');
+                  setPartyGstin('');
+                }
+              }}>
                 <DialogTrigger asChild>
                   <Button className="btn-primary" data-testid="add-party-button">
                     Add Party
@@ -270,7 +280,7 @@ function MasterDataPage({ user, onLogout }) {
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Add New Party</DialogTitle>
+                    <DialogTitle>{editingParty ? 'Edit Party' : 'Add New Party'}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleCreateParty} className="space-y-4">
                     <div>
