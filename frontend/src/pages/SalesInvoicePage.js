@@ -2134,7 +2134,7 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Slip No and Date */}
-            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '11px'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '10px'}}>
               <div>
                 <strong>Freight Slip No:</strong> {freightSlipData.freight_slip_number}
               </div>
@@ -2142,26 +2142,26 @@ function SalesInvoicePage({ user, onLogout }) {
                 <strong>Date:</strong> {new Date(freightSlipData.invoice_data.invoice_date).toLocaleDateString('en-GB')}
               </div>
             </div>
-            <div style={{marginBottom: '15px', fontSize: '11px'}}>
+            <div style={{marginBottom: '10px', fontSize: '10px'}}>
               <strong>Invoice No:</strong> {freightSlipData.invoice_data.invoice_number}
             </div>
 
             {/* Consignee & Vehicle Details - Side by Side Boxes */}
-            <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
+            <div style={{display: 'flex', gap: '8px', marginBottom: '10px'}}>
               {/* Consignee Details Box */}
-              <div style={{flex: '1', border: '2px solid #000', padding: '8px'}}>
-                <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+              <div style={{flex: '1', border: '2px solid #000', padding: '6px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
                   CONSIGNEE DETAILS
                 </div>
-                <p style={{margin: '3px 0'}}><strong>M/S.:</strong> {freightSlipData.invoice_data.customer_name}</p>
-                <p style={{margin: '3px 0'}}><strong>Address:</strong> {freightSlipData.invoice_data.customer_address || '-'}</p>
-                <p style={{margin: '3px 0'}}><strong>GSTIN:</strong> {freightSlipData.invoice_data.customer_gstin || '-'}</p>
-                <p style={{margin: '3px 0'}}><strong>Contact No.:</strong> {freightSlipData.invoice_data.customer_mobile || '-'}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>M/S.:</strong> {freightSlipData.invoice_data.customer_name}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Address:</strong> {freightSlipData.invoice_data.customer_address || '-'}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>GSTIN:</strong> {freightSlipData.invoice_data.customer_gstin || '-'}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Contact No.:</strong> {freightSlipData.invoice_data.customer_mobile || '-'}</p>
               </div>
               
               {/* Driver Details Box */}
-              <div style={{flex: '1', border: '2px solid #000', padding: '8px'}}>
-                <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+              <div style={{flex: '1', border: '2px solid #000', padding: '6px'}}>
+                <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
                   DRIVER DETAILS
                 </div>
                 <p style={{margin: '3px 0'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
