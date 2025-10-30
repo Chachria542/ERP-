@@ -1789,7 +1789,7 @@ function SalesInvoicePage({ user, onLogout }) {
             </table>
 
             {/* Transportation Details */}
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '9px', marginBottom: '10px'}}>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '11px', marginBottom: '8px'}}>
               <div style={{padding: '3px'}}>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.from_city || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.to_city || 'N/A'}</p>
@@ -1809,8 +1809,8 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Totals */}
-            <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '10px'}}>
-              <div style={{width: '33%', fontSize: '10px'}}>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '8px'}}>
+              <div style={{width: '33%', fontSize: '12px'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>Subtotal:</span><span>₹{savedInvoice.subtotal?.toFixed(2)}</span></div>
                 {savedInvoice.cgst > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>CGST:</span><span>₹{savedInvoice.cgst?.toFixed(2)}</span></div>}
                 {savedInvoice.sgst > 0 && <div style={{display: 'flex', justifyContent: 'space-between', padding: '3px 0'}}><span>SGST:</span><span>₹{savedInvoice.sgst?.toFixed(2)}</span></div>}
@@ -1821,14 +1821,14 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Bank Details */}
-            <div style={{padding: '5px', fontSize: '9px', marginBottom: '10px'}}>
+            <div style={{padding: '5px', fontSize: '11px', marginBottom: '8px'}}>
               <p style={{fontWeight: 'bold', marginBottom: '3px'}}>Bank Details:</p>
               <p style={{margin: '2px 0'}}>PUNJAB NATIONAL BANK A/C NO. 2892008700001656</p>
               <p style={{margin: '2px 0'}}>IFSC CODE - PUNB0289200 BRANCH - INDORE (M.P.)</p>
             </div>
 
             {/* Warranty & FSSAI */}
-            <div style={{fontSize: '8px', marginBottom: '10px', padding: '5px'}}>
+            <div style={{fontSize: '10px', marginBottom: '8px', padding: '5px'}}>
               <p style={{fontWeight: 'bold', margin: '2px 0'}}>Warranty:</p>
               <p style={{margin: '2px 0', lineHeight: '1.4'}}>
                 I/We hereby certify that Foods/Food mention in this Invoice is/are wanted tot be of the nature and quality which it/these purport/purports to be, certified that particulars given above are true and correct
@@ -1837,8 +1837,8 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Signature */}
-            <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px'}}>
-              <div style={{textAlign: 'center', fontSize: '10px'}}>
+            <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '8px'}}>
+              <div style={{textAlign: 'center', fontSize: '12px'}}>
                 <div style={{height: '32px'}}></div>
                 <div style={{borderTop: '1px solid black', paddingTop: '3px'}}>Authorized Signatory</div>
               </div>
