@@ -327,6 +327,7 @@ class SalesInvoiceCreate(BaseModel):
     brokerage_rate: Optional[float] = None
     
     # Transportation details
+    vehicle_number: Optional[str] = None
     city_from: Optional[str] = None
     city_to: Optional[str] = None
     driver_name: Optional[str] = None
