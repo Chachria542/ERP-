@@ -308,7 +308,9 @@ function MasterDataPage({ user, onLogout }) {
                       <Label>GSTIN</Label>
                       <Input value={partyGstin} onChange={(e) => setPartyGstin(e.target.value)} />
                     </div>
-                    <Button type="submit" className="w-full btn-primary">Add Party</Button>
+                    <Button type="submit" className="w-full btn-primary">
+                      {editingParty ? 'Update Party' : 'Add Party'}
+                    </Button>
                   </form>
                 </DialogContent>
               </Dialog>
