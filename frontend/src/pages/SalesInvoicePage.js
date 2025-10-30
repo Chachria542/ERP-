@@ -965,7 +965,7 @@ function SalesInvoicePage({ user, onLogout }) {
                 )}
               </DialogTitle>
               <DialogDescription>
-                {savedInvoice ? 'Invoice has been saved. You can print or close this window.' : editingInvoice ? 'Update invoice details. Customer and Date are locked.' : 'Fill in the invoice details and save'}
+                {savedInvoice ? 'Invoice has been saved. You can edit, print, or close this window.' : editingInvoice ? 'Update invoice details. Customer and Date are locked.' : 'Fill in the invoice details and save'}
               </DialogDescription>
             </DialogHeader>
             
