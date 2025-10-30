@@ -162,18 +162,32 @@ function MasterDataPage({ user, onLogout }) {
   const handleEditParty = (party) => {
     setEditingParty(party);
     setPartyName(party.name);
-    setPartyType(party.roles && party.roles.length > 0 ? party.roles[0] : 'farmer');
-    setPartyContact(party.contact || '');
-    setPartyAddress(party.address || '');
-    setPartyCity(party.city || '');
-    setPartyState(party.state || '');
-    setPartyPinCode(party.pin_code || '');
-    setPartyPlaceOfSupply(party.place_of_supply || '');
-    setPartyGstin(party.gstin || '');
-    setPartyPan(party.pan || '');
-    setPartyBankName(party.bank_name || '');
-    setPartyAccountNumber(party.account_number || '');
-    setPartyIfscCode(party.ifsc_code || '');
+    
+    const partyRole = party.roles && party.roles.length > 0 ? party.roles[0] : 'farmer';
+    setPartyType(partyRole);
+    
+    if (partyRole === 'farmer') {
+      // Load farmer fields only
+      setPartyContact(party.contact || '');
+      setPartyVillage(party.city || '');  // Village from city field
+      setPartyBankName(party.bank_name || '');
+      setPartyAccountNumber(party.account_number || '');
+      setPartyIfscCode(party.ifsc_code || '');
+    } else {
+      // Load full structured fields for supplier/buyer
+      setPartyContact(party.contact || '');
+      setPartyAddress(party.address || '');
+      setPartyCity(party.city || '');
+      setPartyState(party.state || '');
+      setPartyPinCode(party.pin_code || '');
+      setPartyPlaceOfSupply(party.place_of_supply || '');
+      setPartyGstin(party.gstin || '');
+      setPartyPan(party.pan || '');
+      setPartyBankName(party.bank_name || '');
+      setPartyAccountNumber(party.account_number || '');
+      setPartyIfscCode(party.ifsc_code || '');
+    }
+    
     setShowPartyDialog(true);
   };
 
