@@ -446,7 +446,12 @@ function FarmerPaymentPage({ user, onLogout }) {
           ) : (
             <div className="space-y-4">
               {queue.map(item => (
-                <Card key={item.slip_id} className="p-6 hover:shadow-lg transition-shadow">
+                <Card 
+                  key={item.slip_id} 
+                  className={`p-6 hover:shadow-lg transition-shadow ${
+                    item.payment_status === 'paid' ? 'bg-green-50' : 'bg-red-50'
+                  }`}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 grid grid-cols-4 gap-4">
                       <div>
