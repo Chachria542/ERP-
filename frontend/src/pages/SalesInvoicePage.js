@@ -2104,31 +2104,31 @@ function SalesInvoicePage({ user, onLogout }) {
           <div style={{fontFamily: 'Arial, sans-serif', fontSize: '10px', color: '#000', lineHeight: '1.3', maxWidth: '210mm'}}>
             
             {/* Header */}
-            <div style={{borderBottom: '2px solid #000', paddingBottom: '8px', marginBottom: '10px'}}>
+            <div style={{borderBottom: '2px solid #000', paddingBottom: '6px', marginBottom: '8px'}}>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <div>
-                  <h1 style={{fontSize: '18px', fontWeight: 'bold', margin: '0 0 4px 0', textTransform: 'uppercase'}}>
+                  <h1 style={{fontSize: '16px', fontWeight: 'bold', margin: '0 0 3px 0', textTransform: 'uppercase'}}>
                     M/S {companySettings.company_name || 'Sudarshan Trading Company'}
                   </h1>
-                  <p style={{margin: '2px 0', fontSize: '10px'}}>
+                  <p style={{margin: '1px 0', fontSize: '9px'}}>
                     {companySettings.godown_address || 'Ward No.18, Omkareshwar Road, Sanawad, PIN-451111'}
                   </p>
-                  <p style={{margin: '2px 0', fontSize: '10px'}}>
+                  <p style={{margin: '1px 0', fontSize: '9px'}}>
                     GSTIN: {companySettings.gstin || '23ABPPC9083P1Z0'}
                   </p>
-                  <p style={{margin: '2px 0', fontSize: '9px', color: '#555'}}>
+                  <p style={{margin: '1px 0', fontSize: '8px', color: '#555'}}>
                     Subject to Sanawad, PIN-451111 Jurisdiction
                   </p>
                 </div>
                 <div style={{textAlign: 'right'}}>
-                  <p style={{margin: '2px 0', fontSize: '12px', fontWeight: 'bold'}}>📞 {companySettings.mobile || '9826297345'}</p>
+                  <p style={{margin: '0', fontSize: '11px', fontWeight: 'bold'}}>📞 {companySettings.mobile || '9826297345'}</p>
                 </div>
               </div>
             </div>
 
             {/* Title */}
-            <div style={{textAlign: 'center', margin: '15px 0'}}>
-              <h2 style={{fontSize: '22px', fontWeight: 'bold', margin: '0', letterSpacing: '2px', border: '3px double #000', padding: '8px', display: 'inline-block'}}>
+            <div style={{textAlign: 'center', margin: '10px 0'}}>
+              <h2 style={{fontSize: '20px', fontWeight: 'bold', margin: '0', letterSpacing: '2px', border: '2px double #000', padding: '6px', display: 'inline-block'}}>
                 FREIGHT SLIP
               </h2>
             </div>
