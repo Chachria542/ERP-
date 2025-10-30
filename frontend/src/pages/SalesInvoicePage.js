@@ -2254,12 +2254,12 @@ function SalesInvoicePage({ user, onLogout }) {
             </div>
 
             {/* Remarks Section - Combined Note and Description */}
-            <div style={{border: '2px solid #000', padding: '6px', marginBottom: '10px', minHeight: '40px'}}>
-              <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
+            <div style={{border: '1px solid #000', padding: '8px', marginBottom: '10px', minHeight: '60px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
                 REMARKS
               </div>
-              <p style={{margin: '2px 0', fontSize: '9px'}}>{freightSlipData.invoice_data.remarks || 'Handle with care'}</p>
-              <p style={{margin: '2px 0', fontStyle: 'italic', color: '#555', fontSize: '8px'}}>
+              <p style={{margin: '3px 0', fontSize: '9px'}}>{freightSlipData.invoice_data.remarks || 'Handle with care'}</p>
+              <p style={{margin: '3px 0', fontStyle: 'italic', color: '#555', fontSize: '8px'}}>
                 Item: {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
               </p>
             </div>
