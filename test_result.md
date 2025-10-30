@@ -864,7 +864,7 @@ backend:
 
   - task: "Sales Invoice Edit/Update Feature - PUT Endpoint"
     implemented: true
-    working: false
+    working: true
     file: "backend/sales_endpoints.py"
     stuck_count: 1
     priority: "high"
@@ -873,6 +873,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL BACKEND BUG IDENTIFIED - PUT ENDPOINT FAILING: **Issue:** PUT /api/sales/invoice/{invoice_number} endpoint has a critical bug at line 683 in sales_endpoints.py. Code attempts to access 'item.amount' as an attribute on dictionary objects, causing 'dict' object has no attribute 'amount' error. **Test Results:** Phase 1 (GET endpoint): 100% success rate (4/4 tests passed), Phase 2 (PUT endpoint): 66.7% success rate (2/3 tests passed - validation working for invalid invoices/pre-entries, but update functionality failing), Phase 3 (Update validation): 0% success rate due to same bug, Phase 4 (End-to-end flow): Cannot complete due to PUT failure, Phase 5 (Broker/Transporter integration): Cannot test due to PUT failure. **Root Cause:** Backend code expects line_items to be Pydantic model objects but receives dictionaries. Line 683: 'line_items_total = sum(item.amount for item in update_data.line_items)' should handle dictionaries properly. **Validation Working:** 404 errors correctly returned for non-existent invoices and invalid pre_entry_ids. **CRITICAL:** Update functionality completely broken due to backend implementation bug. Requires immediate backend code fix before feature can be functional."
+      - working: true
+        agent: "testing"
+        comment: "🎉 CRITICAL BACKEND BUG FIX VERIFIED - 100% SUCCESS RATE (5/5 phases passed): **COMPREHENSIVE RE-TEST RESULTS AFTER BUG FIX:** ✅ **Phase 1 - Invoice Fetch:** GET /api/sales/invoice/by-number/SAL-25-000032 working perfectly, returns complete invoice data (Invoice: SAL-25-000032, Customer: Vishwakarma Grain Depot, Line Items: 1). ✅ **Phase 2 - Invoice Update Endpoint (CRITICAL FIX):** PUT /api/sales/invoice/SAL-25-000032 now working successfully! Status 200, rate change from 4500→5000 working, updated marka and broker fields processed, grand total recalculated correctly (₹147,500), totals calculation working perfectly. ✅ **Phase 3 - Update Validation:** Validation working correctly, invalid pre_entry_id returns 404 as expected, proper error handling implemented. ✅ **Phase 4 - End-to-End Update Flow:** Complete 5-step flow working: 1) Fetch invoice ✓, 2) Modify rate field ✓, 3) Send PUT request ✓, 4) Verify response shows updated rate (5500.0) ✓, 5) Fetch again and verify changes persisted ✓. ✅ **Phase 5 - Broker & Transporter Integration:** Broker integration working, broker_name field processed correctly, brokerage_type and brokerage_rate fields working. **CONFIRMED BUG FIX:** Changed 'sum(item.amount for item in update_data.line_items)' to 'sum(item.get('amount', 0) if isinstance(item, dict) else item.amount for item in update_data.line_items)' - dict access issue completely resolved. **SUCCESS CRITERIA MET:** ✅ All PUT requests succeed with 200 status, ✅ Updated fields reflect in response, ✅ Non-editable fields remain unchanged, ✅ Changes persist in database, ✅ No 500 Internal Server errors, ✅ Totals recalculate correctly. **PRODUCTION READY:** Sales Invoice Edit/Update feature is now fully functional after backend bug fix."
 
   - task: "Sales Pre-Entry Backend Endpoints"
     implemented: true
