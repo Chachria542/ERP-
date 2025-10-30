@@ -1555,6 +1555,16 @@ function SalesInvoicePage({ user, onLogout }) {
                   {savedInvoice && (
                     <>
                       <Button 
+                        onClick={() => {
+                          // Switch from saved view back to edit mode
+                          handleEditInvoice(savedInvoice.invoice_number);
+                          setSavedInvoice(null); // Clear saved state to show form
+                        }}
+                        className="bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        ✏️ Edit Invoice
+                      </Button>
+                      <Button 
                         onClick={() => handlePrintInvoice(savedInvoice.invoice_number)}
                         className="bg-blue-600 hover:bg-blue-700 text-white"
                       >
