@@ -29,6 +29,7 @@ function MasterDataPage({ user, onLogout }) {
   const [partyName, setPartyName] = useState('');
   const [partyType, setPartyType] = useState('farmer');
   const [partyContact, setPartyContact] = useState('');
+  const [partyVillage, setPartyVillage] = useState(''); // For farmers
   const [partyAddress, setPartyAddress] = useState('');
   const [partyCity, setPartyCity] = useState('');
   const [partyState, setPartyState] = useState('');
