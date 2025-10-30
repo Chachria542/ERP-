@@ -23,6 +23,7 @@ function MasterDataPage({ user, onLogout }) {
   const [showBrokerDialog, setShowBrokerDialog] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingBroker, setEditingBroker] = useState(null);
+  const [editingParty, setEditingParty] = useState(null);
 
   // Party form
   const [partyName, setPartyName] = useState('');
