@@ -110,78 +110,139 @@ class SalesInvoiceEditTester:
         
         return overall_success
     
-    def test_new_print_endpoint_existing_invoices(self, invoice_numbers):
+    def test_phase2_invoice_update_endpoint(self):
         """
-        Test 2: New Print Endpoint - Test with Existing Invoice Numbers
-        GET /api/sales/invoice/by-number/{invoice_number}
-        Expected: Success (200) with complete invoice data for existing invoices
+        Phase 2: Invoice Update Endpoint
+        Test PUT /api/sales/invoice/{invoice_number} with various update scenarios
         """
-        print("🔍 Test 2: New Print Endpoint - Testing with Existing Invoice Numbers...")
+        print("🔍 Phase 2: Invoice Update Endpoint...")
         
+        if not self.test_invoice_data:
+            self.log_test("Phase 2 - Invoice Update", False, "❌ No test invoice data available for update testing")
+            return False
+        
+        invoice_number = self.test_invoice_data['invoice_number']
         successful_tests = 0
         total_tests = 0
         
-        for invoice_number in invoice_numbers:
-            total_tests += 1
-            try:
-                response = requests.get(f"{self.base_url}/sales/invoice/by-number/{invoice_number}", timeout=10)
+        # Test 1: Update editable fields (line items, taxes, transportation)
+        total_tests += 1
+        try:
+            # Create update payload with modified editable fields
+            update_payload = {
+                "pre_entry_id": self.test_invoice_data['pre_entry_id'],
+                "line_items": [
+                    {
+                        "item_name": "Updated Wheat",
+                        "marka": "Updated Marka",
+                        "bags": 25,
+                        "kgs": 2500.0,
+                        "rate": 5000.0,  # Changed from original
+                        "amount": 125000.0
+                    }
+                ],
+                "cgst_rate": 9.0,  # Changed from original
+                "cgst_amount": 11250.0,
+                "sgst_rate": 9.0,  # Changed from original  
+                "sgst_amount": 11250.0,
+                "broker_name": "Updated Broker",
+                "brokerage_type": "percentage",
+                "brokerage_rate": 2.5,
+                "vehicle_number": "UP09TEST123",  # Updated
+                "city_to": "Updated City",
+                "driver_name": "Updated Driver",
+                "transporter_name": "Updated Transporter",
+                "remarks": "Updated via API test",
+                "round_off": 0.0,
+                "created_by": "test_user"
+            }
+            
+            response = requests.put(
+                f"{self.base_url}/sales/invoice/{invoice_number}",
+                json=update_payload,
+                timeout=15
+            )
+            
+            if response.status_code == 200:
+                updated_data = response.json()
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Verify response structure for print template
-                    required_fields = [
-                        'invoice_number', 'invoice_date', 'invoice_time',
-                        'customer_name', 'place_of_supply', 'line_items',
-                        'subtotal', 'grand_total'
-                    ]
-                    
-                    missing_fields = []
-                    for field in required_fields:
-                        if field not in data:
-                            missing_fields.append(field)
-                    
-                    if missing_fields:
-                        self.log_test(f"Print Endpoint - {invoice_number}", False, 
-                                    f"❌ Missing required fields: {missing_fields}")
-                    else:
-                        # Verify line_items structure
-                        line_items = data.get('line_items', [])
-                        if line_items and isinstance(line_items, list):
-                            first_item = line_items[0]
-                            item_required_fields = ['item_name', 'bags', 'actual_qtl', 'rate', 'amount']
-                            item_missing_fields = [f for f in item_required_fields if f not in first_item]
-                            
-                            if item_missing_fields:
-                                self.log_test(f"Print Endpoint - {invoice_number}", False, 
-                                            f"❌ Line item missing fields: {item_missing_fields}")
-                            else:
-                                successful_tests += 1
-                                self.log_test(f"Print Endpoint - {invoice_number}", True, 
-                                            f"✅ Complete invoice data returned. Customer: {data.get('customer_name')}, Total: ₹{data.get('grand_total')}")
-                        else:
-                            self.log_test(f"Print Endpoint - {invoice_number}", False, 
-                                        "❌ No line_items found or invalid format")
+                # Verify non-editable fields are preserved
+                non_editable_preserved = (
+                    updated_data.get('invoice_number') == self.test_invoice_data.get('invoice_number') and
+                    updated_data.get('invoice_date') == self.test_invoice_data.get('invoice_date') and
+                    updated_data.get('customer_id') == self.test_invoice_data.get('customer_id') and
+                    updated_data.get('pre_entry_id') == self.test_invoice_data.get('pre_entry_id') and
+                    updated_data.get('created_at') == self.test_invoice_data.get('created_at')
+                )
                 
-                elif response.status_code == 404:
-                    self.log_test(f"Print Endpoint - {invoice_number}", True, 
-                                f"✅ Correctly returned 404 for non-existent invoice: {invoice_number}")
-                    # This is expected for mock invoice numbers
+                # Verify editable fields are updated
+                editable_updated = (
+                    updated_data.get('cgst_rate') == 9.0 and
+                    updated_data.get('sgst_rate') == 9.0 and
+                    updated_data.get('vehicle_number') == "UP09TEST123" and
+                    updated_data.get('remarks') == "Updated via API test"
+                )
+                
+                if non_editable_preserved and editable_updated:
                     successful_tests += 1
+                    self.log_test("Update Editable Fields", True, 
+                                "✅ Non-editable fields preserved, editable fields updated correctly")
                 else:
-                    self.log_test(f"Print Endpoint - {invoice_number}", False, 
-                                f"❌ HTTP {response.status_code}: {response.text}")
-                    
-            except Exception as e:
-                self.log_test(f"Print Endpoint - {invoice_number}", False, f"Request failed: {str(e)}")
+                    self.log_test("Update Editable Fields", False, 
+                                f"❌ Field preservation/update failed. Non-editable preserved: {non_editable_preserved}, Editable updated: {editable_updated}")
+            else:
+                self.log_test("Update Editable Fields", False, 
+                            f"❌ HTTP {response.status_code}: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Update Editable Fields", False, f"Request failed: {str(e)}")
+        
+        # Test 2: Update with invalid invoice number
+        total_tests += 1
+        try:
+            response = requests.put(
+                f"{self.base_url}/sales/invoice/SAL-25-999999",
+                json=update_payload,
+                timeout=10
+            )
+            
+            if response.status_code == 404:
+                successful_tests += 1
+                self.log_test("Update Invalid Invoice", True, "✅ Correctly returned 404 for non-existent invoice")
+            else:
+                self.log_test("Update Invalid Invoice", False, f"❌ Expected 404, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Update Invalid Invoice", False, f"Request failed: {str(e)}")
+        
+        # Test 3: Update with invalid pre_entry_id
+        total_tests += 1
+        try:
+            invalid_payload = update_payload.copy()
+            invalid_payload['pre_entry_id'] = "invalid-pre-entry-id"
+            
+            response = requests.put(
+                f"{self.base_url}/sales/invoice/{invoice_number}",
+                json=invalid_payload,
+                timeout=10
+            )
+            
+            if response.status_code == 404:
+                successful_tests += 1
+                self.log_test("Update Invalid Pre-Entry", True, "✅ Correctly returned 404 for invalid pre_entry_id")
+            else:
+                self.log_test("Update Invalid Pre-Entry", False, f"❌ Expected 404, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Update Invalid Pre-Entry", False, f"Request failed: {str(e)}")
         
         success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
-        overall_success = success_rate >= 80  # 80% success rate threshold
+        overall_success = success_rate >= 70
         
-        self.log_test("New Print Endpoint - Existing Invoices", overall_success, 
+        self.log_test("Phase 2 - Invoice Update Endpoint", overall_success, 
                     f"✅ {successful_tests}/{total_tests} tests passed ({success_rate:.1f}% success rate)")
         
-        return overall_success, successful_tests
+        return overall_success
     
     def test_non_existent_invoice_number(self):
         """
