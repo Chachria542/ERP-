@@ -2214,7 +2214,7 @@ function SalesInvoicePage({ user, onLogout }) {
             </table>
 
             {/* Route & Freight Details Box - Two Column Layout */}
-            <div style={{border: '2px solid #000', marginBottom: '10px'}}>
+            <div style={{border: '1px solid #000', marginBottom: '10px'}}>
               <div style={{fontWeight: 'bold', padding: '4px 6px', fontSize: '10px', borderBottom: '1px solid #000'}}>
                 ROUTE & FREIGHT INFORMATION
               </div>
