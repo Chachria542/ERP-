@@ -817,7 +817,14 @@ function SalesInvoicePage({ user, onLogout }) {
                 </thead>
                 <tbody>
                   {queue.map((item) => (
-                    <tr key={item.id} className="border-b hover:bg-gray-50">
+                    <tr 
+                      key={item.id} 
+                      className={`border-b hover:opacity-90 ${
+                        item.status === 'invoice_generated' ? 'bg-green-50' : 
+                        item.status === 'pending' ? 'bg-red-50' : 
+                        'bg-white'
+                      }`}
+                    >
                       <td className="p-3 font-medium">
                         {item.pre_entry_number}
                         {item.is_mixed_load && (
@@ -844,7 +851,6 @@ function SalesInvoicePage({ user, onLogout }) {
                       <td className="p-3">{item.marka || '-'}</td>
                       <td className="p-3 text-center">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
                       <td className="p-3">{item.broker_name || '-'}</td>
-                      <td className="p-3">{getStatusBadge(item.status)}</td>
                       <td className="p-3 text-center">
                         {item.status === 'pending' && (
                           <Button
