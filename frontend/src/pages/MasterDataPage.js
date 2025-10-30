@@ -90,21 +90,37 @@ function MasterDataPage({ user, onLogout }) {
     e.preventDefault();
     
     try {
-      const partyData = {
-        name: partyName,
-        roles: [partyType], // Convert type to roles array
-        contact: partyContact || null,
-        address: partyAddress || null,
-        city: partyCity || null,
-        state: partyState || null,
-        pin_code: partyPinCode || null,
-        place_of_supply: partyPlaceOfSupply || null,
-        gstin: partyGstin || null,
-        pan: partyPan || null,
-        bank_name: partyBankName || null,
-        account_number: partyAccountNumber || null,
-        ifsc_code: partyIfscCode || null
-      };
+      let partyData;
+      
+      if (partyType === 'farmer') {
+        // Farmer: Only name, contact, village, and bank details
+        partyData = {
+          name: partyName,
+          roles: ['farmer'],
+          contact: partyContact || null,
+          city: partyVillage || null,  // Village stored in city field
+          bank_name: partyBankName || null,
+          account_number: partyAccountNumber || null,
+          ifsc_code: partyIfscCode || null
+        };
+      } else {
+        // Supplier/Buyer: Full structured fields
+        partyData = {
+          name: partyName,
+          roles: [partyType],
+          contact: partyContact || null,
+          address: partyAddress || null,
+          city: partyCity || null,
+          state: partyState || null,
+          pin_code: partyPinCode || null,
+          place_of_supply: partyPlaceOfSupply || null,
+          gstin: partyGstin || null,
+          pan: partyPan || null,
+          bank_name: partyBankName || null,
+          account_number: partyAccountNumber || null,
+          ifsc_code: partyIfscCode || null
+        };
+      }
 
       if (editingParty) {
         // Update existing party
