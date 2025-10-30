@@ -139,12 +139,15 @@ class SalesInvoiceEditTester:
                 # Editable fields (modified for testing)
                 "line_items": [
                     {
+                        "item_id": self.test_invoice_data.get('line_items', [{}])[0].get('item_id', 'test-item-id'),
                         "item_name": "Updated Wheat",
                         "marka": "Updated Marka",
                         "bags": 25,
                         "kgs": 2500.0,
+                        "bharti": 50,
+                        "actual_qtl": 25.0,  # bags * bharti / 100 = 25 * 50 / 100 = 12.5, but using 25 for simplicity
                         "rate": 5000.0,  # Changed from original
-                        "amount": 125000.0
+                        "amount": 125000.0  # actual_qtl * rate = 25 * 5000
                     }
                 ],
                 "cgst_rate": 9.0,  # Changed from original
