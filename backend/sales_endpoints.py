@@ -729,7 +729,7 @@ async def update_sales_invoice(invoice_number: str, update_data: SalesInvoiceCre
         # 8. Prepare update document (only editable fields)
         update_doc = {
             # Line items (editable)
-            "line_items": [item.dict() for item in update_data.line_items],
+            "line_items": update_data.line_items,  # Already dictionaries from model
             
             # Taxes (editable)
             "cgst_rate": update_data.cgst_rate,
