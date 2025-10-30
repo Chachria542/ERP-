@@ -850,6 +850,30 @@ test_plan:
   test_priority: "high_first"
 
 backend:
+  - task: "Sales Invoice Edit/Update Feature - GET Endpoint"
+    implemented: true
+    working: true
+    file: "backend/sales_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ PHASE 1 - INVOICE FETCH FOR EDITING COMPLETED - 100% SUCCESS RATE (4/4 tests passed): **Invoice Fetch Tests:** 1) GET /api/sales/invoice/by-number/SAL-25-000032 working perfectly - returns complete invoice data with all required fields (invoice_number, invoice_date, customer_id, pre_entry_id, line_items, cgst_rate, sgst_rate, grand_total, created_at), 2) Non-existent invoice numbers (SAL-25-000046, SAL-25-000044) correctly return 404 errors, 3) Invalid invoice number (SAL-25-999999) correctly returns 404 with proper error message. **Key Success Criteria Verified:** ✅ Complete invoice data returned for existing invoices, ✅ All required fields present for editing functionality, ✅ Proper 404 handling for non-existent invoices, ✅ Customer ID and pre-entry ID available for validation. **PRODUCTION READY:** Invoice fetch endpoint working excellently for edit functionality."
+
+  - task: "Sales Invoice Edit/Update Feature - PUT Endpoint"
+    implemented: true
+    working: false
+    file: "backend/sales_endpoints.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL BACKEND BUG IDENTIFIED - PUT ENDPOINT FAILING: **Issue:** PUT /api/sales/invoice/{invoice_number} endpoint has a critical bug at line 683 in sales_endpoints.py. Code attempts to access 'item.amount' as an attribute on dictionary objects, causing 'dict' object has no attribute 'amount' error. **Test Results:** Phase 1 (GET endpoint): 100% success rate (4/4 tests passed), Phase 2 (PUT endpoint): 66.7% success rate (2/3 tests passed - validation working for invalid invoices/pre-entries, but update functionality failing), Phase 3 (Update validation): 0% success rate due to same bug, Phase 4 (End-to-end flow): Cannot complete due to PUT failure, Phase 5 (Broker/Transporter integration): Cannot test due to PUT failure. **Root Cause:** Backend code expects line_items to be Pydantic model objects but receives dictionaries. Line 683: 'line_items_total = sum(item.amount for item in update_data.line_items)' should handle dictionaries properly. **Validation Working:** 404 errors correctly returned for non-existent invoices and invalid pre_entry_ids. **CRITICAL:** Update functionality completely broken due to backend implementation bug. Requires immediate backend code fix before feature can be functional."
+
   - task: "Sales Pre-Entry Backend Endpoints"
     implemented: true
     working: true
