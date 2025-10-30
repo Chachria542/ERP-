@@ -1802,10 +1802,10 @@ function SalesInvoicePage({ user, onLogout }) {
             {/* Transportation Details */}
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', fontSize: '11px', marginBottom: '8px'}}>
               <div style={{padding: '3px'}}>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {savedInvoice.city_from || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {savedInvoice.city_to || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>From:</span> {toSentenceCase(savedInvoice.city_from)}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>To:</span> {toSentenceCase(savedInvoice.city_to)}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Vehicle No:</span> {savedInvoice.vehicle_number || 'N/A'}</p>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Driver:</span> {savedInvoice.driver_name || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Driver:</span> {toSentenceCase(savedInvoice.driver_name)}</p>
               </div>
               <div style={{padding: '3px'}}>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Tare:</span> {savedInvoice.tare_weight || 'N/A'} kg</p>
@@ -1813,7 +1813,7 @@ function SalesInvoicePage({ user, onLogout }) {
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Net:</span> {savedInvoice.net_weight || 'N/A'} kg</p>
               </div>
               <div style={{padding: '3px'}}>
-                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Transporter:</span> {savedInvoice.transporter_name || 'N/A'}</p>
+                <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Transporter:</span> {toSentenceCase(savedInvoice.transporter_name)}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Bilty No:</span> {savedInvoice.bilty_no || 'N/A'}</p>
                 <p style={{margin: '2px 0'}}><span style={{fontWeight: 'bold'}}>Freight:</span> ₹{savedInvoice.freight_amount || '0.00'}</p>
               </div>
