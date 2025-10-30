@@ -81,19 +81,61 @@ function MasterDataPage({ user, onLogout }) {
     e.preventDefault();
     
     try {
-      await axios.post(`${API}/parties`, {
-        name: partyName,
-        type: partyType,
-        contact: partyContact || null,
-        address: partyAddress || null,
-        gstin: partyGstin || null
-      });
+      if (editingParty) {
+        // Update existing party
+        await axios.put(`${API}/parties/${editingParty.id}`, {
+          name: partyName,
+          type: partyType,
+          contact: partyContact || null,
+          address: partyAddress || null,
+          gstin: partyGstin || null
+        });
+        toast.success('Party updated successfully!');
+      } else {
+        // Create new party
+        await axios.post(`${API}/parties`, {
+          name: partyName,
+          type: partyType,
+          contact: partyContact || null,
+          address: partyAddress || null,
+          gstin: partyGstin || null
+        });
+        toast.success('Party created successfully!');
+      }
       
-      toast.success('Party created successfully!');
       setShowPartyDialog(false);
+      setEditingParty(null);
+      // Reset form
+      setPartyName('');
+      setPartyType('farmer');
+      setPartyContact('');
+      setPartyAddress('');
+      setPartyGstin('');
       fetchData();
     } catch (error) {
-      toast.error('Failed to create party');
+      toast.error(editingParty ? 'Failed to update party' : 'Failed to create party');
+    }
+  };
+
+  const handleEditParty = (party) => {
+    setEditingParty(party);
+    setPartyName(party.name);
+    setPartyType(party.type || 'farmer');
+    setPartyContact(party.contact || '');
+    setPartyAddress(party.address || '');
+    setPartyGstin(party.gstin || '');
+    setShowPartyDialog(true);
+  };
+
+  const handleDeleteParty = async (partyId) => {
+    if (!window.confirm('Are you sure you want to delete this party?')) return;
+    
+    try {
+      await axios.delete(`${API}/parties/${partyId}`);
+      toast.success('Party deleted successfully!');
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete party');
     }
   };
 
