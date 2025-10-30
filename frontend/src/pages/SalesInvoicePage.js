@@ -943,12 +943,19 @@ function SalesInvoicePage({ user, onLogout }) {
                     </Badge>
                     <Badge className="bg-blue-600 text-white">POSTED</Badge>
                   </div>
+                ) : editingInvoice ? (
+                  <div className="flex items-center gap-3">
+                    <span>✏️ Edit Invoice</span>
+                    <Badge className="bg-blue-600 text-white text-lg px-3 py-1">
+                      {editingInvoice.invoice_number}
+                    </Badge>
+                  </div>
                 ) : (
                   <span>{isReturn ? '🔄 Sales Return' : '📄 Sales Invoice'} - {selectedPreEntry?.pre_entry_number}</span>
                 )}
               </DialogTitle>
               <DialogDescription>
-                {savedInvoice ? 'Invoice has been saved. You can print or close this window.' : 'Fill in the invoice details and save'}
+                {savedInvoice ? 'Invoice has been saved. You can print or close this window.' : editingInvoice ? 'Update invoice details. Customer and Date are locked.' : 'Fill in the invoice details and save'}
               </DialogDescription>
             </DialogHeader>
             
