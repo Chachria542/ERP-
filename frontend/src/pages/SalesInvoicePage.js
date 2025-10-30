@@ -896,7 +896,14 @@ function SalesInvoicePage({ user, onLogout }) {
                               onClick={() => handlePrintInvoice(item.invoice_number)}
                               className="btn-secondary"
                             >
-                              🖨️ Print
+                              🖨️ Invoice
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handlePrintFreightSlip(item.invoice_number)}
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              🚚 Freight
                             </Button>
                           </div>
                         )}
