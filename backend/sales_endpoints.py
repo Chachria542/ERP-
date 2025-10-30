@@ -830,6 +830,82 @@ async def update_sales_invoice(invoice_number: str, update_data: SalesInvoiceCre
         raise HTTPException(status_code=500, detail=f"Failed to update invoice: {str(e)}")
 
 
+# ============= FREIGHT SLIP ENDPOINTS =============
+
+@router.post("/sales/freight-slip/{invoice_number}")
+async def generate_freight_slip(invoice_number: str):
+    """
+    Generate a freight slip for a sales invoice.
+    Creates a freight slip number and stores it with the invoice.
+    """
+    try:
+        # Check if invoice exists
+        invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number}, {"_id": 0})
+        if not invoice:
+            raise HTTPException(status_code=404, detail=f"Invoice {invoice_number} not found")
+        
+        # Check if freight slip already exists for this invoice
+        existing_slip = await db.freight_slips.find_one({"invoice_number": invoice_number}, {"_id": 0})
+        if existing_slip:
+            return existing_slip
+        
+        # Generate new freight slip number
+        freight_slip_number = await generate_freight_slip_number()
+        
+        # Create freight slip document
+        freight_slip = {
+            "freight_slip_number": freight_slip_number,
+            "invoice_number": invoice_number,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_by": invoice.get("created_by", "system")
+        }
+        
+        # Save to database
+        await db.freight_slips.insert_one(freight_slip)
+        
+        # Return freight slip data with invoice data
+        return {
+            "freight_slip_number": freight_slip_number,
+            "invoice_number": invoice_number,
+            "invoice_data": invoice
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error generating freight slip: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate freight slip: {str(e)}")
+
+
+@router.get("/sales/freight-slip/{invoice_number}")
+async def get_freight_slip(invoice_number: str):
+    """Get freight slip for a sales invoice"""
+    try:
+        # Get invoice data
+        invoice = await db.sales_invoices.find_one({"invoice_number": invoice_number}, {"_id": 0})
+        if not invoice:
+            raise HTTPException(status_code=404, detail=f"Invoice {invoice_number} not found")
+        
+        # Get freight slip number
+        freight_slip = await db.freight_slips.find_one({"invoice_number": invoice_number}, {"_id": 0})
+        
+        if freight_slip:
+            return {
+                "freight_slip_number": freight_slip["freight_slip_number"],
+                "invoice_number": invoice_number,
+                "invoice_data": invoice
+            }
+        else:
+            # Generate new freight slip if doesn't exist
+            return await generate_freight_slip(invoice_number)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[BACKEND] Error fetching freight slip: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch freight slip: {str(e)}")
+
+
 # ============= MIXED LOAD INVOICE ENDPOINTS =============
 
 @router.post("/sales/mixed-load-invoice/bulk", response_model=dict)
