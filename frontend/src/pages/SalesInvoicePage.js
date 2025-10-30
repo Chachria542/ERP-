@@ -1691,6 +1691,14 @@ function SalesInvoicePage({ user, onLogout }) {
             }
           `}</style>
 
+          {/* Helper function for sentence case */}
+          {(() => {
+            const toSentenceCase = (text) => {
+              if (!text || typeof text !== 'string') return text || 'N/A';
+              return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+            };
+
+            return (
           <div style={{fontFamily: 'Arial, sans-serif', padding: '5px', pageBreakInside: 'avoid', maxHeight: '100vh', overflow: 'hidden'}}>
             {/* Header */}
             <div style={{textAlign: 'center', marginBottom: '8px'}}>
