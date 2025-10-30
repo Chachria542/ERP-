@@ -367,6 +367,7 @@ async def get_sales_queue(
             tare_weight=entry.get('tare_weight'),
             gross_weight=entry.get('gross_weight'),
             net_weight=entry.get('net_weight'),
+            vehicle_number=entry.get('vehicle_number'),  # Vehicle number from weighbridge/pre-entry
             is_entry=entry.get('is_entry', False),  # Godown/Entry toggle
             is_mixed_load=entry.get('is_mixed_load', False),  # Mixed load indicator
             broker_name=entry.get('broker_name') if entry.get('has_broker') else None,
