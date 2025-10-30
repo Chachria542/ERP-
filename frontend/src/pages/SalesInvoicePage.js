@@ -662,21 +662,33 @@ function SalesInvoicePage({ user, onLogout }) {
       
       console.log('[FRONTEND] Submitting invoice payload:', JSON.stringify(payload, null, 2));
       
-      const response = await axios.post(`${API}/sales/invoice`, payload);
+      let response;
+      
+      // Check if we're in edit mode
+      if (editingInvoice) {
+        // UPDATE existing invoice with PUT request
+        console.log(`[FRONTEND] Updating invoice ${editingInvoice.invoice_number}`);
+        response = await axios.put(`${API}/sales/invoice/${editingInvoice.invoice_number}`, payload);
+        toast.success(`Invoice ${editingInvoice.invoice_number} updated successfully`);
+      } else {
+        // CREATE new invoice with POST request
+        console.log('[FRONTEND] Creating new invoice');
+        response = await axios.post(`${API}/sales/invoice`, payload);
+        toast.success(`${isReturn ? 'Sales Return' : 'Sales Invoice'} saved: ${response.data.invoice_number}`);
+      }
       
       // Store complete invoice data for print
       setSavedInvoice(response.data);
-      
-      toast.success(`${isReturn ? 'Sales Return' : 'Sales Invoice'} saved: ${response.data.invoice_number}`);
       
       // Don't close modal yet - show the bill number and print buttons
       // setShowInvoiceModal(false);
       fetchQueue();
       
     } catch (error) {
-      console.error('Error creating invoice:', error);
+      console.error('Error saving invoice:', error);
       console.error('Error response:', error.response?.data);
-      toast.error(error.response?.data?.detail || 'Failed to create invoice');
+      const action = editingInvoice ? 'update' : 'create';
+      toast.error(error.response?.data?.detail || `Failed to ${action} invoice`);
     } finally {
       setSubmitting(false);
     }
