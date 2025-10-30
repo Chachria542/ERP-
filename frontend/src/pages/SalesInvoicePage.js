@@ -190,6 +190,60 @@ function SalesInvoicePage({ user, onLogout }) {
     }
   };
 
+  const handleEditInvoice = async (invoiceNumber) => {
+    try {
+      // Fetch full invoice details by invoice number
+      const response = await axios.get(`${API}/sales/invoice/by-number/${invoiceNumber}`);
+      const invoice = response.data;
+      
+      // Set editing mode
+      setEditingInvoice(invoice);
+      
+      // Pre-fill form with invoice data
+      setInvoiceForm({
+        pre_entry_id: invoice.pre_entry_id,
+        sale_type: invoice.sale_type,
+        invoice_date: invoice.invoice_date,
+        weighbridge_slip_no: invoice.weighbridge_slip_no,
+        is_entry: invoice.is_entry,
+        line_items: invoice.line_items || [],
+        cgst_rate: invoice.cgst_rate,
+        cgst_amount: invoice.cgst_amount || 0,
+        sgst_rate: invoice.sgst_rate,
+        sgst_amount: invoice.sgst_amount || 0,
+        igst_rate: invoice.igst_rate,
+        igst_amount: invoice.igst_amount || 0,
+        tcs_applicable: invoice.tcs_applicable || false,
+        tcs_rate: invoice.tcs_rate,
+        tcs_amount: invoice.tcs_amount || 0,
+        round_off: invoice.round_off || 0,
+        grand_total: invoice.grand_total,
+        vehicle_number: invoice.vehicle_number || '',
+        city_from: invoice.city_from || '',
+        city_to: invoice.city_to || '',
+        driver_name: invoice.driver_name || '',
+        transporter_name: invoice.transporter_name || '',
+        transporter_id: invoice.transporter_id || '',
+        freight_amount: invoice.freight_amount || 0,
+        bilty_no: invoice.bilty_no || '',
+        broker_name: invoice.broker_name || '',
+        brokerage_type: invoice.brokerage_type || 'per_quintal',
+        brokerage_rate: invoice.brokerage_rate || 0,
+        anugya_no: invoice.anugya_no || '',
+        remarks: invoice.remarks || ''
+      });
+      
+      // Open invoice form dialog
+      setShowInvoiceDialog(true);
+      
+      toast.info('Editing invoice - Customer and Date are locked');
+    } catch (error) {
+      console.error('Error loading invoice for editing:', error);
+      toast.error('Failed to load invoice for editing');
+    }
+  };
+
+
   const handleApprovePhotos = () => {
     setShowPhotoModal(false);
     
