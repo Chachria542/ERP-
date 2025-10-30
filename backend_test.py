@@ -12,7 +12,7 @@ from datetime import datetime, timezone, timedelta
 # Backend URL from frontend/.env
 BASE_URL = "https://sales-invoice-edit.preview.emergentagent.com/api"
 
-class SalesInvoicePrintTester:
+class SalesInvoiceEditTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.test_results = []
@@ -21,7 +21,8 @@ class SalesInvoicePrintTester:
         self.password = "admin123"
         # Test data
         self.existing_invoices = []
-        self.test_invoice_numbers = []
+        self.test_invoice_numbers = ["SAL-25-000032", "SAL-25-000046", "SAL-25-000044"]
+        self.test_invoice_data = None
         
     def log_test(self, test_name, success, details="", response_data=None):
         """Log test results"""
