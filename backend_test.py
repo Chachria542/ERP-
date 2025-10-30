@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Sales Invoice Print Endpoint
-Tests the new Sales Invoice Print endpoint that was created to fix the print button issue
+Backend API Testing for Sales Invoice Edit/Update Feature
+Tests the NEW Sales Invoice Edit/Update functionality with comprehensive backend API testing
 """
 import requests
 import json
