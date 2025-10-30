@@ -504,9 +504,15 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "pre_entry_id": invoice_data.pre_entry_id,
             "pre_entry_number": pre_entry['pre_entry_number'],
             "weighbridge_slip_no": invoice_data.weighbridge_slip_no,
-            "customer_id": pre_entry['customer_id'],
-            "customer_name": pre_entry['customer_name'],
-            "customer_gstin": pre_entry.get('customer_gstin'),
+            # Complete customer details from master table
+            "customer_id": customer['id'],
+            "customer_name": customer['name'],
+            "customer_address": customer.get('address'),
+            "customer_city": customer.get('city'),
+            "customer_state": customer.get('state'),
+            "customer_pin_code": customer.get('pin_code'),
+            "customer_gstin": customer.get('gstin') or pre_entry.get('customer_gstin'),
+            "customer_pan": customer.get('pan'),
             "place_of_supply": pre_entry['place_of_supply'],
             "is_entry": invoice_data.is_entry,
             
@@ -519,7 +525,8 @@ async def create_sales_invoice(invoice_data: SalesInvoiceCreate):
             "consignee_state": invoice_data.consignee_state,
             "consignee_pin_code": invoice_data.consignee_pin_code,
             
-            "broker_name": invoice_data.broker_name,
+            # Complete broker details from master table or form
+            **broker_details,
             "brokerage_type": invoice_data.brokerage_type,
             "brokerage_rate": invoice_data.brokerage_rate,
             "line_items": line_items_processed,
