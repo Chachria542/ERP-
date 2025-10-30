@@ -1732,7 +1732,7 @@ function SalesInvoicePage({ user, onLogout }) {
               </div>
 
             {/* Items Table - Fixed Height */}
-            <table style={{width: '100%', fontSize: '9px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '10px', tableLayout: 'fixed'}}>
+            <table style={{width: '100%', fontSize: '11px', borderCollapse: 'collapse', border: '1px solid black', marginBottom: '8px', tableLayout: 'fixed'}}>
               <thead>
                 <tr style={{backgroundColor: '#e5e7eb'}}>
                   <th style={{borderLeft: '1px solid black', borderRight: '1px solid black', borderBottom: '1px solid black', padding: '3px', width: '6%'}}>PO No</th>
@@ -1749,13 +1749,13 @@ function SalesInvoicePage({ user, onLogout }) {
               <tbody>
                 {/* Actual line items */}
                 {savedInvoice.line_items?.map((item, idx) => (
-                  <tr key={idx} style={{height: '30px'}}>
+                  <tr key={idx} style={{height: '28px'}}>
                     <td style={{borderLeft: '1px solid black', borderRight: '1px solid black', padding: '3px'}}>{item.po_number || '-'}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>{item.po_date || '-'}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>
                       {item.item_name}<br/>
-                      {item.hsn_code && <span style={{fontSize: '8px'}}>HSN: {item.hsn_code}</span>}<br/>
-                      {item.marka && <span style={{fontSize: '8px'}}>Marka: {item.marka}</span>}
+                      {item.hsn_code && <span style={{fontSize: '10px'}}>HSN: {item.hsn_code}</span>}<br/>
+                      {item.marka && <span style={{fontSize: '10px'}}>Marka: {item.marka}</span>}
                     </td>
                     <td style={{borderRight: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.bags}</td>
                     <td style={{borderRight: '1px solid black', padding: '3px', textAlign: 'right'}}>{item.kgs}</td>
@@ -1768,7 +1768,7 @@ function SalesInvoicePage({ user, onLogout }) {
                 
                 {/* Empty rows to maintain fixed height - always show at least 5 rows total */}
                 {Array.from({ length: Math.max(0, 5 - (savedInvoice.line_items?.length || 0)) }).map((_, idx) => (
-                  <tr key={`empty-${idx}`} style={{height: '30px'}}>
+                  <tr key={`empty-${idx}`} style={{height: '28px'}}>
                     <td style={{borderLeft: '1px solid black', borderRight: '1px solid black', padding: '3px'}}>&nbsp;</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>&nbsp;</td>
                     <td style={{borderRight: '1px solid black', padding: '3px'}}>&nbsp;</td>
