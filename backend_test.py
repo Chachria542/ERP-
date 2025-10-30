@@ -283,10 +283,13 @@ class SalesInvoiceEditTester:
                 # Editable fields
                 "line_items": [
                     {
+                        "item_id": self.test_invoice_data.get('line_items', [{}])[0].get('item_id', 'test-item-id'),
                         "item_name": "Test Item",
                         "marka": "Test Marka", 
                         "bags": 10,
                         "kgs": 1000.0,
+                        "bharti": 50,
+                        "actual_qtl": 10.0,
                         "rate": 4000.0,
                         "amount": 40000.0
                     }
