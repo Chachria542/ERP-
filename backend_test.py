@@ -770,32 +770,35 @@ class SalesInvoiceEditTester:
         return overall_success
     
     def run_all_tests(self):
-        """Run all sales invoice print endpoint tests"""
-        print("🚀 Starting Sales Invoice Print Endpoint Testing")
+        """Run all sales invoice edit/update feature tests"""
+        print("🚀 Starting Sales Invoice Edit/Update Feature Testing")
         print(f"Testing against: {self.base_url}")
-        print(f"New endpoint: GET /api/sales/invoice/by-number/{{invoice_number}}")
+        print("Testing endpoints:")
+        print("  - GET /api/sales/invoice/by-number/{invoice_number}")
+        print("  - PUT /api/sales/invoice/{invoice_number}")
+        print(f"Test invoice numbers: {', '.join(self.test_invoice_numbers)}")
         print("=" * 80)
         
-        # Test 1: List existing invoices
-        success1, invoice_numbers = self.test_list_existing_invoices()
+        # Phase 1: Invoice Fetch for Editing
+        success1 = self.test_phase1_invoice_fetch_for_editing()
         
-        # Test 2: Test new print endpoint with existing invoices
-        success2, successful_tests = self.test_new_print_endpoint_existing_invoices(invoice_numbers)
+        # Phase 2: Invoice Update Endpoint
+        success2 = self.test_phase2_invoice_update_endpoint()
         
-        # Test 3: Test non-existent invoice numbers
-        success3 = self.test_non_existent_invoice_number()
+        # Phase 3: Update Validation
+        success3 = self.test_phase3_update_validation()
         
-        # Test 4: Verify response structure
-        success4 = self.test_response_structure_verification()
+        # Phase 4: End-to-End Update Flow
+        success4 = self.test_phase4_end_to_end_update_flow()
         
-        # Test 5: Multiple invoice data integrity
-        success5 = self.test_multiple_invoice_data_integrity()
+        # Phase 5: Broker & Transporter Master Data Integration
+        success5 = self.test_phase5_broker_transporter_integration()
         
         # Overall success if most tests pass
-        total_tests = 5
-        passed_tests = sum([success1, success2, success3, success4, success5])
+        total_phases = 5
+        passed_phases = sum([success1, success2, success3, success4, success5])
         
-        return passed_tests >= 3  # At least 3 out of 5 tests should pass
+        return passed_phases >= 3  # At least 3 out of 5 phases should pass
     
     def print_summary(self):
         """Print test summary"""
