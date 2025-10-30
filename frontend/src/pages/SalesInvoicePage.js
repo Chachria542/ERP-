@@ -2283,51 +2283,6 @@ function SalesInvoicePage({ user, onLogout }) {
                 <p style={{margin: '3px 0 0 0', fontSize: '8px'}}>Authorized Signatory</p>
               </div>
             </div>
-                    <strong>Freight Per Qtl:</strong> ₹ {freightSlipData.invoice_data.freight_rate || '0.00'}
-                  </p>
-                  <p style={{margin: '0 0 8px 0'}}>
-                    <strong>Total Freight:</strong> ₹ {freightSlipData.invoice_data.freight_amount?.toFixed(2) || '0.00'}
-                  </p>
-                  <p style={{margin: '0 0 8px 0'}}>
-                    <strong>Advance:</strong> ₹ {freightSlipData.invoice_data.advance_freight?.toFixed(2) || '0.00'}
-                  </p>
-                  <p style={{margin: '0'}}>
-                    <strong>Balance:</strong> ₹ {freightSlipData.invoice_data.net_freight?.toFixed(2) || '0.00'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Remarks Section - Combined Note and Description */}
-            <div style={{border: '2px solid #000', padding: '8px', marginBottom: '15px', minHeight: '60px'}}>
-              <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
-                REMARKS
-              </div>
-              <p style={{margin: '3px 0'}}>{freightSlipData.invoice_data.remarks || 'Handle with care'}</p>
-              <p style={{margin: '3px 0', fontStyle: 'italic', color: '#555'}}>
-                Item: {freightSlipData.invoice_data.line_items[0]?.item_name || '-'}
-              </p>
-            </div>
-
-            {/* Important Terms - No Box */}
-            <div style={{marginBottom: '20px', fontSize: '10px'}}>
-              <strong style={{fontSize: '11px'}}>N.B. (Important Terms):</strong>
-              <ol style={{margin: '4px 0 0 20px', padding: 0, lineHeight: '1.6'}}>
-                <li>We are not responsible if the goods are delivered to any address other than mentioned above.</li>
-                <li>Shortage should be deducted from freight.</li>
-              </ol>
-            </div>
-
-            {/* Signature Section */}
-            <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '30px'}}>
-              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '5px', textAlign: 'center'}}>
-                <strong>Motor Driver's Sign</strong>
-              </div>
-              <div style={{width: '45%', borderTop: '1px solid #000', paddingTop: '5px', textAlign: 'center'}}>
-                <strong>For M/S {companySettings.company_name || 'Sudarshan Trading Company'}</strong>
-                <p style={{margin: '5px 0 0 0', fontSize: '9px'}}>Authorized Signatory</p>
-              </div>
-            </div>
 
           </div>
         </div>
