@@ -1634,7 +1634,7 @@ function SalesInvoicePage({ user, onLogout }) {
             @media print {
               @page { 
                 size: A4; 
-                margin: 10mm; 
+                margin: 8mm; 
               }
               
               /* Hide ALL page elements except print template */
@@ -1654,15 +1654,19 @@ function SalesInvoicePage({ user, onLogout }) {
                 left: 0 !important;
                 top: 0 !important;
                 width: 100% !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
                 display: block !important;
                 background: white !important;
-                padding: 10mm !important;
+                padding: 8mm !important;
+                page-break-after: avoid !important;
               }
               
               /* Ensure table displays correctly */
               .print-invoice-container table { 
                 display: table !important; 
                 width: 100% !important;
+                page-break-inside: avoid !important;
               }
               .print-invoice-container thead { display: table-header-group !important; }
               .print-invoice-container tbody { display: table-row-group !important; }
@@ -1672,24 +1676,32 @@ function SalesInvoicePage({ user, onLogout }) {
                 display: table-cell !important; 
               }
               
-              /* Prevent page breaks inside important sections */
+              /* Prevent page breaks */
               .no-break { 
                 page-break-inside: avoid !important; 
+              }
+              
+              /* Prevent extra pages */
+              @media print {
+                html, body {
+                  height: 100vh !important;
+                  overflow: hidden !important;
+                }
               }
             }
           `}</style>
 
-          <div style={{fontFamily: 'Arial, sans-serif', padding: '5px', pageBreakInside: 'avoid'}}>
+          <div style={{fontFamily: 'Arial, sans-serif', padding: '5px', pageBreakInside: 'avoid', maxHeight: '100vh', overflow: 'hidden'}}>
             {/* Header */}
-            <div style={{textAlign: 'center', marginBottom: '10px'}}>
+            <div style={{textAlign: 'center', marginBottom: '8px'}}>
               {companySettings.company_logo_url && (
-                <img src={companySettings.company_logo_url} alt="Logo" style={{height: '48px', margin: '0 auto 5px'}} />
+                <img src={companySettings.company_logo_url} alt="Logo" style={{height: '58px', margin: '0 auto 5px'}} />
               )}
-              <h1 style={{fontSize: '20px', fontWeight: 'bold', margin: '5px 0'}}>{companySettings.company_name}</h1>
-              <p style={{fontSize: '10px', margin: '2px 0'}}>Ward No.18, Omkareshwar Road, Sanawad, PIN -451111</p>
-              <p style={{fontSize: '10px', margin: '2px 0'}}>Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
-              <p style={{fontSize: '8px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
-              <h2 style={{fontSize: '18px', fontWeight: 'bold', margin: '10px 0 5px 0'}}>INVOICE</h2>
+              <h1 style={{fontSize: '24px', fontWeight: 'bold', margin: '5px 0'}}>{companySettings.company_name}</h1>
+              <p style={{fontSize: '12px', margin: '2px 0'}}>Ward No.18, Omkareshwar Road, Sanawad, PIN -451111</p>
+              <p style={{fontSize: '12px', margin: '2px 0'}}>Mobile: {companySettings.mobile} | GSTIN: {companySettings.gstin}</p>
+              <p style={{fontSize: '10px', fontWeight: '600', margin: '5px 0'}}>SUBJECT TO SANAWAD JURISDICTION</p>
+              <h2 style={{fontSize: '22px', fontWeight: 'bold', margin: '8px 0 5px 0'}}>INVOICE</h2>
             </div>
 
             {/* Invoice Body - Bordered Container */}
