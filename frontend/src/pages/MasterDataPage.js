@@ -146,6 +146,7 @@ function MasterDataPage({ user, onLogout }) {
     setPartyName('');
     setPartyType('farmer');
     setPartyContact('');
+    setPartyVillage('');
     setPartyAddress('');
     setPartyCity('');
     setPartyState('');
