@@ -76,13 +76,17 @@ async def get_farmer_payment_queue(
     """
     Get queue of weighbridge entries pending farmer payment.
     Supports search, filters, and sorting.
+    Status can be: pending_payment, payment_completed, or all
     """
     try:
         # Base query: Only farmer_purchase transactions
         query = {
-            "transaction_type": "farmer_purchase",
-            "payment_status": status
+            "transaction_type": "farmer_purchase"
         }
+        
+        # Add payment_status filter only if not "all"
+        if status != "all":
+            query["payment_status"] = status
         
         # Apply date filter
         if date_filter and date_filter != "all":
