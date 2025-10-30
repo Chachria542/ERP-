@@ -30,7 +30,15 @@ function MasterDataPage({ user, onLogout }) {
   const [partyType, setPartyType] = useState('farmer');
   const [partyContact, setPartyContact] = useState('');
   const [partyAddress, setPartyAddress] = useState('');
+  const [partyCity, setPartyCity] = useState('');
+  const [partyState, setPartyState] = useState('');
+  const [partyPinCode, setPartyPinCode] = useState('');
+  const [partyPlaceOfSupply, setPartyPlaceOfSupply] = useState('');
   const [partyGstin, setPartyGstin] = useState('');
+  const [partyPan, setPartyPan] = useState('');
+  const [partyBankName, setPartyBankName] = useState('');
+  const [partyAccountNumber, setPartyAccountNumber] = useState('');
+  const [partyIfscCode, setPartyIfscCode] = useState('');
 
   // Item form
   const [itemName, setItemName] = useState('');
