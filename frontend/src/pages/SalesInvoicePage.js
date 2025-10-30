@@ -843,7 +843,7 @@ function SalesInvoicePage({ user, onLogout }) {
                         )}
                       </td>
                       <td className="p-3">{item.marka || '-'}</td>
-                      <td className="p-3 text-right">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
+                      <td className="p-3 text-center">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
                       <td className="p-3">{item.broker_name || '-'}</td>
                       <td className="p-3">{getStatusBadge(item.status)}</td>
                       <td className="p-3 text-center">
