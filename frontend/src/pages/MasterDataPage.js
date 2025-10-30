@@ -174,7 +174,7 @@ function MasterDataPage({ user, onLogout }) {
       setPartyAccountNumber(party.account_number || '');
       setPartyIfscCode(party.ifsc_code || '');
     } else {
-      // Load full structured fields for supplier/buyer
+      // Load full structured fields for supplier/customer
       setPartyContact(party.contact || '');
       setPartyAddress(party.address || '');
       setPartyCity(party.city || '');
