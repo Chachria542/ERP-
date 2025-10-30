@@ -21,6 +21,7 @@ function FarmerPaymentPage({ user, onLogout }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
   const [sortBy, setSortBy] = useState('created_at');
+  const [statusFilter, setStatusFilter] = useState('pending_payment'); // New status filter
   
   // Form state (existing farmer payment form)
   const [bookNo, setBookNo] = useState('');
