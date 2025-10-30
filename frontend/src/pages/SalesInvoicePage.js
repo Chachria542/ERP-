@@ -728,6 +728,16 @@ function SalesInvoicePage({ user, onLogout }) {
       remarks: ''
     });
     setIsReturn(false);
+    setEditingInvoice(null); // Reset editing state
+  };
+
+  const handleCloseInvoiceModal = (open) => {
+    setShowInvoiceModal(open);
+    if (!open) {
+      // Reset editing state when modal is closed
+      setEditingInvoice(null);
+      setSavedInvoice(null);
+    }
   };
 
   const getStatusBadge = (status) => {
