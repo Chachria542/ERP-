@@ -2171,3 +2171,81 @@ agent_communication:
       - Verify browser print dialog opens with invoice template
       - Test with multiple saved invoices
 
+
+backend:
+  - task: "Sales Invoice Update Endpoint"
+    implemented: true
+    working: "NA"
+    file: "backend/sales_endpoints.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "EDIT INVOICE FEATURE IMPLEMENTED: Created PUT endpoint at /api/sales/invoice/{invoice_number} that allows updating existing invoices. Non-editable fields (invoice_number, invoice_date, customer_id, pre_entry_id, created_at) are preserved. Editable fields include line items, taxes, transportation, broker details, and remarks. Includes validation to prevent editing cancelled invoices. Needs backend testing to verify update logic and field preservation."
+
+frontend:
+  - task: "Edit Invoice Feature - Frontend Implementation"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/pages/SalesInvoicePage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "EDIT INVOICE FEATURE COMPLETE: Implemented complete edit invoice functionality. Features include: 1) Edit button added to invoice list (only visible for admin users, shown next to Print button for invoice_generated status), 2) handleEditInvoice function fetches invoice data and pre-fills form, 3) handleSubmitInvoice modified to conditionally send PUT request when editing, POST when creating new, 4) Visual indicators for locked fields (Customer and Date) with yellow background and lock icons, 5) Dialog title changes to 'Edit Invoice' with invoice number badge in blue, 6) Pre-Entry Details card shows yellow background with 'Locked Fields' badge during edit, 7) Submit button text changes to 'Update Invoice' during edit mode, 8) Modal close handler resets editing state. All form data properly loaded from existing invoice. Verified via screenshot - UI showing correctly with all locked fields properly indicated."
+
+metadata:
+  test_sequence: 5
+
+test_plan:
+  current_focus:
+    - "Sales Invoice Update Endpoint"
+    - "Edit Invoice Feature - Frontend Implementation"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      ✅ **EDIT INVOICE FEATURE IMPLEMENTATION COMPLETED**
+      
+      **Backend Changes:**
+      - Created PUT endpoint: /api/sales/invoice/{invoice_number}
+      - Endpoint preserves non-editable fields (invoice_number, invoice_date, customer_id, pre_entry_id, created_at)
+      - Updates editable fields (line items, taxes, transportation, broker, remarks)
+      - Validates against editing cancelled invoices
+      - Fetches latest customer and broker details from master data
+      - Recalculates totals (line items, taxes, grand total)
+      - Returns updated invoice data
+      
+      **Frontend Changes:**
+      - Added Edit button in Actions column for invoice_generated status (admin only)
+      - Button styled in blue (bg-blue-600 hover:bg-blue-700)
+      - Created handleEditInvoice function to fetch and load invoice data
+      - Modified handleSubmitInvoice to support both POST (create) and PUT (update)
+      - Added visual indicators for locked fields:
+        * Customer field shows lock icon 🔒
+        * Invoice Date field shows lock icon 🔒 and has yellow background
+        * Pre-Entry Details card has yellow background with "Locked Fields" badge
+      - Dialog title shows "Edit Invoice" with invoice number in blue badge
+      - Description updates to "Update invoice details. Customer and Date are locked."
+      - Submit button text changes to "Update Invoice" during edit mode
+      - Modal close handler resets editingInvoice state
+      
+      **Visual Verification (Screenshots Taken):**
+      ✅ Edit button appears next to Print button for all invoice_generated entries
+      ✅ Edit form opens with invoice number SAL-25-000032
+      ✅ Locked fields clearly indicated with lock icons and yellow highlighting
+      ✅ All invoice data properly pre-filled (Marka: Mill, Bags: 200, Rate: ₹4500, Amount: ₹450000.00)
+      ✅ Form is fully functional with all sections visible
+      
+      **Ready for Testing:**
+      - Backend PUT endpoint needs testing for update logic
+      - Frontend edit flow needs end-to-end testing
+      - Need to verify locked fields cannot be modified
+      - Need to verify update operation persists changes correctly
