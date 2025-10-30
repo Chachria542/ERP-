@@ -2164,23 +2164,23 @@ function SalesInvoicePage({ user, onLogout }) {
                 <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
                   DRIVER DETAILS
                 </div>
-                <p style={{margin: '3px 0'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
-                <p style={{margin: '3px 0'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Driver Name:</strong> {freightSlipData.invoice_data.driver_name || '-'}</p>
+                <p style={{margin: '2px 0', fontSize: '9px'}}><strong>License No:</strong> {freightSlipData.invoice_data.driver_license_no || '-'}</p>
               </div>
             </div>
 
             {/* Vehicle & Transport Details Box */}
-            <div style={{border: '2px solid #000', padding: '8px', marginBottom: '15px'}}>
-              <div style={{fontWeight: 'bold', marginBottom: '6px', fontSize: '11px', borderBottom: '1px solid #000', paddingBottom: '3px'}}>
+            <div style={{border: '2px solid #000', padding: '6px', marginBottom: '10px'}}>
+              <div style={{fontWeight: 'bold', marginBottom: '4px', fontSize: '10px', borderBottom: '1px solid #000', paddingBottom: '2px'}}>
                 VEHICLE & TRANSPORT DETAILS
               </div>
-              <p style={{margin: '3px 0'}}><strong>Vehicle No.:</strong> {freightSlipData.invoice_data.vehicle_number || '-'}</p>
-              <p style={{margin: '3px 0'}}><strong>Owner:</strong> {freightSlipData.invoice_data.owner_name || '-'}</p>
-              <p style={{margin: '3px 0'}}><strong>Transporter:</strong> {freightSlipData.invoice_data.transporter_name || '-'}</p>
+              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Vehicle No.:</strong> {freightSlipData.invoice_data.vehicle_number || '-'}</p>
+              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Owner:</strong> {freightSlipData.invoice_data.owner_name || '-'}</p>
+              <p style={{margin: '2px 0', fontSize: '9px'}}><strong>Transporter:</strong> {freightSlipData.invoice_data.transporter_name || '-'}</p>
             </div>
 
             {/* Commodity Table */}
-            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '15px', border: '1px solid #000'}}>
+            <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '10px', border: '1px solid #000', fontSize: '9px'}}>
               <thead>
                 <tr style={{backgroundColor: '#f0f0f0'}}>
                   <th style={{border: '1px solid #000', padding: '4px', textAlign: 'left'}}>Commodity</th>
