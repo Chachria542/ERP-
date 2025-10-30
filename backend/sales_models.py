@@ -106,6 +106,7 @@ class SalesPreEntry(BaseModel):
     tare_weight: Optional[float] = None
     gross_weight: Optional[float] = None
     net_weight: Optional[float] = None
+    vehicle_number: Optional[str] = None  # Vehicle number from weighbridge
     
     # Metadata
     created_by: str
