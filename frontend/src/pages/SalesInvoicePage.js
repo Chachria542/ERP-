@@ -1726,17 +1726,17 @@ function SalesInvoicePage({ user, onLogout }) {
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', marginBottom: '8px', fontSize: '12px'}}>
                 <div style={{padding: '5px'}}>
                   <p style={{fontWeight: 'bold', fontSize: '13px', marginBottom: '3px'}}>Bill To:</p>
-                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.customer_name}</p>
-                  <p style={{margin: '2px 0'}}>{savedInvoice.customer_address || 'N/A'}</p>
-                  <p style={{margin: '2px 0'}}>City: {savedInvoice.customer_city || 'N/A'} | State: {savedInvoice.customer_state || 'N/A'}</p>
+                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{toSentenceCase(savedInvoice.customer_name)}</p>
+                  <p style={{margin: '2px 0'}}>{toSentenceCase(savedInvoice.customer_address)}</p>
+                  <p style={{margin: '2px 0'}}>City: {toSentenceCase(savedInvoice.customer_city)} | State: {toSentenceCase(savedInvoice.customer_state)}</p>
                   <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.customer_gstin || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Contact: {savedInvoice.customer_contact || 'N/A'}</p>
                 </div>
                 <div style={{padding: '5px'}}>
                   <p style={{fontWeight: 'bold', fontSize: '13px', marginBottom: '3px'}}>Broker:</p>
-                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{savedInvoice.broker_name || 'N/A'}</p>
-                  <p style={{margin: '2px 0'}}>{savedInvoice.broker_address || 'N/A'}</p>
-                  <p style={{margin: '2px 0'}}>City: {savedInvoice.broker_city || 'N/A'} | State: {savedInvoice.broker_state || 'N/A'}</p>
+                  <p style={{fontWeight: 'bold', margin: '2px 0'}}>{toSentenceCase(savedInvoice.broker_name)}</p>
+                  <p style={{margin: '2px 0'}}>{toSentenceCase(savedInvoice.broker_address)}</p>
+                  <p style={{margin: '2px 0'}}>City: {toSentenceCase(savedInvoice.broker_city)} | State: {toSentenceCase(savedInvoice.broker_state)}</p>
                   <p style={{margin: '2px 0'}}>GSTIN: {savedInvoice.broker_gstin || 'N/A'}</p>
                   <p style={{margin: '2px 0'}}>Mobile: {savedInvoice.broker_mobile || 'N/A'}</p>
                 </div>
