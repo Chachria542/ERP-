@@ -199,44 +199,90 @@ function SalesInvoicePage({ user, onLogout }) {
       // Set editing mode
       setEditingInvoice(invoice);
       
-      // Pre-fill form with invoice data
-      setInvoiceForm({
-        pre_entry_id: invoice.pre_entry_id,
-        sale_type: invoice.sale_type,
+      // Pre-fill form with invoice data - using first line item for single-item invoices
+      const firstLineItem = invoice.line_items?.[0] || {};
+      setInvoiceData({
         invoice_date: invoice.invoice_date,
-        weighbridge_slip_no: invoice.weighbridge_slip_no,
-        is_entry: invoice.is_entry,
-        line_items: invoice.line_items || [],
-        cgst_rate: invoice.cgst_rate,
+        weighbridge_slip_no: invoice.weighbridge_slip_no || '',
+        is_entry: invoice.is_entry || false,
+        
+        // Item details from first line item
+        item_id: firstLineItem.item_id || '',
+        item_name: firstLineItem.item_name || '',
+        marka: firstLineItem.marka || '',
+        bharti: firstLineItem.bharti || 50,
+        bags: firstLineItem.bags || 0,
+        kgs: firstLineItem.kgs || 0,
+        actual_qtl: firstLineItem.actual_qtl || 0,
+        rate: firstLineItem.rate || '',
+        amount: firstLineItem.amount || 0,
+        
+        // Taxes
+        cgst_rate: invoice.cgst_rate || '',
         cgst_amount: invoice.cgst_amount || 0,
-        sgst_rate: invoice.sgst_rate,
+        sgst_rate: invoice.sgst_rate || '',
         sgst_amount: invoice.sgst_amount || 0,
-        igst_rate: invoice.igst_rate,
-        igst_amount: invoice.igst_amount || 0,
+        
+        // Additional charges
+        freight: invoice.freight || '',
+        loading_charges: invoice.loading_charges || '',
+        other_charges: invoice.other_charges || '',
+        
+        // TCS
         tcs_applicable: invoice.tcs_applicable || false,
-        tcs_rate: invoice.tcs_rate,
+        tcs_rate: invoice.tcs_rate || '',
         tcs_amount: invoice.tcs_amount || 0,
+        
+        // Totals
         round_off: invoice.round_off || 0,
-        grand_total: invoice.grand_total,
-        vehicle_number: invoice.vehicle_number || '',
-        city_from: invoice.city_from || '',
-        city_to: invoice.city_to || '',
-        driver_name: invoice.driver_name || '',
-        transporter_name: invoice.transporter_name || '',
-        transporter_id: invoice.transporter_id || '',
-        freight_amount: invoice.freight_amount || 0,
-        bilty_no: invoice.bilty_no || '',
+        subtotal: firstLineItem.amount || 0,
+        tax_total: (invoice.cgst_amount || 0) + (invoice.sgst_amount || 0),
+        grand_total: invoice.grand_total || 0,
+        
+        // Broker
         broker_name: invoice.broker_name || '',
         brokerage_type: invoice.brokerage_type || 'per_quintal',
-        brokerage_rate: invoice.brokerage_rate || 0,
+        brokerage_rate: invoice.brokerage_rate || '',
+        
+        // Transportation
+        city_from: invoice.city_from || 'Sanawad',
+        city_to: invoice.city_to || '',
+        driver_name: invoice.driver_name || '',
+        driver_license_no: invoice.driver_license_no || '',
+        driver_license_expiry: invoice.driver_license_expiry || '',
+        vehicle_number: invoice.vehicle_number || '',
+        freight_type: invoice.freight_type || 'To Pay',
+        freight_amount: invoice.freight_amount || '',
+        freight_rate: invoice.freight_rate || '',
+        advance_freight: invoice.advance_freight || '',
+        net_freight: invoice.net_freight || '',
+        owner_name: invoice.owner_name || '',
+        bilty_no: invoice.bilty_no || '',
+        transporter_name: invoice.transporter_name || '',
+        transporter_id: invoice.transporter_id || '',
+        gross_weight: invoice.gross_weight || 0,
+        tare_weight: invoice.tare_weight || 0,
+        net_weight: invoice.net_weight || 0,
         anugya_no: invoice.anugya_no || '',
+        
         remarks: invoice.remarks || ''
       });
       
-      // Open invoice form dialog
-      setShowInvoiceDialog(true);
+      // Set the pre-entry to show customer info (non-editable)
+      setSelectedPreEntry({
+        customer_name: invoice.customer_name,
+        customer_id: invoice.customer_id,
+        pre_entry_number: invoice.pre_entry_number,
+        pre_entry_id: invoice.pre_entry_id
+      });
       
-      toast.info('Editing invoice - Customer and Date are locked');
+      // Set return status
+      setIsReturn(invoice.sale_type === 'sales_return');
+      
+      // Open invoice form dialog
+      setShowInvoiceModal(true);
+      
+      toast.info('Editing invoice - Customer and Date are locked', { duration: 3000 });
     } catch (error) {
       console.error('Error loading invoice for editing:', error);
       toast.error('Failed to load invoice for editing');
