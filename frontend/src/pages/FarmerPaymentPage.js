@@ -68,7 +68,7 @@ function FarmerPaymentPage({ user, onLogout }) {
       fetchItems();
       fetchBookNumber();
     }
-  }, [view, searchQuery, dateFilter]);
+  }, [view, searchQuery, dateFilter, statusFilter]); // Add statusFilter to dependencies
 
   const fetchQueue = async () => {
     setLoading(true);
