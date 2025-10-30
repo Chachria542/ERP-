@@ -806,12 +806,12 @@ function SalesInvoicePage({ user, onLogout }) {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-3 w-[12%]">Pre-Entry No.</th>
-                    <th className="text-left p-3 w-[10%]">Date</th>
+                    <th className="text-left p-3 w-[9%]">Date</th>
                     <th className="text-left p-3 w-[15%]">Customer</th>
                     <th className="text-left p-3 w-[12%]">Item</th>
-                    <th className="text-left p-3 w-[10%]">Marka</th>
-                    <th className="text-right p-3 w-[10%]">Net Wt (Qtls)</th>
-                    <th className="text-left p-3 w-[12%]">Broker</th>
+                    <th className="text-left p-3 w-[11%]">Marka</th>
+                    <th className="text-center p-3 w-[9%]">Net Wt (Qtls)</th>
+                    <th className="text-left p-3 w-[13%]">Broker</th>
                     <th className="text-left p-3 w-[8%]">Status</th>
                     <th className="text-center p-3 w-[11%]">Actions</th>
                   </tr>
