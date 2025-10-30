@@ -409,6 +409,20 @@ function FarmerPaymentPage({ user, onLogout }) {
                 />
               </div>
               
+              <div>
+                <Label className="text-sm font-semibold">Status</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px] mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending_payment">Pending</SelectItem>
+                    <SelectItem value="payment_completed">Completed</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="flex space-x-2">
                 <Button 
                   onClick={() => setDateFilter('all')}
