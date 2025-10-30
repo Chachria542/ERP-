@@ -326,16 +326,72 @@ function MasterDataPage({ user, onLogout }) {
                     </div>
                     <div>
                       <Label>Contact</Label>
-                      <Input value={partyContact} onChange={(e) => setPartyContact(e.target.value)} />
+                      <Input value={partyContact} onChange={(e) => setPartyContact(e.target.value)} placeholder="Mobile number" />
                     </div>
-                    <div>
-                      <Label>Address</Label>
-                      <Input value={partyAddress} onChange={(e) => setPartyAddress(e.target.value)} />
+                    
+                    {/* Address Section */}
+                    <div className="border-t pt-3 mt-2">
+                      <h4 className="font-semibold text-sm mb-2">Address Details</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <Label>Address</Label>
+                          <Input value={partyAddress} onChange={(e) => setPartyAddress(e.target.value)} placeholder="Street address" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label>City</Label>
+                            <Input value={partyCity} onChange={(e) => setPartyCity(e.target.value)} placeholder="City" />
+                          </div>
+                          <div>
+                            <Label>PIN Code</Label>
+                            <Input value={partyPinCode} onChange={(e) => setPartyPinCode(e.target.value)} placeholder="PIN code" />
+                          </div>
+                        </div>
+                        <div>
+                          <Label>State</Label>
+                          <Input value={partyState} onChange={(e) => setPartyState(e.target.value)} placeholder="State name" />
+                        </div>
+                        <div>
+                          <Label>Place of Supply</Label>
+                          <Input value={partyPlaceOfSupply} onChange={(e) => setPartyPlaceOfSupply(e.target.value)} placeholder="Place of supply" />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <Label>GSTIN</Label>
-                      <Input value={partyGstin} onChange={(e) => setPartyGstin(e.target.value)} />
+
+                    {/* Business Details Section */}
+                    <div className="border-t pt-3 mt-2">
+                      <h4 className="font-semibold text-sm mb-2">Business Details</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <Label>GSTIN</Label>
+                          <Input value={partyGstin} onChange={(e) => setPartyGstin(e.target.value)} placeholder="15-digit GSTIN" />
+                        </div>
+                        <div>
+                          <Label>PAN</Label>
+                          <Input value={partyPan} onChange={(e) => setPartyPan(e.target.value)} placeholder="10-digit PAN" maxLength={10} />
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Bank Details Section (Optional) */}
+                    <div className="border-t pt-3 mt-2">
+                      <h4 className="font-semibold text-sm mb-2">Bank Details (Optional)</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <Label>Bank Name</Label>
+                          <Input value={partyBankName} onChange={(e) => setPartyBankName(e.target.value)} placeholder="Bank name" />
+                        </div>
+                        <div>
+                          <Label>Account Number</Label>
+                          <Input value={partyAccountNumber} onChange={(e) => setPartyAccountNumber(e.target.value)} placeholder="Account number" />
+                        </div>
+                        <div>
+                          <Label>IFSC Code</Label>
+                          <Input value={partyIfscCode} onChange={(e) => setPartyIfscCode(e.target.value)} placeholder="IFSC code" />
+                        </div>
+                      </div>
+                    </div>
+
                     <Button type="submit" className="w-full btn-primary">
                       {editingParty ? 'Update Party' : 'Add Party'}
                     </Button>
