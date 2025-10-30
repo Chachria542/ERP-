@@ -41,6 +41,26 @@ async def generate_sales_pre_entry_number() -> str:
     
     return f"SPRE-{fy_year:02d}-{new_no:06d}"
 
+
+async def generate_freight_slip_number() -> str:
+    """Generate FS-YY-###### format"""
+    from bill_purchase_models import get_financial_year
+    
+    fy_year = get_financial_year()
+    
+    # Find highest number for current FY in freight_slips collection
+    existing = await db.freight_slips.find(
+        {"freight_slip_number": {"$regex": f"^FS-{fy_year:02d}-"}}
+    ).sort("freight_slip_number", -1).limit(1).to_list(1)
+    
+    if existing:
+        last_no = int(existing[0]['freight_slip_number'].split('-')[-1])
+        new_no = last_no + 1
+    else:
+        new_no = 1
+    
+    return f"FS-{fy_year:02d}-{new_no:06d}"
+
 async def create_sales_voucher(invoice_doc: dict):
     """Create voucher entries for sales invoice"""
     # TODO: Implement voucher creation logic
