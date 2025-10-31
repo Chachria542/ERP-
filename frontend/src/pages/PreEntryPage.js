@@ -517,8 +517,7 @@ function PreEntryPage({ user, onLogout }) {
                 marka: lineItem.marka || null,
                 bharti: lineItem.bharti || 50,
                 expected_bags: lineItem.expected_bags ? parseInt(lineItem.expected_bags) : Math.floor(parseFloat(lineItem.expected_weight) / lineItem.bharti),
-                expected_weight: parseFloat(lineItem.expected_weight),
-                item_rate: parseFloat(lineItem.item_rate)
+                expected_weight: parseFloat(lineItem.expected_weight)
               });
             }
           }
