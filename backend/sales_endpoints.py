@@ -176,7 +176,8 @@ async def create_sales_pre_entry(pre_entry_data: SalesPreEntryCreate):
             
             # Get item details if item_id provided
             item_name = None
-            item_rate = pre_entry_data.item_rate
+            # Sync rate_per_qtl and item_rate (they're the same)
+            item_rate = pre_entry_data.rate_per_qtl or pre_entry_data.item_rate
             
             if pre_entry_data.item_id:
                 item = await db.items.find_one({"id": pre_entry_data.item_id})
