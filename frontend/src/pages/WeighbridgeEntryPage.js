@@ -720,6 +720,30 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                         📸 Photo Captured
                       </div>
                     </div>
+                    
+                    {/* Re-weigh Button - Only show if invoice not yet generated */}
+                    {preEntry && preEntry.status !== 'invoice_generated' && (
+                      <div className="mt-3">
+                        <Button
+                          variant="outline"
+                          className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
+                          onClick={() => {
+                            // Reset second weight capture to allow re-weighing
+                            setSecondWeightCaptured(false);
+                            setSecondWeightValue('');
+                            if (transactionType === 'purchase') {
+                              setExistingTareWeight(null);
+                            } else {
+                              setExistingGrossWeight(null);
+                            }
+                            toast.info('Ready to recapture weight. Enter weight and take photo.');
+                          }}
+                        >
+                          🔄 Re-weigh {transactionType === 'purchase' ? 'TARE' : 'GROSS'}
+                        </Button>
+                      </div>
+                    )}
+                    
                     <div className="text-center text-sm text-green-600 mt-2 font-semibold">
                       ✅ Ready for {transactionType === 'purchase' ? (preEntry.transaction_type === 'bill_purchase' ? 'Bill Purchase' : 'Farmer Payment') : 'Sales Invoice'}
                     </div>
