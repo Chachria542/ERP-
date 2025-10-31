@@ -1603,8 +1603,8 @@ function PreEntryPage({ user, onLogout }) {
                     const selectedItemId = e.target.value;
                     setItemId(selectedItemId);
                     
-                    // Auto-fill rate from item master for Farmer Purchase only
-                    if (transactionType === 'farmer_purchase' && selectedItemId) {
+                    // Auto-fill rate from item master for Farmer Purchase and Bill Purchase
+                    if ((transactionType === 'farmer_purchase' || transactionType === 'bill_purchase') && selectedItemId) {
                       const selectedItem = items.find(item => item.id === selectedItemId);
                       if (selectedItem && selectedItem.rate) {
                         setRatePerQtl(selectedItem.rate);
