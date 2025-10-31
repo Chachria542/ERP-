@@ -6,7 +6,7 @@ Tests the exact scenario mentioned in the review request
 import requests
 import json
 
-BASE_URL = "https://sales-invoice-edit.preview.emergentagent.com/api"
+BASE_URL = "https://invoice-enhance.preview.emergentagent.com/api"
 
 def test_specific_bug_fix():
     """Test the specific bug fix for dict access in line_items"""
