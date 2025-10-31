@@ -622,6 +622,58 @@ function BillPurchasePage({ user, onLogout }) {
                 </table>
               </div>
             )}
+            
+            {/* Draft Bills Section */}
+            {draftBills.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-3 text-orange-600">📝 Draft Bills (Pending Posting)</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b bg-orange-50">
+                        <th className="text-left p-3">Bill Number</th>
+                        <th className="text-left p-3">Supplier Name</th>
+                        <th className="text-left p-3">Pre-Entry No.</th>
+                        <th className="text-left p-3">Date</th>
+                        <th className="text-right p-3">Net Amount</th>
+                        <th className="text-left p-3">Broker</th>
+                        <th className="text-center p-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {draftBills.map((bill) => (
+                        <tr key={bill.bill_id} className="border-b bg-yellow-50 hover:bg-yellow-100">
+                          <td className="p-3 font-medium text-sm">{bill.bill_number}</td>
+                          <td className="p-3 text-sm">{bill.supplier_name}</td>
+                          <td className="p-3 font-mono text-sm">{bill.pre_entry_number}</td>
+                          <td className="p-3 text-sm">{bill.date}</td>
+                          <td className="p-3 text-sm text-right">₹{bill.net_amount?.toFixed(2)}</td>
+                          <td className="p-3 text-sm">{bill.broker_name || '-'}</td>
+                          <td className="p-3">
+                            <div className="flex gap-2 justify-center">
+                              <Button
+                                size="sm"
+                                onClick={() => handleEditBill(bill.bill_id)}
+                                className="bg-blue-600 hover:bg-blue-700"
+                              >
+                                ✏️ Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handlePostBill(bill.bill_id)}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                📤 Post
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
 
