@@ -615,6 +615,28 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                         📸 Photo Captured
                       </div>
                     </div>
+                    
+                    {/* Re-weigh Button */}
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
+                        onClick={() => {
+                          // Reset first weight capture to allow re-weighing
+                          setFirstWeightCaptured(false);
+                          setFirstWeightValue('');
+                          if (transactionType === 'purchase') {
+                            setExistingGrossWeight(null);
+                          } else {
+                            setExistingTareWeight(null);
+                          }
+                          toast.info('Ready to recapture weight. Enter weight and take photo.');
+                        }}
+                      >
+                        🔄 Re-weigh {transactionType === 'purchase' ? 'GROSS' : 'TARE'}
+                      </Button>
+                    </div>
+                    
                     {!secondWeightCaptured && (
                       <div className="mt-4">
                         <Button 
