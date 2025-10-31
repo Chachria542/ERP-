@@ -708,7 +708,6 @@ function PreEntryPage({ user, onLogout }) {
     setItemId('');
     setQuality('');
     setExpectedBags('');
-    setRatePerQtl('');
     setPoNumber('');
     setOrderNumber('');
     setChallanNumber('');
@@ -730,9 +729,6 @@ function PreEntryPage({ user, onLogout }) {
     setBrokerageType('none');
     setBrokerageRate('');
     setEwayBillNo('');
-    setExpectedQuantityBags('');
-    setExpectedQuantityKgs('');
-    setExpectedQuantityQtls('');
     
     // Reset Sale fields
     setCustomerId('');
