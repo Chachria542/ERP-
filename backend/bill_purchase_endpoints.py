@@ -753,6 +753,92 @@ async def get_bill_purchase(bill_id: str):
     
     return bill
 
+
+@router.put("/bill-purchase/{bill_id}", response_model=BillPurchase)
+async def update_bill_purchase(bill_id: str, bill_data: BillPurchaseCreate):
+    """Update draft bill purchase (only allowed for draft bills)"""
+    try:
+        # Check if bill exists
+        existing_bill = await db.bill_purchases.find_one({"id": bill_id})
+        if not existing_bill:
+            raise HTTPException(status_code=404, detail="Bill not found")
+        
+        # Only allow editing draft bills
+        if existing_bill.get('status') != 'draft':
+            raise HTTPException(status_code=400, detail="Only draft bills can be edited")
+        
+        # Fetch pre-entry for supplier details
+        pre_entry = await db.bill_purchase_pre_entries.find_one({"id": bill_data.pre_entry_id})
+        if not pre_entry:
+            raise HTTPException(status_code=404, detail="Pre-entry not found")
+        
+        # Calculate totals (reuse calculation logic)
+        totals = calculate_bill_totals(
+            line_items=bill_data.line_items,
+            batav_percentage=bill_data.batav_percentage,
+            claim_rate=bill_data.claim_rate,
+            brokerage_rate=bill_data.brokerage_rate
+        )
+        
+        # Fetch supplier details
+        supplier = await db.parties.find_one({"id": pre_entry['supplier_id']}, {"_id": 0})
+        if not supplier:
+            raise HTTPException(status_code=404, detail="Supplier not found")
+        
+        # Fetch broker details if broker_name provided
+        broker_contact = None
+        broker_gstin = None
+        if bill_data.broker_name:
+            broker = await db.parties.find_one({"name": bill_data.broker_name, "roles": "broker"}, {"_id": 0})
+            if broker:
+                broker_contact = broker.get('mobile')
+                broker_gstin = broker.get('gstin')
+        
+        # Update bill document
+        update_doc = {
+            "line_items": bill_data.line_items,
+            "batav_percentage": bill_data.batav_percentage,
+            "claim_rate": bill_data.claim_rate,
+            "brokerage_rate": bill_data.brokerage_rate,
+            "broker_name": bill_data.broker_name,
+            "broker_contact": broker_contact,
+            "broker_gstin": broker_gstin,
+            "remarks": bill_data.remarks,
+            
+            # Recalculated totals
+            "line_items_total": totals['line_items_total'],
+            "total_tax_amount": totals['total_tax_amount'],
+            "gross_amount": totals['gross_amount'],
+            "total_deductions": totals['total_deductions'],
+            "net_amount": totals['net_amount'],
+            
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Update in database
+        await db.bill_purchases.update_one(
+            {"id": bill_id},
+            {"$set": update_doc}
+        )
+        
+        # Fetch and return updated bill
+        updated_bill = await db.bill_purchases.find_one({"id": bill_id}, {"_id": 0})
+        
+        if isinstance(updated_bill.get('created_at'), str):
+            updated_bill['created_at'] = datetime.fromisoformat(updated_bill['created_at'])
+        if isinstance(updated_bill.get('updated_at'), str):
+            updated_bill['updated_at'] = datetime.fromisoformat(updated_bill['updated_at'])
+        if isinstance(updated_bill.get('posted_at'), str):
+            updated_bill['posted_at'] = datetime.fromisoformat(updated_bill['posted_at'])
+        
+        return updated_bill
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @router.post("/bill-purchase/{bill_id}/post")
 async def post_bill_purchase(bill_id: str, user_id: str):
     """Post/finalize bill purchase and create ledger entries"""
