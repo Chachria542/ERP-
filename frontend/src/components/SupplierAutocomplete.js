@@ -441,7 +441,7 @@ function SupplierAutocomplete({
             {/* NEW: Structured Address Fields */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="supplier_city">City (Optional)</Label>
+                <Label htmlFor="supplier_city">City</Label>
                 <Input
                   id="supplier_city"
                   value={newSupplierData.city}
@@ -451,7 +451,7 @@ function SupplierAutocomplete({
               </div>
 
               <div>
-                <Label htmlFor="supplier_pin">PIN Code (Optional)</Label>
+                <Label htmlFor="supplier_pin">PIN Code</Label>
                 <Input
                   id="supplier_pin"
                   value={newSupplierData.pin_code}
