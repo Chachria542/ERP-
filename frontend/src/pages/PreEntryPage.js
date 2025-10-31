@@ -947,7 +947,6 @@ function PreEntryPage({ user, onLogout }) {
                   )}
                 </div>
 
- 
                 {/* Transporter (Optional) */}
                 <div className="border rounded-lg p-4">
               </div>
