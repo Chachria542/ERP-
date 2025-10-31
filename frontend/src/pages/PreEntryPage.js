@@ -117,6 +117,7 @@ function PreEntryPage({ user, onLogout }) {
   const [itemId, setItemId] = useState('');
   const [quality, setQuality] = useState('');
   const [expectedBags, setExpectedBags] = useState('');
+  const [ratePerQtl, setRatePerQtl] = useState('');
   
   // Additional fields
   const [poNumber, setPoNumber] = useState('');
