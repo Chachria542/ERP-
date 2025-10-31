@@ -450,19 +450,34 @@ function BillPurchasePage({ user, onLogout }) {
       
       console.log('Submitting bill data:', submitData);
       
-      const response = await axios.post(`${API}/bill-purchase`, submitData);
+      let response;
       
-      if (!saveAsDraft) {
-        // Post the bill immediately if not saving as draft
-        await axios.post(`${API}/bill-purchase/${response.data.id}/post?user_id=${user.username}`);
+      // Check if we're editing or creating
+      if (editingBillId) {
+        // UPDATE existing draft bill
+        response = await axios.put(`${API}/bill-purchase/${editingBillId}`, submitData);
+        toast.success('Draft bill updated successfully!');
+      } else {
+        // CREATE new bill
+        response = await axios.post(`${API}/bill-purchase`, submitData);
+        
+        if (!saveAsDraft) {
+          // Post the bill immediately if not saving as draft
+          await axios.post(`${API}/bill-purchase/${response.data.id}/post?user_id=${user.username}`);
+        }
+        
+        toast.success(`Bill ${saveAsDraft ? 'saved as draft' : 'created and posted'} successfully!`);
       }
       
+      // Reset modal state
       setShowBillModal(false);
       setSelectedPreEntry(null);
       setWeighbridgeData(null);
-      fetchQueue();
+      setEditingBillId(null); // Clear editing mode
       
-      toast.success(`Bill ${saveAsDraft ? 'saved as draft' : 'created and posted'} successfully!`);
+      // Refresh data
+      fetchQueue();
+      fetchDraftBills();
       
     } catch (error) {
       console.error('Error creating bill:', error);
