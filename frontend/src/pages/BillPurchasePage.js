@@ -86,6 +86,7 @@ function BillPurchasePage({ user, onLogout }) {
   useEffect(() => {
     fetchQueue();
     fetchItems();
+    fetchDraftBills(); // Fetch draft bills too
   }, [statusFilter]);
 
   const fetchQueue = async () => {
