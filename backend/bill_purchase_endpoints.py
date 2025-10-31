@@ -317,6 +317,9 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
             place_of_supply=pre_entry_data.place_of_supply,
             item_id=pre_entry_data.item_id,
             item_name=item_name,
+            quality=pre_entry_data.quality,
+            expected_bags=pre_entry_data.expected_bags,
+            rate_per_qtl=item_rate,  # Sync with item_rate
             item_rate=item_rate,
             has_broker=pre_entry_data.has_broker,
             broker_name=pre_entry_data.broker_name,
