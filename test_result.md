@@ -2375,3 +2375,37 @@ agent_communication:
       ✅ Totals recalculate correctly
       
       **PRODUCTION READY:** Sales Invoice Edit/Update feature is now fully functional. The critical backend bug has been resolved and all functionality is operational.
+  - agent: "main"
+    message: |
+      ✅ **QUALITY, EXPECTED BAGS, AND RATE PER QTL FIELDS FIX - PRE-ENTRY TO WEIGHBRIDGE INTEGRATION**
+      
+      **Issue Reported:** Expected bags, Quality, and Rate per Qtl fields not reflecting in weighbridge entry for Bill Purchase and Sales pre-entries. In Farmer Purchase, rate per qtl showing as "N/A" even when entered in pre-entry.
+      
+      **Root Cause:** Frontend was not sending quality, expected_bags, and rate_per_qtl fields in the payload when creating pre-entries for all three transaction types (Farmer Purchase, Bill Purchase, Sale).
+      
+      **Fixes Applied:**
+      
+      **1. Frontend Payload Updates (PreEntryPage.js):**
+      - **Farmer Purchase**: Added `rate_per_qtl: ratePerQtl ? parseFloat(ratePerQtl) : null` to payload
+      - **Bill Purchase**: Added `quality`, `expected_bags`, and `rate_per_qtl` fields to payload
+      - **Sale (Single Load)**: Added `quality`, `expected_bags`, and `rate_per_qtl` fields to payload
+      
+      **2. Backend Model Updates:**
+      - **bill_purchase_models.py**:
+        * Added `quality`, `expected_bags`, `rate_per_qtl` to BillPurchasePreEntryCreate model
+        * Added same fields to BillPurchasePreEntry model
+      - **sales_models.py**:
+        * Added `quality`, `expected_bags`, `rate_per_qtl` to SalesPreEntryCreate model
+        * Added same fields to SalesPreEntry model
+      
+      **Verification:**
+      - Backend restarted successfully with updated models
+      - Frontend compiles successfully with updated payloads
+      - WeighbridgeEntryPage already displays these fields correctly (preEntry.quality, preEntry.expected_bags, preEntry.rate_per_qtl)
+      
+      **Expected Behavior After Fix:**
+      - ✅ Farmer Purchase: Rate per qtl will show actual value instead of "N/A"
+      - ✅ Bill Purchase: Quality, Expected Bags, and Rate per Qtl will display in weighbridge entry
+      - ✅ Sales: Quality, Expected Bags, and Rate per Qtl will display in weighbridge entry
+      
+      **Ready for Testing:** All three transaction types now properly pass pre-entry data to weighbridge entry page.
