@@ -202,6 +202,9 @@ async def create_sales_pre_entry(pre_entry_data: SalesPreEntryCreate):
                 place_of_supply=pre_entry_data.place_of_supply,
                 item_id=pre_entry_data.item_id,
                 item_name=item_name,
+                quality=pre_entry_data.quality,
+                expected_bags=pre_entry_data.expected_bags,
+                rate_per_qtl=item_rate,  # Sync with item_rate
                 item_rate=item_rate,
                 marka=pre_entry_data.marka,
                 bharti=pre_entry_data.bharti,
