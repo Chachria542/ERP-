@@ -111,6 +111,9 @@ class BillPurchasePreEntry(BaseModel):
     # Item details
     item_id: Optional[str] = None  # FK to items collection
     item_name: Optional[str] = None  # Auto-filled from item
+    quality: Optional[str] = None  # Quality/Grade
+    expected_bags: Optional[int] = None  # Expected bags from pre-entry
+    rate_per_qtl: Optional[float] = None  # Rate per quintal from pre-entry
     item_rate: Optional[float] = None  # Rate per quintal (auto-filled from item, editable)
     
     # Broker details
