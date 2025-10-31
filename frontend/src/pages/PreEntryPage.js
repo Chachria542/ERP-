@@ -947,47 +947,7 @@ function PreEntryPage({ user, onLogout }) {
                   )}
                 </div>
 
-                {/* Expected Quantity */}
-                <div className="border rounded-lg p-4 space-y-4">
-                  <h5 className="font-medium">Expected Quantity (Optional)</h5>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold">Bags</Label>
-                      <Input
-                        type="number"
-                        value={expectedQuantityBags}
-                        onChange={(e) => setExpectedQuantityBags(e.target.value)}
-                        placeholder="e.g., 100"
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-semibold">Kgs</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={expectedQuantityKgs}
-                        onChange={(e) => setExpectedQuantityKgs(e.target.value)}
-                        placeholder="e.g., 10000"
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-semibold">Quintals</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={expectedQuantityQtls}
-                        onChange={(e) => setExpectedQuantityQtls(e.target.value)}
-                        placeholder="e.g., 100"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                </div>
-
+ 
                 {/* Rate per Quintal */}
                 <div className="border rounded-lg p-4">
                   <Label className="text-sm font-semibold">Rate per Quintal (₹) *</Label>
