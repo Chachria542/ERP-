@@ -329,6 +329,61 @@ async def get_pre_entries(status: Optional[str] = None, transaction_type: Option
 
 # ============= WEIGHBRIDGE ENTRY ENDPOINTS (Operator Side) =============
 
+@router.delete("/weighbridge-entry/{slip_id}/{weight_type}")
+async def delete_weighbridge_entry(slip_id: str, weight_type: str):
+    """
+    Delete a weighbridge entry for re-weighing.
+    Used when operator needs to recapture incorrect weight.
+    """
+    try:
+        # Validate weight_type
+        if weight_type not in ['tare', 'gross']:
+            raise HTTPException(status_code=400, detail="Invalid weight_type. Must be 'tare' or 'gross'")
+        
+        # Find and delete the weighbridge entry
+        result = await db.weighbridge_entries.delete_one({
+            "slip_id": slip_id,
+            "weight_type": weight_type
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail=f"No {weight_type} weight entry found for slip {slip_id}")
+        
+        print(f"[WEIGHBRIDGE] Deleted {weight_type} weight for slip {slip_id} - ready for re-weigh")
+        
+        # Also update pre-entry to clear the weight from there
+        # Determine collection based on slip_id prefix
+        if slip_id.startswith("BPRE-"):
+            collection = db.bill_purchase_pre_entries
+            id_field = "pre_entry_number"
+        elif slip_id.startswith("SPRE-"):
+            collection = db.sales_pre_entries
+            id_field = "pre_entry_number"
+        else:
+            collection = db.pre_entries
+            id_field = "slip_id"
+        
+        # Clear the weight field in pre-entry
+        update_field = {}
+        if weight_type == 'tare':
+            update_field = {"tare_weight": None}
+        else:
+            update_field = {"gross_weight": None}
+        
+        await collection.update_one(
+            {id_field: slip_id},
+            {"$set": update_field}
+        )
+        
+        return {"message": f"{weight_type.capitalize()} weight deleted successfully", "slip_id": slip_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[WEIGHBRIDGE ERROR] Failed to delete weighbridge entry: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete weight entry: {str(e)}")
+
+
 @router.post("/weighbridge-entry", response_model=WeighbridgeEntry)
 async def create_weighbridge_entry(entry_data: WeighbridgeEntryCreate):
     """
