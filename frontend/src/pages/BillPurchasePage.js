@@ -554,8 +554,7 @@ function BillPurchasePage({ user, onLogout }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="weigh_pending">Weigh Pending</SelectItem>
+                  <SelectItem value="pending">Pending Bill Creation</SelectItem>
                   <SelectItem value="bill_generated">Bill Generated</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
