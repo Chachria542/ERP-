@@ -530,6 +530,45 @@ async def get_bill_purchase_queue(
     
     return queue_items
 
+
+@router.get("/bill-purchase/drafts")
+async def get_draft_bills(limit: Optional[int] = 50):
+    """Get draft bills for editing/posting"""
+    try:
+        # Fetch draft bills
+        draft_bills = await db.bill_purchases.find(
+            {"status": "draft"},
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(limit)
+        
+        # Format response with pre-entry info
+        result = []
+        for bill in draft_bills:
+            # Convert date strings
+            if isinstance(bill.get('created_at'), str):
+                bill['created_at'] = datetime.fromisoformat(bill['created_at'])
+            if isinstance(bill.get('updated_at'), str):
+                bill['updated_at'] = datetime.fromisoformat(bill['updated_at'])
+            
+            result.append({
+                "bill_id": bill['id'],
+                "bill_number": bill['bill_number'],
+                "pre_entry_number": bill['pre_entry_number'],
+                "supplier_name": bill['supplier_name'],
+                "date": bill['bill_date'],
+                "net_amount": bill['net_amount'],
+                "broker_name": bill.get('broker_name'),
+                "status": bill['status'],
+                "created_at": bill['created_at'].isoformat() if hasattr(bill['created_at'], 'isoformat') else bill['created_at'],
+                "weighbridge_weight": None  # Can add if needed
+            })
+        
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ============= BILL PURCHASE ENDPOINTS =============
 
 async def create_brokerage_ledger_entries(
