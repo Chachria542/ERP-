@@ -1640,7 +1640,7 @@ function PreEntryPage({ user, onLogout }) {
                   className="mt-1"
                 />
               </div>
-              {(transactionType === 'farmer_purchase' || transactionType === 'bill_purchase') && (
+              {transactionType === 'farmer_purchase' && (
                 <div>
                   <Label className="text-sm font-semibold">Rate per Qtl *</Label>
                   <Input
