@@ -78,9 +78,6 @@ function PreEntryPage({ user, onLogout }) {
   const [brokerageType, setBrokerageType] = useState('none');
   const [brokerageRate, setBrokerageRate] = useState('');
   const [ewayBillNo, setEwayBillNo] = useState('');
-  const [expectedQuantityBags, setExpectedQuantityBags] = useState('');
-  const [expectedQuantityKgs, setExpectedQuantityKgs] = useState('');
-  const [expectedQuantityQtls, setExpectedQuantityQtls] = useState('');
   
   // Sale specific fields
   const [customers, setCustomers] = useState([]);
@@ -120,7 +117,6 @@ function PreEntryPage({ user, onLogout }) {
   const [itemId, setItemId] = useState('');
   const [quality, setQuality] = useState('');
   const [expectedBags, setExpectedBags] = useState('');
-  const [ratePerQtl, setRatePerQtl] = useState('');
   
   // Additional fields
   const [poNumber, setPoNumber] = useState('');
