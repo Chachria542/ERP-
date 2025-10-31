@@ -736,16 +736,25 @@ function WeighbridgeEntryPage({ user, onLogout }) {
                         <Button
                           variant="outline"
                           className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
-                          onClick={() => {
-                            // Reset second weight capture to allow re-weighing
-                            setSecondWeightCaptured(false);
-                            setSecondWeightValue('');
-                            if (transactionType === 'purchase') {
-                              setExistingTareWeight(null);
-                            } else {
-                              setExistingGrossWeight(null);
+                          onClick={async () => {
+                            try {
+                              // Delete the old weighbridge entry first
+                              const weightType = transactionType === 'purchase' ? 'tare' : 'gross';
+                              await axios.delete(`${API}/weighbridge-entry/${slipId}/${weightType}`);
+                              
+                              // Reset second weight capture to allow re-weighing
+                              setSecondWeightCaptured(false);
+                              setSecondWeightValue('');
+                              if (transactionType === 'purchase') {
+                                setExistingTareWeight(null);
+                              } else {
+                                setExistingGrossWeight(null);
+                              }
+                              toast.success('Previous weight cleared. Ready to recapture weight.');
+                            } catch (error) {
+                              console.error('Error deleting weight entry:', error);
+                              toast.error('Failed to reset weight. Please try again.');
                             }
-                            toast.info('Ready to recapture weight. Enter weight and take photo.');
                           }}
                         >
                           🔄 Re-weigh {transactionType === 'purchase' ? 'TARE' : 'GROSS'}
