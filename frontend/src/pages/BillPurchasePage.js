@@ -120,6 +120,63 @@ function BillPurchasePage({ user, onLogout }) {
     }
   };
 
+  const fetchDraftBills = async () => {
+    try {
+      const response = await axios.get(`${API}/bill-purchase/drafts`);
+      setDraftBills(response.data);
+    } catch (error) {
+      console.error('Error fetching draft bills:', error);
+    }
+  };
+
+  const handleEditBill = async (billId) => {
+    try {
+      // Fetch full bill details
+      const response = await axios.get(`${API}/bill-purchase/${billId}`);
+      const bill = response.data;
+      
+      // Set editing mode
+      setEditingBillId(billId);
+      
+      // Fetch pre-entry data
+      const preEntryResponse = await axios.get(`${API}/bill-purchase/pre-entry/by-number/${bill.pre_entry_number}`);
+      setSelectedPreEntry(preEntryResponse.data.pre_entry);
+      setWeighbridgeData(preEntryResponse.data.combined_data);
+      
+      // Populate form with bill data
+      setBillData({
+        bill_date: bill.bill_date,
+        bill_type: bill.bill_type,
+        has_broker: !!bill.broker_name,
+        broker_name: bill.broker_name || '',
+        brokerage_rate: bill.brokerage_rate || '',
+        line_items: bill.line_items,
+        batav_percentage: bill.batav_percentage || '',
+        claim_rate: bill.claim_rate || '',
+        remarks: bill.remarks || ''
+      });
+      
+      // Open bill modal
+      setShowBillModal(true);
+      toast.info('Editing draft bill. Make changes and save.');
+    } catch (error) {
+      console.error('Error loading bill for editing:', error);
+      toast.error('Failed to load bill for editing');
+    }
+  };
+
+  const handlePostBill = async (billId) => {
+    try {
+      await axios.post(`${API}/bill-purchase/${billId}/post`);
+      toast.success('Bill posted successfully!');
+      fetchQueue();
+      fetchDraftBills();
+    } catch (error) {
+      console.error('Error posting bill:', error);
+      toast.error(error.response?.data?.detail || 'Failed to post bill');
+    }
+  };
+
   const handleSearch = () => {
     fetchQueue();
   };
