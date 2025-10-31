@@ -55,7 +55,9 @@ function BillPurchasePage({ user, onLogout }) {
   
   // Bill form modal state
   const [showBillModal, setShowBillModal] = useState(false);
+  const [editingBillId, setEditingBillId] = useState(null); // Track if editing existing bill
   const [customPackSizes, setCustomPackSizes] = useState({}); // Track custom pack sizes per line item
+  const [draftBills, setDraftBills] = useState([]); // Store draft bills
   const [billData, setBillData] = useState({
     // Section 1: Bill Details
     bill_date: new Date().toISOString().split('T')[0],
