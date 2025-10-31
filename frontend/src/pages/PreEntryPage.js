@@ -160,13 +160,7 @@ function PreEntryPage({ user, onLogout }) {
   }, [transactionType]);
 
   useEffect(() => {
-    // Auto-fill rate when item is selected
-    if (itemId && (transactionType === 'farmer_purchase' || transactionType === 'bill_purchase')) {
-      const item = items.find(i => i.id === itemId);
-      if (item && item.current_price) {
-        setRatePerQtl(item.current_price.toString());
-      }
-    }
+  // No longer auto-filling rate - will be entered during bill creation
   }, [itemId, items, transactionType]);
 
   const fetchItems = async () => {
