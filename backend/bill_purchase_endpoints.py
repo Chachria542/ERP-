@@ -275,7 +275,8 @@ async def create_bill_purchase_pre_entry(pre_entry_data: BillPurchasePreEntryCre
         
         # Get item details if item_id provided
         item_name = None
-        item_rate = pre_entry_data.item_rate  # Use provided rate or fetch from item
+        # Sync rate_per_qtl and item_rate (they're the same for bill purchase)
+        item_rate = pre_entry_data.rate_per_qtl or pre_entry_data.item_rate
         
         if pre_entry_data.item_id:
             item = await db.items.find_one({"id": pre_entry_data.item_id})
