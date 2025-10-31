@@ -573,7 +573,6 @@ function PreEntryPage({ user, onLogout }) {
           item_id: itemId,
           quality: quality || null,
           expected_bags: expectedBags ? parseInt(expectedBags) : null,
-          rate_per_qtl: ratePerQtl ? parseFloat(ratePerQtl) : null,
           po_number: poNumber || null,
           order_number: orderNumber || null,
           challan_number: challanNumber || null,
