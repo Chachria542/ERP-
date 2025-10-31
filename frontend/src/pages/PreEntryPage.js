@@ -545,7 +545,6 @@ function PreEntryPage({ user, onLogout }) {
             customer_gstin: customerGstin || null,
             place_of_supply: placeOfSupply,
             item_id: itemId || null,
-            item_rate: ratePerQtl ? parseFloat(ratePerQtl) : null,
             marka: marka || null,
             bharti: bharti,
             expected_weight: expectedWeight ? parseFloat(expectedWeight) : null,
