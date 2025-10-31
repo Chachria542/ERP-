@@ -948,26 +948,8 @@ function PreEntryPage({ user, onLogout }) {
                 </div>
 
  
-                {/* Rate per Quintal */}
+                {/* Transporter (Optional) */}
                 <div className="border rounded-lg p-4">
-                  <Label className="text-sm font-semibold">Rate per Quintal (₹) *</Label>
-                  <Input
-                    type="number"
-                    className="no-spinner mt-2"
-                    value={ratePerQtl}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                        setRatePerQtl(value);
-                      }
-                    }}
-                    placeholder="0.00"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Auto-filled from item master, editable
-                  </p>
-                </div>
               </div>
             ) : transactionType === 'sale' ? (
               // Sale specific fields - WITH MIXED LOAD SUPPORT
