@@ -141,6 +141,9 @@ class SalesPreEntryCreate(BaseModel):
     customer_gstin: Optional[str] = None
     place_of_supply: Optional[str] = None
     item_id: Optional[str] = None
+    quality: Optional[str] = None
+    expected_bags: Optional[int] = None
+    rate_per_qtl: Optional[float] = None
     item_rate: Optional[float] = None
     marka: Optional[str] = None
     bharti: int = 50
