@@ -758,7 +758,9 @@ function BillPurchasePage({ user, onLogout }) {
         <Dialog open={showBillModal} onOpenChange={setShowBillModal}>
           <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">Create Bill - {selectedPreEntry?.pre_entry_number}</DialogTitle>
+              <DialogTitle className="text-2xl">
+                {editingBillId ? '✏️ Edit Draft Bill' : 'Create Bill'} - {selectedPreEntry?.pre_entry_number}
+              </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-8">
