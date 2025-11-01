@@ -111,6 +111,10 @@ class SalesPreEntry(BaseModel):
     net_weight: Optional[float] = None
     vehicle_number: Optional[str] = None  # Vehicle number from weighbridge
     
+    # Invoice tracking (for mixed loads - stores multiple invoice numbers)
+    invoice_numbers: Optional[List[str]] = None  # Array of invoice numbers for mixed loads
+    total_invoices: Optional[int] = None  # Count of invoices created
+    
     # Metadata
     created_by: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
