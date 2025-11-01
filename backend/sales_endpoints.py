@@ -350,8 +350,8 @@ async def get_sales_queue(
         "weighbridge_completed": True
     }
     
-    # Status filter
-    if status:
+    # Status filter (skip if "all")
+    if status and status != "all":
         query["status"] = status
     
     # Search filter
