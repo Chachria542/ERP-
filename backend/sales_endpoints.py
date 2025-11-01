@@ -1129,11 +1129,14 @@ async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, 
             
             print(f"[BACKEND] Created invoice {invoice_number} for customer {pre_line['customer_name']}")
         
-        # 9. Update pre-entry status to invoice_generated
+        # 9. Update pre-entry status to invoice_generated and store invoice numbers
+        invoice_numbers = [inv['invoice_number'] for inv in created_invoices]
         await db.sales_pre_entries.update_one(
             {"id": invoice_data.pre_entry_id},
             {"$set": {
                 "status": "invoice_generated",
+                "invoice_numbers": invoice_numbers,  # Store array of all invoice numbers
+                "total_invoices": len(created_invoices),
                 "updated_at": datetime.now(timezone.utc).isoformat()
             }}
         )
