@@ -167,7 +167,7 @@ function BillPurchasePage({ user, onLogout }) {
 
   const handlePostBill = async (billId) => {
     try {
-      await axios.post(`${API}/bill-purchase/${billId}/post`);
+      await axios.post(`${API}/bill-purchase/${billId}/post?user_id=${user.username}`);
       toast.success('Bill posted successfully!');
       fetchQueue();
       fetchDraftBills();
