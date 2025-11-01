@@ -880,31 +880,55 @@ function SalesInvoicePage({ user, onLogout }) {
                             {item.is_mixed_load ? 'Split' : 'Process'}
                           </Button>
                         )}
-                        {item.status === 'invoice_generated' && item.invoice_number && (
+                        {item.status === 'invoice_generated' && (
                           <div className="flex gap-1 justify-center flex-wrap">
-                            {isAdmin && (
-                              <Button
-                                size="sm"
-                                onClick={() => handleEditInvoice(item.invoice_number)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2"
-                              >
-                                Edit
-                              </Button>
+                            {/* Single Load - shows invoice_number */}
+                            {item.invoice_number && (
+                              <>
+                                {isAdmin && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleEditInvoice(item.invoice_number)}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2"
+                                  >
+                                    Edit
+                                  </Button>
+                                )}
+                                <Button
+                                  size="sm"
+                                  onClick={() => handlePrintInvoice(item.invoice_number)}
+                                  className="btn-secondary text-xs py-1 px-2"
+                                >
+                                  Invoice
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handlePrintFreightSlip(item.invoice_number)}
+                                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs py-1 px-2"
+                                >
+                                  Freight
+                                </Button>
+                              </>
                             )}
-                            <Button
-                              size="sm"
-                              onClick={() => handlePrintInvoice(item.invoice_number)}
-                              className="btn-secondary text-xs py-1 px-2"
-                            >
-                              Invoice
-                            </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => handlePrintFreightSlip(item.invoice_number)}
-                              className="bg-purple-600 hover:bg-purple-700 text-white text-xs py-1 px-2"
-                            >
-                              Freight
-                            </Button>
+                            {/* Mixed Load - shows invoice_numbers array */}
+                            {item.invoice_numbers && item.invoice_numbers.length > 0 && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handlePrintAllInvoices(item.invoice_numbers)}
+                                  className="btn-secondary text-xs py-1 px-2"
+                                >
+                                  All Invoices ({item.total_invoices})
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handlePrintAllFreightSlips(item.invoice_numbers)}
+                                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs py-1 px-2"
+                                >
+                                  All Freight ({item.total_invoices})
+                                </Button>
+                              </>
+                            )}
                           </div>
                         )}
                       </td>
