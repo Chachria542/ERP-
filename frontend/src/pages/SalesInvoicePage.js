@@ -209,6 +209,62 @@ function SalesInvoicePage({ user, onLogout }) {
     }
   };
 
+  // Print all invoices for mixed load (stacked with page breaks)
+  const handlePrintAllInvoices = async (invoiceNumbers) => {
+    try {
+      setLoading(true);
+      // Fetch all invoices
+      const invoicePromises = invoiceNumbers.map(invNum => 
+        axios.get(`${API}/sales/invoice/by-number/${invNum}`)
+      );
+      const responses = await Promise.all(invoicePromises);
+      const allInvoices = responses.map(res => res.data);
+      
+      // Set state for printing multiple invoices
+      setMultipleInvoices(allInvoices);
+      setSavedInvoice(null);
+      setFreightSlipData(null);
+      
+      // Trigger print after a short delay
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+      toast.error('Failed to load invoices for printing');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Print all freight slips for mixed load (stacked with page breaks)
+  const handlePrintAllFreightSlips = async (invoiceNumbers) => {
+    try {
+      setLoading(true);
+      // Fetch all freight slips
+      const freightPromises = invoiceNumbers.map(invNum => 
+        axios.get(`${API}/sales/freight-slip/${invNum}`)
+      );
+      const responses = await Promise.all(freightPromises);
+      const allFreightSlips = responses.map(res => res.data);
+      
+      // Set state for printing multiple freight slips
+      setMultipleFreightSlips(allFreightSlips);
+      setSavedInvoice(null);
+      setFreightSlipData(null);
+      
+      // Trigger print after a short delay
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    } catch (error) {
+      console.error('Error fetching freight slips:', error);
+      toast.error('Failed to load freight slips for printing');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEditInvoice = async (invoiceNumber) => {
     try {
       // Fetch full invoice details by invoice number
