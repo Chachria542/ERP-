@@ -238,7 +238,7 @@ function BillPurchasePage({ user, onLogout }) {
     const initialLineItem = {
       item_id: selectedPreEntry?.item_id || '',
       item_name: selectedPreEntry?.item_name || '',
-      quality: '',
+      quality: selectedPreEntry?.quality || '',
       pack_size: packSize,
       bags: bags,
       remaining_kg: remainingKg,
