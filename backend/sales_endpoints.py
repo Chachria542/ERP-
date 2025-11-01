@@ -399,7 +399,9 @@ async def get_sales_queue(
             brokerage_rate=entry.get('brokerage_rate'),  # For broker details
             status=entry['status'],
             weighbridge_completed=entry['weighbridge_completed'],
-            invoice_number=entry.get('invoice_number'),  # For print button (when status = invoice_generated)
+            invoice_number=entry.get('invoice_number'),  # For print button (single load)
+            invoice_numbers=entry.get('invoice_numbers'),  # For mixed loads - array of invoice numbers
+            total_invoices=entry.get('total_invoices'),  # Count of invoices for mixed loads
             created_at=datetime.fromisoformat(entry['created_at']) if isinstance(entry['created_at'], str) else entry['created_at'],
             weighed_at=None  # TODO: Get from weighbridge entries
         )
