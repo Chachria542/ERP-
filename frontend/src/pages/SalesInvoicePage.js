@@ -2370,6 +2370,247 @@ function SalesInvoicePage({ user, onLogout }) {
         </div>
       )}
 
+      {/* Print Template for Multiple Invoices (Mixed Load) */}
+      {multipleInvoices && multipleInvoices.length > 0 && (
+        <div className="print-only-multiple-invoices">
+          <style>{`
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-only-multiple-invoices,
+              .print-only-multiple-invoices * {
+                visibility: visible;
+              }
+              .print-only-multiple-invoices {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+              }
+              .print-hide-invoice-modal,
+              .print-hide-freight-modal {
+                display: none !important;
+              }
+              .invoice-page-break {
+                page-break-after: always;
+              }
+            }
+          `}</style>
+          {multipleInvoices.map((invoice, index) => (
+            <div 
+              key={invoice.invoice_number} 
+              className={index < multipleInvoices.length - 1 ? 'invoice-page-break' : ''}
+            >
+              {/* Reuse the existing invoice print template structure */}
+              <div style={{padding: '15px', fontFamily: 'Arial, sans-serif', fontSize: '11px', maxWidth: '210mm', margin: '0 auto'}}>
+                {/* Header */}
+                <div style={{textAlign: 'center', borderBottom: '2px solid #000', paddingBottom: '8px', marginBottom: '10px'}}>
+                  <h1 style={{margin: '0 0 3px 0', fontSize: '20px', fontWeight: 'bold'}}>{companySettings?.company_name || 'COMPANY NAME'}</h1>
+                  <p style={{margin: '2px 0', fontSize: '10px'}}>{companySettings?.address || 'Company Address'}</p>
+                  <p style={{margin: '2px 0', fontSize: '10px'}}>GSTIN: {companySettings?.gstin || 'N/A'} | Mobile: {companySettings?.mobile || 'N/A'}</p>
+                </div>
+
+                {/* Invoice Title */}
+                <div style={{textAlign: 'center', margin: '8px 0'}}>
+                  <h2 style={{margin: 0, fontSize: '14px', fontWeight: 'bold'}}>
+                    {invoice.is_return ? 'SALES RETURN' : 'TAX INVOICE'}
+                  </h2>
+                </div>
+
+                {/* Invoice Details Grid */}
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', fontSize: '10px'}}>
+                  <div>
+                    <div style={{marginBottom: '3px'}}><strong>Invoice No:</strong> {invoice.invoice_number}</div>
+                    <div style={{marginBottom: '3px'}}><strong>Date:</strong> {new Date(invoice.date).toLocaleDateString('en-GB')}</div>
+                    <div style={{marginBottom: '3px'}}><strong>Pre-Entry:</strong> {invoice.pre_entry_number}</div>
+                  </div>
+                  <div>
+                    <div style={{marginBottom: '3px'}}><strong>Vehicle No:</strong> {invoice.vehicle_number || 'N/A'}</div>
+                    <div style={{marginBottom: '3px'}}><strong>Place of Supply:</strong> {invoice.place_of_supply}</div>
+                  </div>
+                </div>
+
+                {/* Customer Details */}
+                <div style={{border: '1px solid #000', padding: '6px', marginBottom: '10px', fontSize: '10px'}}>
+                  <div style={{fontWeight: 'bold', marginBottom: '3px'}}>Bill To:</div>
+                  <div>{invoice.customer_name}</div>
+                  {invoice.customer_gstin && <div>GSTIN: {invoice.customer_gstin}</div>}
+                </div>
+
+                {/* Line Items Table */}
+                <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '10px', fontSize: '9px'}}>
+                  <thead>
+                    <tr style={{backgroundColor: '#f0f0f0', borderTop: '1px solid #000', borderBottom: '1px solid #000'}}>
+                      <th style={{padding: '4px', textAlign: 'left', border: '1px solid #000'}}>Item</th>
+                      <th style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>Bags</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>Qtl</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>Rate/Qtl</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>Amount</th>
+                      <th style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>CGST%</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>CGST</th>
+                      <th style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>SGST%</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>SGST</th>
+                      <th style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.line_items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td style={{padding: '4px', border: '1px solid #000'}}>{item.item_name}</td>
+                        <td style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>{item.bags || 0}</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>{(item.agreed_weight || 0).toFixed(2)}</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>₹{(item.rate_per_qtl || 0).toFixed(2)}</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>₹{(item.amount || 0).toFixed(2)}</td>
+                        <td style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>{item.cgst_rate || 0}%</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>₹{(item.cgst_amount || 0).toFixed(2)}</td>
+                        <td style={{padding: '4px', textAlign: 'center', border: '1px solid #000'}}>{item.sgst_rate || 0}%</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>₹{(item.sgst_amount || 0).toFixed(2)}</td>
+                        <td style={{padding: '4px', textAlign: 'right', border: '1px solid #000'}}>₹{(item.line_total || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Totals Section */}
+                <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '10px'}}>
+                  <div style={{flex: 1}}></div>
+                  <div style={{width: '250px', border: '1px solid #000', padding: '6px'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '3px'}}>
+                      <span>Subtotal:</span>
+                      <span>₹{(invoice.subtotal || 0).toFixed(2)}</span>
+                    </div>
+                    {invoice.brokerage_amount > 0 && (
+                      <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '3px'}}>
+                        <span>Brokerage:</span>
+                        <span>₹{(invoice.brokerage_amount || 0).toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '3px', paddingTop: '3px', borderTop: '1px solid #ccc'}}>
+                      <span><strong>Grand Total:</strong></span>
+                      <span><strong>₹{(invoice.grand_total || 0).toFixed(2)}</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{marginTop: '30px', display: 'flex', justifyContent: 'space-between', fontSize: '9px'}}>
+                  <div>
+                    <p style={{margin: '0 0 3px 0'}}>Receiver's Signature</p>
+                  </div>
+                  <div style={{textAlign: 'right'}}>
+                    <p style={{margin: '0 0 3px 0'}}>For {companySettings?.company_name || 'COMPANY NAME'}</p>
+                    <p style={{margin: '30px 0 0 0'}}>Authorized Signatory</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Print Template for Multiple Freight Slips (Mixed Load) */}
+      {multipleFreightSlips && multipleFreightSlips.length > 0 && (
+        <div className="print-only-multiple-freight">
+          <style>{`
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .print-only-multiple-freight,
+              .print-only-multiple-freight * {
+                visibility: visible;
+              }
+              .print-only-multiple-freight {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+              }
+              .print-hide-invoice-modal,
+              .print-hide-freight-modal {
+                display: none !important;
+              }
+              .freight-page-break {
+                page-break-after: always;
+              }
+            }
+          `}</style>
+          {multipleFreightSlips.map((freight, index) => (
+            <div 
+              key={freight.freight_slip_number} 
+              className={index < multipleFreightSlips.length - 1 ? 'freight-page-break' : ''}
+            >
+              {/* Reuse freight slip structure */}
+              <div style={{padding: '15px', fontFamily: 'Arial, sans-serif', fontSize: '12px', maxWidth: '210mm', margin: '0 auto', border: '2px solid #000'}}>
+                <div style={{textAlign: 'center', borderBottom: '2px solid #000', paddingBottom: '10px', marginBottom: '12px'}}>
+                  <h1 style={{margin: '0 0 5px 0', fontSize: '22px', fontWeight: 'bold'}}>{companySettings?.company_name || 'COMPANY NAME'}</h1>
+                  <p style={{margin: '3px 0', fontSize: '11px'}}>{companySettings?.address || 'Company Address'}</p>
+                  <p style={{margin: '3px 0', fontSize: '11px'}}>Mobile: {companySettings?.mobile || 'N/A'}</p>
+                </div>
+
+                <div style={{textAlign: 'center', margin: '10px 0'}}>
+                  <h2 style={{margin: 0, fontSize: '16px', fontWeight: 'bold', textDecoration: 'underline'}}>FREIGHT SLIP</h2>
+                </div>
+
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px', fontSize: '11px'}}>
+                  <div>
+                    <div style={{marginBottom: '5px', display: 'flex'}}>
+                      <strong style={{width: '120px'}}>Freight Slip No:</strong>
+                      <span>{freight.freight_slip_number}</span>
+                    </div>
+                    <div style={{marginBottom: '5px', display: 'flex'}}>
+                      <strong style={{width: '120px'}}>Date:</strong>
+                      <span>{new Date(freight.date).toLocaleDateString('en-GB')}</span>
+                    </div>
+                    <div style={{marginBottom: '5px', display: 'flex'}}>
+                      <strong style={{width: '120px'}}>Invoice No:</strong>
+                      <span>{freight.invoice_number}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{marginBottom: '5px', display: 'flex'}}>
+                      <strong style={{width: '120px'}}>Vehicle No:</strong>
+                      <span>{freight.vehicle_number || 'N/A'}</span>
+                    </div>
+                    <div style={{marginBottom: '5px', display: 'flex'}}>
+                      <strong style={{width: '120px'}}>Pre-Entry No:</strong>
+                      <span>{freight.pre_entry_number || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{border: '1px solid #000', padding: '8px', marginBottom: '12px', fontSize: '11px'}}>
+                  <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '12px'}}>Consignee Details:</div>
+                  <div style={{marginBottom: '3px'}}><strong>Name:</strong> {freight.customer_name}</div>
+                  <div style={{marginBottom: '3px'}}><strong>Place:</strong> {freight.place_of_supply}</div>
+                  {freight.customer_gstin && <div><strong>GSTIN:</strong> {freight.customer_gstin}</div>}
+                </div>
+
+                <div style={{border: '1px solid #000', padding: '8px', marginBottom: '12px', fontSize: '11px'}}>
+                  <div style={{fontWeight: 'bold', marginBottom: '5px', fontSize: '12px'}}>Material Details:</div>
+                  <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
+                    <div><strong>Item:</strong> {freight.item_name}</div>
+                    <div><strong>Quantity:</strong> {freight.total_bags} Bags ({freight.total_qtl.toFixed(2)} Qtls)</div>
+                  </div>
+                </div>
+
+                <div style={{marginTop: '50px', display: 'flex', justifyContent: 'space-between', fontSize: '10px'}}>
+                  <div>
+                    <p style={{margin: '0 0 5px 0'}}>Driver's Signature</p>
+                    <p style={{margin: '3px 0 0 0', fontSize: '9px'}}>_________________</p>
+                  </div>
+                  <div style={{textAlign: 'right'}}>
+                    <p style={{margin: '0 0 5px 0'}}>For {companySettings?.company_name || 'COMPANY NAME'}</p>
+                    <p style={{margin: '3px 0 0 0', fontSize: '9px'}}>Authorized Signatory</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
     </Layout>
   );
 }
