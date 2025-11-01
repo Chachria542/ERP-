@@ -58,6 +58,8 @@ function SalesInvoicePage({ user, onLogout }) {
   const [savedInvoice, setSavedInvoice] = useState(null); // Store saved invoice with bill no
   const [companySettings, setCompanySettings] = useState(null); // For print template
   const [freightSlipData, setFreightSlipData] = useState(null); // For freight slip print
+  const [multipleInvoices, setMultipleInvoices] = useState(null); // For printing multiple invoices (mixed load)
+  const [multipleFreightSlips, setMultipleFreightSlips] = useState(null); // For printing multiple freight slips (mixed load)
   const [invoiceData, setInvoiceData] = useState({
     invoice_date: new Date().toISOString().split('T')[0],
     weighbridge_slip_no: '',
