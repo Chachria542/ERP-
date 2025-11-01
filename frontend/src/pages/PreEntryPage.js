@@ -933,10 +933,6 @@ function PreEntryPage({ user, onLogout }) {
                     </div>
                   )}
                 </div>
-
-                {/* Transporter (Optional) */}
-                <div className="border rounded-lg p-4">
-                </div>
               </div>
             ) : transactionType === 'sale' ? (
               // Sale specific fields - WITH MIXED LOAD SUPPORT
