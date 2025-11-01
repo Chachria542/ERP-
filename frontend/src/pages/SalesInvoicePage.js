@@ -820,18 +820,18 @@ function SalesInvoicePage({ user, onLogout }) {
           ) : queue.length === 0 ? (
             <div className="text-center py-8 text-gray-500">No sales pre-entries found</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full table-fixed">
+            <div>
+              <table className="w-full table-fixed text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-3 w-[13%]">Pre-Entry No.</th>
-                    <th className="text-left p-3 w-[10%]">Date</th>
-                    <th className="text-left p-3 w-[17%]">Customer</th>
-                    <th className="text-left p-3 w-[13%]">Item</th>
-                    <th className="text-left p-3 w-[12%]">Marka</th>
-                    <th className="text-center p-3 w-[10%]">Net Wt (Qtls)</th>
-                    <th className="text-left p-3 w-[14%]">Broker</th>
-                    <th className="text-center p-3 w-[11%]">Actions</th>
+                    <th className="text-left p-2 w-[11%]">Pre-Entry No.</th>
+                    <th className="text-left p-2 w-[8%]">Date</th>
+                    <th className="text-left p-2 w-[15%]">Customer</th>
+                    <th className="text-left p-2 w-[11%]">Item</th>
+                    <th className="text-left p-2 w-[9%]">Marka</th>
+                    <th className="text-center p-2 w-[9%]">Net Wt (Qtls)</th>
+                    <th className="text-left p-2 w-[12%]">Broker</th>
+                    <th className="text-center p-2 w-[25%]">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -844,66 +844,66 @@ function SalesInvoicePage({ user, onLogout }) {
                         'bg-white'
                       }`}
                     >
-                      <td className="p-3 font-medium">
+                      <td className="p-2 font-medium text-xs">
                         {item.pre_entry_number}
                         {item.is_mixed_load && (
-                          <Badge variant="outline" className="ml-2 bg-purple-50 text-purple-700 border-purple-300">
-                            📦 Mixed Load
+                          <Badge variant="outline" className="ml-1 text-xs bg-purple-50 text-purple-700 border-purple-300">
+                            Mixed
                           </Badge>
                         )}
                       </td>
-                      <td className="p-3">{new Date(item.date).toLocaleDateString()}</td>
-                      <td className="p-3">
+                      <td className="p-2 text-xs">{new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' })}</td>
+                      <td className="p-2 text-xs truncate">
                         {item.is_mixed_load ? (
-                          <span className="text-purple-700 font-semibold">Multiple Customers</span>
+                          <span className="text-purple-700 font-semibold">Multiple</span>
                         ) : (
                           item.customer_name
                         )}
                       </td>
-                      <td className="p-3">
+                      <td className="p-2 text-xs truncate">
                         {item.is_mixed_load ? (
-                          <span className="text-purple-700 font-semibold">Multiple Items</span>
+                          <span className="text-purple-700 font-semibold">Multiple</span>
                         ) : (
                           item.item_name
                         )}
                       </td>
-                      <td className="p-3">{item.marka || '-'}</td>
-                      <td className="p-3 text-center">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
-                      <td className="p-3">{item.broker_name || '-'}</td>
-                      <td className="p-3 text-center">
+                      <td className="p-2 text-xs truncate">{item.marka || '-'}</td>
+                      <td className="p-2 text-center text-xs">{item.net_weight ? (item.net_weight / 100).toFixed(2) : '-'}</td>
+                      <td className="p-2 text-xs truncate">{item.broker_name || '-'}</td>
+                      <td className="p-2 text-center">
                         {item.status === 'pending' && (
                           <Button
                             size="sm"
                             onClick={() => handleViewPhotos(item)}
-                            className={item.is_mixed_load ? "bg-purple-600 hover:bg-purple-700" : "btn-primary"}
+                            className={`text-xs py-1 px-2 ${item.is_mixed_load ? "bg-purple-600 hover:bg-purple-700" : "btn-primary"}`}
                           >
-                            {item.is_mixed_load ? '📦 Split Load' : '⚙️ Process'}
+                            {item.is_mixed_load ? 'Split' : 'Process'}
                           </Button>
                         )}
                         {item.status === 'invoice_generated' && item.invoice_number && (
-                          <div className="flex gap-2 justify-center">
+                          <div className="flex gap-1 justify-center flex-wrap">
                             {isAdmin && (
                               <Button
                                 size="sm"
                                 onClick={() => handleEditInvoice(item.invoice_number)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2"
                               >
-                                ✏️ Edit
+                                Edit
                               </Button>
                             )}
                             <Button
                               size="sm"
                               onClick={() => handlePrintInvoice(item.invoice_number)}
-                              className="btn-secondary"
+                              className="btn-secondary text-xs py-1 px-2"
                             >
-                              🖨️ Invoice
+                              Invoice
                             </Button>
                             <Button
                               size="sm"
                               onClick={() => handlePrintFreightSlip(item.invoice_number)}
-                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                              className="bg-purple-600 hover:bg-purple-700 text-white text-xs py-1 px-2"
                             >
-                              🚚 Freight
+                              Freight
                             </Button>
                           </div>
                         )}
