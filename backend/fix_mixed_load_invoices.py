@@ -21,6 +21,17 @@ async def fix_mixed_load_invoices():
     print(f"✅ Connected to MongoDB version {server_info.get('version')}")
     
     # Find all mixed load pre-entries with invoice_generated status but no invoice_numbers
+    print("Searching for mixed loads...")
+    # First, let's see all pre-entries with invoice_generated status
+    all_invoice_generated = await db.sales_pre_entries.find({
+        "status": "invoice_generated"
+    }).to_list(None)
+    print(f"Total pre-entries with invoice_generated status: {len(all_invoice_generated)}")
+    
+    # Check which ones are mixed
+    for entry in all_invoice_generated[:5]:
+        print(f"  - {entry.get('pre_entry_number')}: is_mixed_load={entry.get('is_mixed_load')}, customer_name={entry.get('customer_name')}")
+    
     mixed_loads = await db.sales_pre_entries.find({
         "is_mixed_load": True,
         "status": "invoice_generated"
