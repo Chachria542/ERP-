@@ -1730,17 +1730,498 @@ function SalesInvoicePage({ user, onLogout }) {
           </DialogContent>
         </Dialog>
         
-        {/* Mixed Load Split Modal */}
-        <Dialog open={showMixedLoadModal} onOpenChange={setShowMixedLoadModal}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        {/* Mixed Load Invoice Processing Form - New Structure */}
+        <Dialog open={showMixedLoadModal} onOpenChange={setShowMixedLoadModal} className="max-w-7xl">
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">
-                📦 Mixed Load Invoice Split - {mixedLoadPreEntry?.pre_entry_number}
+              <DialogTitle className="text-2xl font-bold">
+                📦 Mixed Load Invoice Processing - {mixedLoadPreEntry?.pre_entry_number}
               </DialogTitle>
               <DialogDescription>
-                Allocate weights to each customer-item combination and create separate invoices
+                Create multiple invoices for this mixed load shipment
               </DialogDescription>
             </DialogHeader>
+
+            <div className="space-y-6">
+              
+              {/* 1. Common Invoice Details Section */}
+              <Card className="p-4 bg-blue-50">
+                <h3 className="text-lg font-semibold mb-4">Common Invoice Details</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Invoice Date *</Label>
+                    <Input
+                      type="date"
+                      value={mixedInvoiceDate}
+                      onChange={(e) => setMixedInvoiceDate(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Weighbridge No.</Label>
+                    <Input
+                      value={mixedLoadPreEntry?.pre_entry_number || ''}
+                      disabled
+                      className="mt-1 bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <Label>Location Type *</Label>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          checked={!mixedIsEntry}
+                          onChange={() => setMixedIsEntry(false)}
+                        />
+                        <span>Invoice</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          checked={mixedIsEntry}
+                          onChange={() => setMixedIsEntry(true)}
+                        />
+                        <span>Entry</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 2. Weight Summary */}
+              <Card className="p-4 bg-gray-50">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-600">Total Net Weight</label>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {mixedLoadPreEntry?.net_weight?.toFixed(2) || 0} kg
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {mixedLoadPreEntry?.net_weight ? (mixedLoadPreEntry.net_weight / 100).toFixed(2) : 0} qtl
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-600">Total Allocated</label>
+                    <div className="text-2xl font-bold text-green-600">
+                      {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0).toFixed(2)} kg
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {(mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0) / 100).toFixed(2)} qtl
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm text-gray-600">Weight Variance</label>
+                    <div className={`text-2xl font-bold ${calculateWeightVariance() <= 100 ? 'text-green-600' : 'text-red-600'}`}>
+                      {calculateWeightVariance().toFixed(2)} kg
+                    </div>
+                    <div className={`text-sm ${calculateWeightVariance() <= 100 ? 'text-green-600' : 'text-red-600'}`}>
+                      {calculateWeightVariance() <= 100 ? '✓ Within ±100 kg limit' : '✗ Exceeds ±100 kg limit'}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 3. Order Details - Customer-wise Breakdown */}
+              <Card className="p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">Order Details (Customer-wise)</h3>
+                  <Button
+                    onClick={handleAutoAllocate}
+                    variant="outline"
+                    className="btn-secondary"
+                    disabled={autoAllocating}
+                    size="sm"
+                  >
+                    🔄 Auto-Allocate
+                  </Button>
+                </div>
+                
+                <div className="space-y-4">
+                  {mixedLoadAllocations.map((item, index) => (
+                    <Card key={item.line_id} className="p-4 bg-gray-50">
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Customer & Item Info */}
+                        <div className="col-span-2">
+                          <div className="font-semibold text-blue-700">
+                            Customer: {item.customer_name}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Item: {item.item_name} | Marka: {item.marka || '-'} | Bharti: {item.bharti || 50} kg
+                          </div>
+                        </div>
+                        
+                        {/* Weight Input */}
+                        <div>
+                          <Label className="text-sm">Actual Weight (kg) *</Label>
+                          <Input
+                            type="number"
+                            value={item.actual_weight || ''}
+                            onChange={(e) => handleAllocationChange(index, 'actual_weight', parseFloat(e.target.value) || 0)}
+                            className="mt-1"
+                            step="0.01"
+                            min="0"
+                          />
+                          <div className="text-xs text-gray-500 mt-1">
+                            = {item.actual_qtl?.toFixed(2) || 0} Qtls
+                          </div>
+                        </div>
+                        
+                        {/* Bags Input */}
+                        <div>
+                          <Label className="text-sm">Bags *</Label>
+                          <Input
+                            type="number"
+                            value={item.actual_bags || ''}
+                            onChange={(e) => handleAllocationChange(index, 'actual_bags', parseInt(e.target.value) || 0)}
+                            className="mt-1"
+                            min="0"
+                          />
+                          <div className="text-xs text-gray-500 mt-1">
+                            Remaining: {item.actual_kgs?.toFixed(2) || 0} kg
+                          </div>
+                        </div>
+                        
+                        {/* Rate Display */}
+                        <div>
+                          <Label className="text-sm">Rate per Qtl</Label>
+                          <div className="text-lg font-bold text-green-700 mt-1">
+                            ₹{item.item_rate?.toFixed(2) || 0}
+                          </div>
+                        </div>
+                        
+                        {/* Amount Display */}
+                        <div>
+                          <Label className="text-sm">Amount</Label>
+                          <div className="text-lg font-bold text-blue-700 mt-1">
+                            ₹{item.amount?.toFixed(2) || 0}
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                  
+                  {/* Total Row */}
+                  <div className="border-t-2 pt-4">
+                    <div className="grid grid-cols-4 gap-4 font-bold">
+                      <div>
+                        <div className="text-sm text-gray-600">Total Weight</div>
+                        <div className="text-lg">
+                          {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_weight || 0), 0).toFixed(2)} kg
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-600">Total Bags</div>
+                        <div className="text-lg">
+                          {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_bags || 0), 0)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-600">Total Qtls</div>
+                        <div className="text-lg">
+                          {mixedLoadAllocations.reduce((sum, item) => sum + (item.actual_qtl || 0), 0).toFixed(2)}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-600">Total Amount</div>
+                        <div className="text-lg text-green-600">
+                          ₹{mixedLoadAllocations.reduce((sum, item) => sum + (item.amount || 0), 0).toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 4. Tax Details */}
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Tax Details</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>CGST Rate (%)</Label>
+                    <Select value={mixedCgstRate} onValueChange={setMixedCgstRate}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select rate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0%</SelectItem>
+                        <SelectItem value="2.5">2.5%</SelectItem>
+                        <SelectItem value="6">6%</SelectItem>
+                        <SelectItem value="9">9%</SelectItem>
+                        <SelectItem value="14">14%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>SGST Rate (%)</Label>
+                    <Select value={mixedSgstRate} onValueChange={setMixedSgstRate}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select rate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0%</SelectItem>
+                        <SelectItem value="2.5">2.5%</SelectItem>
+                        <SelectItem value="6">6%</SelectItem>
+                        <SelectItem value="9">9%</SelectItem>
+                        <SelectItem value="14">14%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>IGST Rate (%)</Label>
+                    <Select value={mixedIgstRate} onValueChange={setMixedIgstRate}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select rate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0%</SelectItem>
+                        <SelectItem value="5">5%</SelectItem>
+                        <SelectItem value="12">12%</SelectItem>
+                        <SelectItem value="18">18%</SelectItem>
+                        <SelectItem value="28">28%</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 5. TCS Section */}
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">TCS Details</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="tcs-applicable"
+                      checked={mixedTcsApplicable}
+                      onChange={(e) => setMixedTcsApplicable(e.target.checked)}
+                      className="h-4 w-4"
+                    />
+                    <Label htmlFor="tcs-applicable">TCS Applicable</Label>
+                  </div>
+                  {mixedTcsApplicable && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>TCS Rate (%)</Label>
+                        <Input
+                          type="number"
+                          value={mixedTcsRate}
+                          onChange={(e) => setMixedTcsRate(e.target.value)}
+                          className="mt-1"
+                          step="0.01"
+                          min="0"
+                          placeholder="e.g., 0.1"
+                        />
+                      </div>
+                      <div>
+                        <Label>TCS Amount (Auto-calculated)</Label>
+                        <div className="text-lg font-bold text-blue-600 mt-2">
+                          ₹{mixedTcsRate && mixedLoadAllocations.length > 0 
+                            ? ((mixedLoadAllocations.reduce((sum, item) => sum + (item.amount || 0), 0) * parseFloat(mixedTcsRate)) / 100).toFixed(2)
+                            : '0.00'
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* 6. Broker Details */}
+              {mixedLoadPreEntry?.broker_name && (
+                <Card className="p-4 bg-blue-50">
+                  <h3 className="text-lg font-semibold mb-4">Broker Details (from Pre-Entry)</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Broker Name</Label>
+                      <div className="mt-1 font-semibold">{mixedLoadPreEntry.broker_name}</div>
+                    </div>
+                    <div>
+                      <Label>Brokerage Type</Label>
+                      <div className="mt-1 font-semibold capitalize">
+                        {mixedLoadPreEntry.brokerage_type?.replace('_', ' ') || '-'}
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Brokerage Rate</Label>
+                      <div className="mt-1 font-semibold">
+                        {mixedLoadPreEntry.brokerage_type === 'percentage' 
+                          ? `${mixedLoadPreEntry.brokerage_rate}%`
+                          : `₹${mixedLoadPreEntry.brokerage_rate}`
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* 7. Transportation Details */}
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Transportation Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Vehicle Number</Label>
+                    <Input
+                      value={mixedLoadPreEntry?.vehicle_number || 'N/A'}
+                      disabled
+                      className="mt-1 bg-gray-100"
+                    />
+                  </div>
+                  <div>
+                    <Label>Driver Name</Label>
+                    <Input
+                      value={mixedDriverName}
+                      onChange={(e) => setMixedDriverName(e.target.value)}
+                      className="mt-1"
+                      placeholder="Driver name"
+                    />
+                  </div>
+                  <div>
+                    <Label>From City</Label>
+                    <Input
+                      value={mixedCityFrom}
+                      onChange={(e) => setMixedCityFrom(e.target.value)}
+                      className="mt-1"
+                      placeholder="Origin city"
+                    />
+                  </div>
+                  <div>
+                    <Label>To City</Label>
+                    <Input
+                      value={mixedCityTo}
+                      onChange={(e) => setMixedCityTo(e.target.value)}
+                      className="mt-1"
+                      placeholder="Destination city"
+                    />
+                  </div>
+                  <div>
+                    <Label>Driver Contact</Label>
+                    <Input
+                      value={mixedDriverContact}
+                      onChange={(e) => setMixedDriverContact(e.target.value)}
+                      className="mt-1"
+                      placeholder="10-digit mobile"
+                      maxLength={10}
+                    />
+                  </div>
+                </div>
+              </Card>
+
+              {/* 8. Remarks */}
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Remarks (Optional)</h3>
+                <Textarea
+                  value={mixedRemarks}
+                  onChange={(e) => setMixedRemarks(e.target.value)}
+                  placeholder="Additional notes or instructions..."
+                  rows={3}
+                />
+              </Card>
+
+              {/* 9. Summary Section */}
+              <Card className="p-4 bg-green-50 border-green-300">
+                <h3 className="text-lg font-semibold mb-4">
+                  Summary: {mixedLoadAllocations.length} Invoice(s) Will Be Created
+                </h3>
+                <div className="space-y-4">
+                  {mixedLoadAllocations.map((item, index) => {
+                    const subtotal = item.amount || 0;
+                    const cgstAmount = mixedCgstRate ? (subtotal * parseFloat(mixedCgstRate)) / 100 : 0;
+                    const sgstAmount = mixedSgstRate ? (subtotal * parseFloat(mixedSgstRate)) / 100 : 0;
+                    const igstAmount = mixedIgstRate ? (subtotal * parseFloat(mixedIgstRate)) / 100 : 0;
+                    const tcsAmount = mixedTcsApplicable && mixedTcsRate ? (subtotal * parseFloat(mixedTcsRate)) / 100 : 0;
+                    const grandTotal = subtotal + cgstAmount + sgstAmount + igstAmount + tcsAmount;
+                    
+                    return (
+                      <Card key={item.line_id} className="p-3 bg-white">
+                        <div className="font-semibold text-blue-700 mb-2">
+                          Invoice {index + 1} - {item.customer_name}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>Subtotal:</div>
+                          <div className="text-right font-semibold">₹{subtotal.toFixed(2)}</div>
+                          
+                          {cgstAmount > 0 && (
+                            <>
+                              <div>CGST ({mixedCgstRate}%):</div>
+                              <div className="text-right">₹{cgstAmount.toFixed(2)}</div>
+                            </>
+                          )}
+                          
+                          {sgstAmount > 0 && (
+                            <>
+                              <div>SGST ({mixedSgstRate}%):</div>
+                              <div className="text-right">₹{sgstAmount.toFixed(2)}</div>
+                            </>
+                          )}
+                          
+                          {igstAmount > 0 && (
+                            <>
+                              <div>IGST ({mixedIgstRate}%):</div>
+                              <div className="text-right">₹{igstAmount.toFixed(2)}</div>
+                            </>
+                          )}
+                          
+                          {tcsAmount > 0 && (
+                            <>
+                              <div>TCS ({mixedTcsRate}%):</div>
+                              <div className="text-right">₹{tcsAmount.toFixed(2)}</div>
+                            </>
+                          )}
+                          
+                          <div className="font-bold text-green-700 border-t pt-1">Grand Total:</div>
+                          <div className="text-right font-bold text-green-700 border-t pt-1">₹{grandTotal.toFixed(2)}</div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                  
+                  {/* Overall Total */}
+                  <div className="border-t-2 pt-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-bold">Overall Total:</span>
+                      <span className="text-2xl font-bold text-green-700">
+                        ₹{mixedLoadAllocations.reduce((sum, item, index) => {
+                          const subtotal = item.amount || 0;
+                          const cgstAmount = mixedCgstRate ? (subtotal * parseFloat(mixedCgstRate)) / 100 : 0;
+                          const sgstAmount = mixedSgstRate ? (subtotal * parseFloat(mixedSgstRate)) / 100 : 0;
+                          const igstAmount = mixedIgstRate ? (subtotal * parseFloat(mixedIgstRate)) / 100 : 0;
+                          const tcsAmount = mixedTcsApplicable && mixedTcsRate ? (subtotal * parseFloat(mixedTcsRate)) / 100 : 0;
+                          return sum + subtotal + cgstAmount + sgstAmount + igstAmount + tcsAmount;
+                        }, 0).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button 
+                onClick={() => setShowMixedLoadModal(false)} 
+                variant="outline"
+                disabled={creatingInvoices}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateAllInvoices}
+                className="btn-primary bg-green-600 hover:bg-green-700"
+                disabled={creatingInvoices || calculateWeightVariance() > 100}
+              >
+                {creatingInvoices ? (
+                  <>⏳ Creating {mixedLoadAllocations.length} Invoices...</>
+                ) : (
+                  <>✅ Create All Invoices ({mixedLoadAllocations.length})</>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
             
             {/* Summary Section */}
             <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
