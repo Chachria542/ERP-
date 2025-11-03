@@ -57,7 +57,7 @@ async def fix_mixed_load_invoices():
         else:
             print(f"⚠️  {pre_entry_number}: No invoices found (might need manual check)")
     
-    print(f"\n✅ Migration complete! Fixed {len(mixed_loads)} mixed load pre-entries")
+    print(f"\n✅ Migration complete! Fixed {len(entries_to_fix)} mixed load pre-entries")
     client.close()
 
 if __name__ == "__main__":
