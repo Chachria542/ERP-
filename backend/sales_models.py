@@ -430,6 +430,16 @@ class MixedLoadInvoiceCreate(BaseModel):
     brokerage_type: Optional[str] = "per_quintal"
     brokerage_rate: Optional[float] = None
     
+    # TCS Details
+    tcs_applicable: bool = False
+    tcs_rate: Optional[float] = None
+    
+    # Transportation Details
+    city_from: Optional[str] = None
+    city_to: Optional[str] = None
+    driver_name: Optional[str] = None
+    driver_contact: Optional[str] = None
+    
     # Freight
     freight: float = 0
     
