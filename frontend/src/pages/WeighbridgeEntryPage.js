@@ -497,9 +497,14 @@ function WeighbridgeEntryPage({ user, onLogout }) {
             <Card className="p-4 mb-6" style={{backgroundColor: '#F5F5F5'}}>
               <div className="flex items-center justify-center gap-8">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-1">Expected Bags</p>
+                  <p className="text-sm text-gray-600 mb-1">
+                    {preEntry.is_mixed_load ? 'Expected Weight (Qtls)' : 'Expected Bags'}
+                  </p>
                   <p className="text-3xl font-bold" style={{color: '#1976D2'}}>
-                    {preEntry.expected_bags || 'N/A'}
+                    {preEntry.is_mixed_load 
+                      ? (preEntry.line_items?.reduce((sum, item) => sum + (item.expected_weight || 0), 0) / 100).toFixed(2)
+                      : (preEntry.expected_bags || 'N/A')
+                    }
                   </p>
                   <p className="text-xs text-gray-500 mt-1">From Pre-Entry</p>
                 </div>
