@@ -528,21 +528,30 @@ function SalesInvoicePage({ user, onLogout }) {
     try {
       const payload = {
         pre_entry_id: mixedLoadPreEntry.pre_entry_id,
-        invoice_date: new Date().toISOString().split('T')[0],
+        invoice_date: mixedInvoiceDate,
         weighbridge_slip_no: mixedLoadPreEntry.pre_entry_number,
-        is_entry: mixedLoadPreEntry.is_entry || false,
+        is_entry: mixedIsEntry,
         line_items: mixedLoadAllocations.map(item => ({
           line_id: item.line_id,
           actual_weight: item.actual_weight,
           actual_bags: item.actual_bags,
           actual_kgs: item.actual_kgs,
-          actual_qtl: item.actual_qtl
+          actual_qtl: item.actual_qtl,
+          cgst_rate: parseFloat(mixedCgstRate) || 0,
+          sgst_rate: parseFloat(mixedSgstRate) || 0,
+          igst_rate: parseFloat(mixedIgstRate) || 0
         })),
         broker_name: mixedLoadPreEntry.broker_name,
         brokerage_type: mixedLoadPreEntry.brokerage_type || 'per_quintal',
         brokerage_rate: mixedLoadPreEntry.brokerage_rate || 0,
+        tcs_applicable: mixedTcsApplicable,
+        tcs_rate: mixedTcsApplicable ? parseFloat(mixedTcsRate) || 0 : 0,
+        city_from: mixedCityFrom || '',
+        city_to: mixedCityTo || '',
+        driver_name: mixedDriverName || '',
+        driver_contact: mixedDriverContact || '',
         freight: 0,
-        remarks: ''
+        remarks: mixedRemarks || ''
       };
       
       const response = await axios.post(`${API}/sales/mixed-load-invoice/bulk?created_by=${user?.username || 'admin'}`, payload);
