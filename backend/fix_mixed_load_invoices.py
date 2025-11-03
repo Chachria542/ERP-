@@ -12,8 +12,13 @@ load_dotenv()
 async def fix_mixed_load_invoices():
     # Connect to MongoDB
     mongo_url = os.environ.get('MONGO_URL')
+    print(f"Connecting to MongoDB...")
     client = AsyncIOMotorClient(mongo_url)
     db = client['grain_trading']
+    
+    # Test connection
+    server_info = await client.server_info()
+    print(f"✅ Connected to MongoDB version {server_info.get('version')}")
     
     # Find all mixed load pre-entries with invoice_generated status but no invoice_numbers
     mixed_loads = await db.sales_pre_entries.find({
