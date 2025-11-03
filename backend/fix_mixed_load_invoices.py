@@ -12,9 +12,10 @@ load_dotenv()
 async def fix_mixed_load_invoices():
     # Connect to MongoDB
     mongo_url = os.environ.get('MONGO_URL')
-    print(f"Connecting to MongoDB...")
+    db_name = os.environ.get('DB_NAME', 'grain_trading')
+    print(f"Connecting to MongoDB database: {db_name}")
     client = AsyncIOMotorClient(mongo_url)
-    db = client['grain_trading']
+    db = client[db_name]
     
     # Test connection
     server_info = await client.server_info()
