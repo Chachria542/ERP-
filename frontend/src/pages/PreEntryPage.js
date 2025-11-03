@@ -792,6 +792,8 @@ function PreEntryPage({ user, onLogout }) {
             <div>
               <Label className="text-sm font-semibold">From Location *</Label>
               <Input
+                id="fromLocation"
+                name="fromLocation"
                 value={fromLocation}
                 onChange={(e) => setFromLocation(e.target.value)}
                 placeholder="Warehouse/Mandi name"
