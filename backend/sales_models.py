@@ -413,6 +413,9 @@ class MixedLoadInvoiceLineItem(BaseModel):
     actual_bags: int
     actual_kgs: float  # Remainder kg
     actual_qtl: float
+    cgst_rate: Optional[float] = 0
+    sgst_rate: Optional[float] = 0
+    igst_rate: Optional[float] = 0
 
 class MixedLoadInvoiceCreate(BaseModel):
     """Request model for creating all invoices from mixed load at once"""
