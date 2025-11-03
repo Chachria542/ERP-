@@ -31,7 +31,7 @@ async def fix_mixed_load_invoices():
     
     print(f"Need to fix {len(entries_to_fix)} entries that don't have invoice_numbers")
     
-    for pre_entry in mixed_loads:
+    for pre_entry in entries_to_fix:
         pre_entry_id = pre_entry['id']
         pre_entry_number = pre_entry['pre_entry_number']
         
