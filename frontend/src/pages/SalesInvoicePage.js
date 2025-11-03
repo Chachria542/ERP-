@@ -52,6 +52,20 @@ function SalesInvoicePage({ user, onLogout }) {
   const [autoAllocating, setAutoAllocating] = useState(false);
   const [creatingInvoices, setCreatingInvoices] = useState(false);
   
+  // Mixed Load Form Fields (New Structure)
+  const [mixedInvoiceDate, setMixedInvoiceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [mixedIsEntry, setMixedIsEntry] = useState(false);
+  const [mixedCgstRate, setMixedCgstRate] = useState('');
+  const [mixedSgstRate, setMixedSgstRate] = useState('');
+  const [mixedIgstRate, setMixedIgstRate] = useState('');
+  const [mixedTcsApplicable, setMixedTcsApplicable] = useState(false);
+  const [mixedTcsRate, setMixedTcsRate] = useState('');
+  const [mixedCityFrom, setMixedCityFrom] = useState('');
+  const [mixedCityTo, setMixedCityTo] = useState('');
+  const [mixedDriverName, setMixedDriverName] = useState('');
+  const [mixedDriverContact, setMixedDriverContact] = useState('');
+  const [mixedRemarks, setMixedRemarks] = useState('');
+  
   // Invoice form modal state
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [isReturn, setIsReturn] = useState(false);
