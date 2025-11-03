@@ -18,14 +18,18 @@ async def fix_mixed_load_invoices():
     # Find all mixed load pre-entries with invoice_generated status but no invoice_numbers
     mixed_loads = await db.sales_pre_entries.find({
         "is_mixed_load": True,
-        "status": "invoice_generated",
-        "$or": [
-            {"invoice_numbers": None},
-            {"invoice_numbers": {"$exists": False}}
-        ]
+        "status": "invoice_generated"
     }).to_list(None)
     
-    print(f"Found {len(mixed_loads)} mixed load pre-entries to fix")
+    print(f"Found {len(mixed_loads)} mixed load pre-entries with invoice_generated status")
+    
+    # Filter those without invoice_numbers
+    entries_to_fix = []
+    for entry in mixed_loads:
+        if not entry.get('invoice_numbers'):
+            entries_to_fix.append(entry)
+    
+    print(f"Need to fix {len(entries_to_fix)} entries that don't have invoice_numbers")
     
     for pre_entry in mixed_loads:
         pre_entry_id = pre_entry['id']
