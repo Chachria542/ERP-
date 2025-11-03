@@ -433,9 +433,18 @@ function PreEntryPage({ user, onLogout }) {
       }
     } else if (transactionType === 'sale') {
       // Sale validation
-      if (!customerId || !placeOfSupply) {
-        toast.error('Customer and Place of Supply are required');
-        return;
+      if (!isMixedLoad) {
+        // Single load validation
+        if (!customerId || !placeOfSupply) {
+          toast.error('Customer and Place of Supply are required');
+          return;
+        }
+      } else {
+        // Mixed load validation
+        if (mixedLoadCustomers.length === 0) {
+          toast.error('Please add at least one customer');
+          return;
+        }
       }
     } else {
       // Farmer purchase validation
