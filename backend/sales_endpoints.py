@@ -1001,14 +1001,14 @@ async def create_mixed_load_invoices_bulk(invoice_data: MixedLoadInvoiceCreate, 
                 elif brokerage_type == "percentage":
                     proportional_commission = (subtotal * invoice_data.brokerage_rate) / 100
             
-            # GST calculation (assuming 5% CGST + 5% SGST = 10% total GST)
-            cgst_rate = 2.5  # 2.5% CGST
-            sgst_rate = 2.5  # 2.5% SGST
-            cgst_amount = (subtotal * cgst_rate) / 100
-            sgst_amount = (subtotal * sgst_rate) / 100
+            # GST calculation from invoice line item
+            cgst_amount = (subtotal * (invoice_line.cgst_rate or 0)) / 100
+            sgst_amount = (subtotal * (invoice_line.sgst_rate or 0)) / 100
+            igst_amount = (subtotal * (invoice_line.igst_rate or 0)) / 100
+            tcs_amount = (subtotal * (invoice_data.tcs_rate or 0)) / 100 if invoice_data.tcs_applicable else 0
             
             # Calculate grand total
-            grand_total = subtotal + cgst_amount + sgst_amount
+            grand_total = subtotal + cgst_amount + sgst_amount + igst_amount + tcs_amount
             
             # Round off to nearest rupee
             rounded_total = round(grand_total)
