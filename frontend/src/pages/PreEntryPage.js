@@ -805,6 +805,8 @@ function PreEntryPage({ user, onLogout }) {
               <div>
                 <Label className="text-sm font-semibold">To Location *</Label>
                 <Input
+                  id="toLocation"
+                  name="toLocation"
                   value={toLocation}
                   onChange={(e) => setToLocation(e.target.value)}
                   placeholder="Destination warehouse"
