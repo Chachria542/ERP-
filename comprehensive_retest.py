@@ -6,7 +6,7 @@ Tests all 5 phases as specified in the review request after backend bug fix
 import requests
 import json
 
-BASE_URL = "https://invoice-enhance.preview.emergentagent.com/api"
+BASE_URL = "https://mixed-load-invoice.preview.emergentagent.com/api"
 
 def test_phase1_invoice_fetch():
     """Phase 1 - Invoice Fetch (Already passed - re-verify)"""

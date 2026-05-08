@@ -9,7 +9,7 @@ import time
 import subprocess
 import re
 
-BASE_URL = "https://invoice-enhance.preview.emergentagent.com/api"
+BASE_URL = "https://mixed-load-invoice.preview.emergentagent.com/api"
 
 def get_otp_from_logs(mobile):
     """Extract OTP from backend logs for a specific mobile"""

@@ -365,8 +365,8 @@ yarn start
 ```
 
 ### Access:
-- Frontend: https://invoice-enhance.preview.emergentagent.com
-- Backend API: https://invoice-enhance.preview.emergentagent.com/api
+- Frontend: https://mixed-load-invoice.preview.emergentagent.com
+- Backend API: https://mixed-load-invoice.preview.emergentagent.com/api
 
 ## Testing Recommendations
 
